@@ -1,42 +1,59 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Search, Menu, X, ShoppingBag, Briefcase, Users } from "lucide-react";
+import { Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const navLinks = [
-    { label: "Produits", href: "#produits", icon: ShoppingBag },
-    { label: "Services", href: "#services", icon: Briefcase },
-    { label: "Freelance & Jobs", href: "#freelance", icon: Users },
+    { label: "Produits", href: "/marketplace", icon: ShoppingBag },
+    { label: "Services", href: "/services", icon: Briefcase },
+    { label: "Freelance & Jobs", href: "/freelance", icon: Users },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center">
               <span className="font-display font-bold text-xl text-primary-foreground">M</span>
             </div>
             <span className="font-display font-bold text-xl text-foreground hidden sm:block">
               MIYASHI
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <link.icon className="w-4 h-4" />
                 <span className="font-medium">{link.label}</span>
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -56,12 +73,45 @@ const Header = () => {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="default">
-              Se connecter
-            </Button>
-            <Button variant="hero" size="default">
-              S'inscrire
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10">
+                      <AvatarFallback>
+                        {user.email?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end">
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{user.email}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <User className="mr-2 h-4 w-4" />
+                    Mon Profil
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Se déconnecter
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="ghost" size="default" onClick={() => navigate("/auth")}>
+                  Se connecter
+                </Button>
+                <Button variant="hero" size="default" onClick={() => navigate("/auth")}>
+                  S'inscrire
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -93,23 +143,54 @@ const Header = () => {
         <div className="lg:hidden bg-card border-t border-border animate-fade-in">
           <div className="container py-4 space-y-2">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-foreground hover:bg-muted transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <link.icon className="w-5 h-5 text-primary" />
                 <span className="font-medium">{link.label}</span>
-              </a>
+              </Link>
             ))}
             <div className="pt-4 border-t border-border space-y-2">
-              <Button variant="outline" className="w-full">
-                Se connecter
-              </Button>
-              <Button variant="hero" className="w-full">
-                S'inscrire
-              </Button>
+              {user ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => { navigate("/profile"); setIsMenuOpen(false); }}
+                  >
+                    <User className="mr-2 h-4 w-4" />
+                    Mon Profil
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full"
+                    onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Se déconnecter
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}
+                  >
+                    Se connecter
+                  </Button>
+                  <Button 
+                    variant="hero" 
+                    className="w-full"
+                    onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}
+                  >
+                    S'inscrire
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
