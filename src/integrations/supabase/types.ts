@@ -181,6 +181,7 @@ export type Database = {
         Row: {
           category_id: string | null
           created_at: string
+          deleted_at: string | null
           description: string | null
           id: string
           images: string[] | null
@@ -195,6 +196,7 @@ export type Database = {
         Insert: {
           category_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
@@ -209,6 +211,7 @@ export type Database = {
         Update: {
           category_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
@@ -342,7 +345,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          is_verified: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_verified?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

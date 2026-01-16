@@ -11,6 +11,7 @@ import Marketplace from "./pages/Marketplace";
 import Services from "./pages/Services";
 import Freelance from "./pages/Freelance";
 import Profile from "./pages/Profile";
+import Create from "./pages/Create";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/freelance" element={<Freelance />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/create" element={<Create />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
