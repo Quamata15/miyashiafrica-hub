@@ -82,6 +82,30 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          participant_1: string
+          participant_2: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          participant_1: string
+          participant_2: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          participant_1?: string
+          participant_2?: string
+        }
+        Relationships: []
+      }
       freelance_profiles: {
         Row: {
           availability: string | null
@@ -173,6 +197,147 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          is_read: boolean | null
+          message: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          is_read?: boolean | null
+          message?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          actual_delivery: string | null
+          buyer_id: string
+          created_at: string
+          delivery_location: Json | null
+          delivery_status: string | null
+          estimated_delivery: string | null
+          id: string
+          notes: string | null
+          payment_status: string | null
+          product_id: string | null
+          quantity: number
+          seller_id: string
+          service_id: string | null
+          shipping_address: string | null
+          status: string
+          total_price: number
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_delivery?: string | null
+          buyer_id: string
+          created_at?: string
+          delivery_location?: Json | null
+          delivery_status?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          product_id?: string | null
+          quantity?: number
+          seller_id: string
+          service_id?: string | null
+          shipping_address?: string | null
+          status?: string
+          total_price: number
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_delivery?: string | null
+          buyer_id?: string
+          created_at?: string
+          delivery_location?: Json | null
+          delivery_status?: string | null
+          estimated_delivery?: string | null
+          id?: string
+          notes?: string | null
+          payment_status?: string | null
+          product_id?: string | null
+          quantity?: number
+          seller_id?: string
+          service_id?: string | null
+          shipping_address?: string | null
+          status?: string
+          total_price?: number
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]
@@ -271,6 +436,117 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          is_verified: boolean | null
+          order_id: string | null
+          product_id: string | null
+          rating: number
+          response: string | null
+          reviewed_user_id: string | null
+          reviewer_id: string
+          service_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          order_id?: string | null
+          product_id?: string | null
+          rating: number
+          response?: string | null
+          reviewed_user_id?: string | null
+          reviewer_id: string
+          service_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_verified?: boolean | null
+          order_id?: string | null
+          product_id?: string | null
+          rating?: number
+          response?: string | null
+          reviewed_user_id?: string | null
+          reviewer_id?: string
+          service_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          order_id: string
+          order_index: number
+          status: string | null
+          title: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          order_id: string
+          order_index?: number
+          status?: string | null
+          title: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          order_id?: string
+          order_index?: number
+          status?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_milestones_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
