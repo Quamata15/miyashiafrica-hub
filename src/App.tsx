@@ -14,6 +14,8 @@ import Profile from "./pages/Profile";
 import Create from "./pages/Create";
 import Dashboard from "./pages/Dashboard";
 import Messages from "./pages/Messages";
+import ProductDetail from "./pages/ProductDetail";
+import ServiceDetail from "./pages/ServiceDetail";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +30,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/service/:id" element={<ServiceDetail />} />
             <Route path="/freelance" element={<Freelance />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/create" element={<Create />} />
