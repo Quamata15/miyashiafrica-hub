@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Truck, 
@@ -11,8 +9,7 @@ import {
   MapPin, 
   Clock, 
   CheckCircle, 
-  AlertCircle,
-  ChevronRight 
+  AlertCircle
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -101,15 +98,8 @@ const DeliveryTracking = () => {
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Truck className="h-5 w-5" />
-          Suivi des livraisons
-        </CardTitle>
-        <CardDescription>Suivez vos commandes en temps réel</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="h-full">
+      <ScrollArea className="h-[350px]">
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Chargement...</div>
         ) : orders.length === 0 ? (
@@ -118,111 +108,85 @@ const DeliveryTracking = () => {
             <p>Aucune livraison en cours</p>
           </div>
         ) : (
-          <ScrollArea className="h-[400px]">
-            <div className="space-y-4">
-              {orders.map((order) => (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                    selectedOrder?.id === order.id 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                  onClick={() => setSelectedOrder(
-                    selectedOrder?.id === order.id ? null : order
-                  )}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      {getDeliveryStatusIcon(order.delivery_status || "pending")}
-                      <span className="font-medium">
-                        {order.product?.title || "Commande"}
-                      </span>
-                    </div>
-                    <Badge variant="outline">
-                      {getDeliveryStatusLabel(order.delivery_status || "pending")}
-                    </Badge>
+          <div className="space-y-3 p-4">
+            {orders.map((order) => (
+              <motion.div
+                key={order.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                  selectedOrder?.id === order.id 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+                onClick={() => setSelectedOrder(
+                  selectedOrder?.id === order.id ? null : order
+                )}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {getDeliveryStatusIcon(order.delivery_status || "pending")}
+                    <span className="font-medium text-sm">
+                      {order.product?.title || "Commande"}
+                    </span>
                   </div>
+                  <Badge variant="outline" className="text-xs">
+                    {getDeliveryStatusLabel(order.delivery_status || "pending")}
+                  </Badge>
+                </div>
 
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>#{order.id.slice(0, 8)}</span>
-                    <span>{format(new Date(order.created_at), "dd MMM yyyy", { locale: fr })}</span>
-                  </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>#{order.id.slice(0, 8)}</span>
+                  <span>{format(new Date(order.created_at), "dd MMM", { locale: fr })}</span>
+                </div>
 
-                  {selectedOrder?.id === order.id && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      className="mt-4 pt-4 border-t"
-                    >
-                      {/* Progress Steps */}
-                      <div className="relative">
-                        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-muted" />
-                        {deliverySteps.map((step, index) => {
-                          const currentStep = getCurrentStep(order.delivery_status || "pending");
-                          const isCompleted = index <= currentStep;
-                          const isCurrent = index === currentStep;
+                {selectedOrder?.id === order.id && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mt-3 pt-3 border-t"
+                  >
+                    {/* Compact Progress Steps */}
+                    <div className="flex items-center gap-1 mb-3">
+                      {deliverySteps.map((step, index) => {
+                        const currentStep = getCurrentStep(order.delivery_status || "pending");
+                        const isCompleted = index <= currentStep;
 
-                          return (
-                            <div key={step.key} className="relative flex items-center gap-4 pb-4">
-                              <div className={`z-10 w-8 h-8 rounded-full flex items-center justify-center ${
-                                isCompleted 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-muted text-muted-foreground'
-                              } ${isCurrent ? 'ring-4 ring-primary/20' : ''}`}>
-                                {isCompleted ? (
-                                  <CheckCircle className="h-4 w-4" />
-                                ) : (
-                                  <span className="text-xs">{index + 1}</span>
-                                )}
-                              </div>
-                              <div>
-                                <p className={`font-medium ${isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                  {step.label}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Delivery Info */}
-                      {order.shipping_address && (
-                        <div className="mt-4 p-3 bg-muted rounded-lg">
-                          <div className="flex items-center gap-2 text-sm">
-                            <MapPin className="h-4 w-4" />
-                            <span>{order.shipping_address}</span>
+                        return (
+                          <div key={step.key} className="flex items-center flex-1">
+                            <div className={`w-3 h-3 rounded-full ${
+                              isCompleted ? 'bg-primary' : 'bg-muted'
+                            }`} />
+                            {index < deliverySteps.length - 1 && (
+                              <div className={`flex-1 h-0.5 ${
+                                index < currentStep ? 'bg-primary' : 'bg-muted'
+                              }`} />
+                            )}
                           </div>
-                        </div>
-                      )}
+                        );
+                      })}
+                    </div>
 
-                      {order.tracking_number && (
-                        <div className="mt-2 text-sm">
-                          <span className="text-muted-foreground">N° de suivi: </span>
-                          <span className="font-mono">{order.tracking_number}</span>
-                        </div>
-                      )}
+                    {order.shipping_address && (
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        <span className="truncate">{order.shipping_address}</span>
+                      </div>
+                    )}
 
-                      {order.estimated_delivery && (
-                        <div className="mt-2 text-sm text-muted-foreground">
-                          Livraison estimée: {format(new Date(order.estimated_delivery), "dd MMMM yyyy", { locale: fr })}
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-
-                  <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform mt-2 ${
-                    selectedOrder?.id === order.id ? 'rotate-90' : ''
-                  }`} />
-                </motion.div>
-              ))}
-            </div>
-          </ScrollArea>
+                    {order.estimated_delivery && (
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        Livraison: {format(new Date(order.estimated_delivery), "dd MMM", { locale: fr })}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </ScrollArea>
+    </div>
   );
 };
 

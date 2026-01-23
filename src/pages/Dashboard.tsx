@@ -14,7 +14,6 @@ import {
   ShoppingCart, 
   TrendingUp, 
   DollarSign, 
-  Users, 
   Star,
   Clock,
   CheckCircle,
@@ -22,7 +21,8 @@ import {
   BarChart3,
   Briefcase,
   MessageSquare,
-  Bell
+  Bell,
+  MapPin
 } from "lucide-react";
 import OrdersTable from "@/components/dashboard/OrdersTable";
 import SalesChart from "@/components/dashboard/SalesChart";
@@ -31,6 +31,7 @@ import ServicesList from "@/components/dashboard/ServicesList";
 import DeliveryTracking from "@/components/dashboard/DeliveryTracking";
 import ServiceMilestones from "@/components/dashboard/ServiceMilestones";
 import NotificationsList from "@/components/dashboard/NotificationsList";
+import DeliveryMap from "@/components/map/DeliveryMap";
 
 interface DashboardStats {
   totalProducts: number;
@@ -131,61 +132,69 @@ const Dashboard = () => {
     );
   }
 
-  const statCards = [
+const statCards = [
     { 
       title: "Produits", 
       value: stats.totalProducts, 
       icon: Package, 
-      color: "bg-blue-500",
+      color: "bg-primary/20",
+      iconColor: "text-primary",
       description: "Produits actifs"
     },
     { 
       title: "Services", 
       value: stats.totalServices, 
       icon: Briefcase, 
-      color: "bg-purple-500",
+      color: "bg-secondary/20",
+      iconColor: "text-secondary",
       description: "Services actifs"
     },
     { 
       title: "Commandes", 
       value: stats.totalOrders, 
       icon: ShoppingCart, 
-      color: "bg-green-500",
+      color: "bg-accent/20",
+      iconColor: "text-accent",
       description: "Total commandes"
     },
     { 
       title: "Revenus", 
       value: `${stats.totalRevenue.toLocaleString()} FCFA`, 
       icon: DollarSign, 
-      color: "bg-yellow-500",
+      color: "bg-primary/20",
+      iconColor: "text-primary",
       description: "Revenus totaux"
     },
     { 
       title: "En attente", 
       value: stats.pendingOrders, 
       icon: Clock, 
-      color: "bg-orange-500",
+      color: "bg-secondary/20",
+      iconColor: "text-secondary",
       description: "Commandes en attente"
     },
     { 
       title: "Complétées", 
       value: stats.completedOrders, 
       icon: CheckCircle, 
-      color: "bg-teal-500",
+      color: "bg-accent/20",
+      iconColor: "text-accent",
       description: "Commandes terminées"
     },
     { 
       title: "Note moyenne", 
       value: stats.averageRating.toFixed(1), 
       icon: Star, 
-      color: "bg-amber-500",
+      color: "bg-primary/20",
+      iconColor: "text-primary",
       description: `${stats.totalReviews} avis`
     },
     { 
       title: "Croissance", 
       value: "+12%", 
       icon: TrendingUp, 
-      color: "bg-emerald-500",
+      color: "bg-accent/20",
+      iconColor: "text-accent",
       description: "Ce mois-ci"
     },
   ];
@@ -314,8 +323,32 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="delivery">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <DeliveryTracking />
+              <div className="space-y-6">
+                {/* GPS Map Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <DeliveryMap 
+                    orderId="demo-order"
+                    origin={{ lat: 6.1319, lng: 1.2228 }}
+                    destination={{ lat: 6.1725, lng: 1.2314 }}
+                    deliveryStatus="in_transit"
+                    estimatedTime="25 min"
+                    trackingNumber="MYS-2026-001"
+                  />
+                  <div className="space-y-6">
+                    <Card className="border-0 shadow-card">
+                      <CardHeader className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground rounded-t-lg">
+                        <div className="flex items-center gap-3">
+                          <MapPin className="w-5 h-5" />
+                          <CardTitle className="text-lg">Livraisons actives</CardTitle>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <DeliveryTracking />
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+                {/* Service Milestones */}
                 <ServiceMilestones />
               </div>
             </TabsContent>

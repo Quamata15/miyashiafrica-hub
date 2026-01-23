@@ -104,9 +104,9 @@ const DeliveryMap = ({
   const getStatusColor = () => {
     switch (deliveryStatus) {
       case "pending":
-        return "bg-yellow-500";
+        return "bg-secondary";
       case "preparing":
-        return "bg-blue-500";
+        return "bg-primary";
       case "in_transit":
         return "bg-primary";
       case "delivered":
