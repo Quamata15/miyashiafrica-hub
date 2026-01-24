@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut, 
-  MessageSquare, LayoutDashboard, Bell, ChevronDown, Home
+  MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -140,6 +141,29 @@ const Header = () => {
           <div className="hidden md:flex items-center gap-2">
             {user ? (
               <>
+                {/* Favorites */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-xl"
+                  onClick={() => navigate("/favorites")}
+                >
+                  <Heart className="w-5 h-5" />
+                </Button>
+
+                {/* Cart */}
+                <CartDrawer />
+
+                {/* Alerts */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-xl"
+                  onClick={() => navigate("/alerts")}
+                >
+                  <BellRing className="w-5 h-5" />
+                </Button>
+
                 {/* Notifications */}
                 <Button
                   variant="ghost"
