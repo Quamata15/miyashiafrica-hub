@@ -20,6 +20,8 @@ import ProductDetail from "./pages/ProductDetail";
 import ServiceDetail from "./pages/ServiceDetail";
 import Favorites from "./pages/Favorites";
 import SearchAlerts from "./pages/SearchAlerts";
+import DriverRegistration from "./pages/DriverRegistration";
+import DriverDashboard from "./pages/DriverDashboard";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +48,8 @@ const App = () => (
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/alerts" element={<SearchAlerts />} />
+                <Route path="/driver-registration" element={<DriverRegistration />} />
+                <Route path="/driver-dashboard" element={<DriverDashboard />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

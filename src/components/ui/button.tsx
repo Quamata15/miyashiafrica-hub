@@ -15,9 +15,9 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/90 hover:shadow-[0_4px_20px_-4px_hsl(var(--secondary)/0.4)] active:scale-[0.98]",
         ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-gradient-to-r from-[hsl(42_62%_58%)] to-[hsl(14_56%_50%)] text-[hsl(25_30%_12%)] shadow-[0_16px_48px_-12px_hsl(25_30%_12%/0.18)] hover:shadow-[0_8px_32px_-8px_hsl(25_30%_12%/0.12)] hover:scale-[1.02] active:scale-[0.98]",
-        accent: "bg-gradient-to-r from-[hsl(112_37%_25%)] to-[hsl(112_37%_35%)] text-[hsl(35_60%_98%)] shadow-[0_8px_32px_-8px_hsl(25_30%_12%/0.12)] hover:shadow-[0_16px_48px_-12px_hsl(25_30%_12%/0.18)] hover:scale-[1.02] active:scale-[0.98]",
-        glass: "bg-card/80 backdrop-blur-sm border border-border text-foreground hover:bg-card hover:shadow-[0_8px_32px_-8px_hsl(25_30%_12%/0.12)]",
+        hero: "bg-gradient-to-r from-primary to-secondary text-primary-foreground shadow-elevated hover:shadow-card hover:scale-[1.02] active:scale-[0.98]",
+        accent: "bg-gradient-to-r from-accent to-accent/80 text-accent-foreground shadow-card hover:shadow-elevated hover:scale-[1.02] active:scale-[0.98]",
+        glass: "bg-card/80 backdrop-blur-sm border border-border text-foreground hover:bg-card hover:shadow-card",
       },
       size: {
         default: "h-11 px-5 py-2",

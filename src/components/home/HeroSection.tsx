@@ -1,35 +1,22 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShoppingBag, Briefcase, Users, Sparkles } from "lucide-react";
+import { ArrowRight, ShoppingBag, Briefcase, Users, Sparkles, Truck, Wrench } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
     <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-warm" />
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-warm pattern-african" />
       <motion.div 
         className="absolute top-20 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
+        animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div 
         className="absolute bottom-0 left-0 w-80 h-80 bg-secondary/10 rounded-full blur-3xl"
-        animate={{ 
-          scale: [1, 1.3, 1],
-          opacity: [0.3, 0.4, 0.3],
-        }}
+        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.4, 0.3] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      />
-      <motion.div 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-3xl"
-        animate={{ 
-          rotate: [0, 360],
-        }}
-        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
       />
       
       <div className="container relative">
@@ -38,74 +25,73 @@ const HeroSection = () => {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent mb-6"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent/10 text-accent mb-6 border border-accent/20"
           >
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">La marketplace africaine de confiance</span>
+            <span className="text-sm font-semibold">Un marché de tous les jours • MIYASHI by ASHIZAN</span>
           </motion.div>
 
-          {/* Main Heading */}
+          {/* Heading */}
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6"
+            transition={{ delay: 0.1 }}
+            className="font-display text-4xl md:text-5xl lg:text-7xl font-extrabold text-foreground leading-tight mb-6"
           >
             Achetez, Vendez, <br className="hidden sm:block" />
-            <span className="text-gradient-hero">Travaillez</span> sans frontières
+            <span className="text-gradient-hero">Faites-vous livrer</span>
           </motion.h1>
 
           {/* Subtitle */}
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10"
+            transition={{ delay: 0.2 }}
+            className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed"
           >
-            MIYASHI connecte acheteurs, vendeurs, prestataires et freelances dans un écosystème sécurisé, pensé pour l'Afrique.
+            MIYASHI connecte acheteurs, vendeurs, prestataires de services et livreurs dans un écosystème sécurisé, pensé pour l'Afrique.
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ delay: 0.3 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
           >
             <Link to="/marketplace">
-              <Button variant="hero" size="xl">
+              <Button size="lg" className="bg-gradient-hero text-primary-foreground h-14 px-8 text-lg rounded-2xl shadow-elevated hover:shadow-soft transition-all">
                 Explorer le marché
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
-            <Link to="/create?type=product">
-              <Button variant="outline" size="xl">
-                Devenir vendeur
+            <Link to="/auth">
+              <Button variant="outline" size="lg" className="h-14 px-8 text-lg rounded-2xl">
+                Créer un compte
               </Button>
             </Link>
           </motion.div>
 
-          {/* Stats */}
+          {/* Quick Stats */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ delay: 0.4 }}
             className="grid grid-cols-3 gap-6 md:gap-12 max-w-2xl mx-auto"
           >
             {[
               { value: "10K+", label: "Vendeurs actifs" },
-              { value: "50K+", label: "Produits" },
-              { value: "5K+", label: "Freelances" },
-            ].map((stat, index) => (
+              { value: "50K+", label: "Produits & Services" },
+              { value: "2K+", label: "Livreurs" },
+            ].map((stat, i) => (
               <motion.div 
                 key={stat.label}
                 className="text-center"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
+                transition={{ delay: 0.5 + i * 0.1 }}
               >
-                <div className="font-display text-3xl md:text-4xl font-bold text-foreground mb-1">
+                <div className="font-display text-3xl md:text-4xl font-extrabold text-foreground mb-1">
                   {stat.value}
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
@@ -114,73 +100,63 @@ const HeroSection = () => {
           </motion.div>
         </div>
 
-        {/* Three Main Blocks */}
-        <div className="grid md:grid-cols-3 gap-6 mt-20">
+        {/* Feature Cards */}
+        <div className="grid md:grid-cols-4 gap-4 mt-20">
           {[
             {
               href: "/marketplace",
               icon: ShoppingBag,
-              iconColor: "text-primary",
-              bgColor: "bg-primary/10",
-              decorColor: "bg-primary/5",
-              title: "Acheter des produits",
-              description: "Des milliers de produits locaux livrés chez vous. Mode, électronique, alimentation et plus.",
-              linkText: "Explorer",
-              linkColor: "text-primary",
+              color: "text-primary",
+              bg: "bg-primary/10",
+              title: "Marketplace",
+              desc: "Produits locaux, mode, électronique, alimentation",
             },
             {
               href: "/services",
-              icon: Briefcase,
-              iconColor: "text-secondary",
-              bgColor: "bg-secondary/10",
-              decorColor: "bg-secondary/5",
-              title: "Trouver un service",
-              description: "Coiffure, plomberie, développement web... Trouvez le prestataire qu'il vous faut.",
-              linkText: "Découvrir",
-              linkColor: "text-secondary",
+              icon: Wrench,
+              color: "text-secondary",
+              bg: "bg-secondary/10",
+              title: "Services & Métiers",
+              desc: "Plombier, coiffeur, mécanicien, restaurant...",
             },
             {
               href: "/freelance",
               icon: Users,
-              iconColor: "text-accent",
-              bgColor: "bg-accent/10",
-              decorColor: "bg-accent/5",
-              title: "Travailler / Recruter",
-              description: "Freelances talentueux ou missions à distance. Trouvez votre prochaine opportunité.",
-              linkText: "Commencer",
-              linkColor: "text-accent",
+              color: "text-accent",
+              bg: "bg-accent/10",
+              title: "Freelance & Emploi",
+              desc: "Trouvez des talents ou des missions",
             },
-          ].map((card, index) => (
+            {
+              href: "/driver-registration",
+              icon: Truck,
+              color: "text-secondary",
+              bg: "bg-secondary/10",
+              title: "Livraison",
+              desc: "Devenez livreur et gagnez 550F/km",
+            },
+          ].map((card, i) => (
             <motion.div
               key={card.title}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 + index * 0.1 }}
+              transition={{ delay: 0.6 + i * 0.1 }}
             >
               <Link
                 to={card.href}
-                className="group relative bg-card rounded-2xl p-6 md:p-8 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 border border-border overflow-hidden block"
+                className="group relative bg-card rounded-2xl p-6 shadow-card hover:shadow-elevated transition-all duration-300 hover:-translate-y-2 border border-border block h-full"
               >
-                <div className={`absolute top-0 right-0 w-32 h-32 ${card.decorColor} rounded-full -translate-y-1/2 translate-x-1/2`} />
-                <div className="relative">
-                  <motion.div 
-                    className={`w-14 h-14 rounded-xl ${card.bgColor} flex items-center justify-center mb-5`}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <card.icon className={`w-7 h-7 ${card.iconColor}`} />
-                  </motion.div>
-                  <h3 className="font-display text-xl font-bold text-foreground mb-2">
-                    {card.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm mb-4">
-                    {card.description}
-                  </p>
-                  <span className={`inline-flex items-center gap-2 ${card.linkColor} font-semibold text-sm group-hover:gap-3 transition-all`}>
-                    {card.linkText}
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
+                <motion.div 
+                  className={`w-12 h-12 rounded-xl ${card.bg} flex items-center justify-center mb-4`}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  <card.icon className={`w-6 h-6 ${card.color}`} />
+                </motion.div>
+                <h3 className="font-display text-lg font-bold text-foreground mb-1">{card.title}</h3>
+                <p className="text-sm text-muted-foreground mb-3">{card.desc}</p>
+                <span className={`inline-flex items-center gap-1 ${card.color} font-semibold text-sm group-hover:gap-2 transition-all`}>
+                  Découvrir <ArrowRight className="w-4 h-4" />
+                </span>
               </Link>
             </motion.div>
           ))}

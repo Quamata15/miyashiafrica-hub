@@ -1,3 +1,5 @@
+import { useAuth } from "@/hooks/useAuth";
+import { Navigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
@@ -10,6 +12,13 @@ import CTASection from "@/components/home/CTASection";
 import TrustSection from "@/components/home/TrustSection";
 
 const Index = () => {
+  const { user, loading } = useAuth();
+
+  // Redirect logged-in users to dashboard
+  if (!loading && user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
