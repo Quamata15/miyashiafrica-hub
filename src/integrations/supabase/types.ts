@@ -106,6 +106,241 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_requests: {
+        Row: {
+          accepted_at: string | null
+          base_price: number
+          buyer_id: string
+          cancelled_at: string | null
+          commission: number
+          created_at: string
+          delivered_at: string | null
+          delivery_address: string | null
+          delivery_location: Json | null
+          distance_km: number
+          driver_id: string | null
+          id: string
+          night_surcharge: boolean | null
+          order_id: string
+          picked_up_at: string | null
+          pickup_address: string | null
+          pickup_location: Json | null
+          seller_id: string
+          status: string
+          surcharge_amount: number | null
+          total_delivery_price: number
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          base_price?: number
+          buyer_id: string
+          cancelled_at?: string | null
+          commission?: number
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_location?: Json | null
+          distance_km?: number
+          driver_id?: string | null
+          id?: string
+          night_surcharge?: boolean | null
+          order_id: string
+          picked_up_at?: string | null
+          pickup_address?: string | null
+          pickup_location?: Json | null
+          seller_id: string
+          status?: string
+          surcharge_amount?: number | null
+          total_delivery_price?: number
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          base_price?: number
+          buyer_id?: string
+          cancelled_at?: string | null
+          commission?: number
+          created_at?: string
+          delivered_at?: string | null
+          delivery_address?: string | null
+          delivery_location?: Json | null
+          distance_km?: number
+          driver_id?: string | null
+          id?: string
+          night_surcharge?: boolean | null
+          order_id?: string
+          picked_up_at?: string | null
+          pickup_address?: string | null
+          pickup_location?: Json | null
+          seller_id?: string
+          status?: string
+          surcharge_amount?: number | null
+          total_delivery_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_profiles: {
+        Row: {
+          average_rating: number | null
+          badge: string | null
+          commission_balance: number | null
+          created_at: string
+          id: string
+          is_available: boolean | null
+          license_number: string | null
+          loyalty_points: number | null
+          total_deliveries: number | null
+          updated_at: string
+          user_id: string
+          vehicle_type: string
+          zone: string
+        }
+        Insert: {
+          average_rating?: number | null
+          badge?: string | null
+          commission_balance?: number | null
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          license_number?: string | null
+          loyalty_points?: number | null
+          total_deliveries?: number | null
+          updated_at?: string
+          user_id: string
+          vehicle_type?: string
+          zone?: string
+        }
+        Update: {
+          average_rating?: number | null
+          badge?: string | null
+          commission_balance?: number | null
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          license_number?: string | null
+          loyalty_points?: number | null
+          total_deliveries?: number | null
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string
+          zone?: string
+        }
+        Relationships: []
+      }
+      driver_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          delivery_id: string
+          delivery_time: number
+          driver_id: string
+          id: string
+          overall_score: number | null
+          politeness: number
+          product_condition: number
+          rated_by: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          delivery_id: string
+          delivery_time: number
+          driver_id: string
+          id?: string
+          overall_score?: number | null
+          politeness: number
+          product_condition: number
+          rated_by: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          delivery_id?: string
+          delivery_time?: number
+          driver_id?: string
+          id?: string
+          overall_score?: number | null
+          politeness?: number
+          product_condition?: number
+          rated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_ratings_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escrow_transactions: {
+        Row: {
+          created_at: string
+          delivery_id: string | null
+          driver_amount: number | null
+          id: string
+          order_id: string | null
+          payer_id: string
+          platform_commission: number | null
+          released_at: string | null
+          seller_amount: number | null
+          status: string
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          delivery_id?: string | null
+          driver_amount?: number | null
+          id?: string
+          order_id?: string | null
+          payer_id: string
+          platform_commission?: number | null
+          released_at?: string | null
+          seller_amount?: number | null
+          status?: string
+          total_amount: number
+        }
+        Update: {
+          created_at?: string
+          delivery_id?: string | null
+          driver_amount?: number | null
+          id?: string
+          order_id?: string | null
+          payer_id?: string
+          platform_commission?: number | null
+          released_at?: string | null
+          seller_amount?: number | null
+          status?: string
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_transactions_delivery_id_fkey"
+            columns: ["delivery_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escrow_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       freelance_profiles: {
         Row: {
           availability: string | null
@@ -601,6 +836,36 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          annual_price: number
+          created_at: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          tier: string
+        }
+        Insert: {
+          annual_price: number
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          tier: string
+        }
+        Update: {
+          annual_price?: number
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          tier?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -618,6 +883,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          company_name: string | null
+          company_size: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          location_type: string | null
+          plan_id: string
+          starts_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          location_type?: string | null
+          plan_id: string
+          starts_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          company_name?: string | null
+          company_size?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          location_type?: string | null
+          plan_id?: string
+          starts_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -653,6 +965,15 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_delivery_price: {
+        Args: { p_distance_km: number; p_is_night?: boolean }
+        Returns: {
+          base_price: number
+          commission: number
+          surcharge: number
+          total: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -669,6 +990,7 @@ export type Database = {
         | "provider"
         | "freelance"
         | "employer"
+        | "driver"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -803,6 +1125,7 @@ export const Constants = {
         "provider",
         "freelance",
         "employer",
+        "driver",
       ],
     },
   },

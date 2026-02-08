@@ -2,101 +2,113 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    /* African-inspired warm palette */
-    --background: 35 60% 98%;
-    --foreground: 25 30% 12%;
+    /* MIYASHI Palette - Consumer-facing */
+    --background: 38 45% 96%;
+    --foreground: 0 0% 6%;
 
-    --card: 35 50% 99%;
-    --card-foreground: 25 30% 12%;
+    --card: 38 40% 99%;
+    --card-foreground: 0 0% 6%;
 
-    --popover: 35 50% 99%;
-    --popover-foreground: 25 30% 12%;
+    --popover: 38 40% 99%;
+    --popover-foreground: 0 0% 6%;
 
-    /* Sahel Gold - Primary */
-    --primary: 42 62% 58%;
-    --primary-foreground: 25 30% 12%;
+    /* Soleil Quotidien - Primary (Énergie, action) */
+    --primary: 43 93% 49%;
+    --primary-foreground: 0 0% 6%;
 
-    /* Terracotta - Secondary */
-    --secondary: 14 56% 50%;
-    --secondary-foreground: 35 60% 98%;
+    /* Orange Marché - Secondary (Achat, CTA) */
+    --secondary: 27 100% 45%;
+    --secondary-foreground: 38 45% 96%;
 
-    /* Sand Cream */
-    --muted: 35 40% 94%;
-    --muted-foreground: 25 15% 45%;
+    /* Beige Sable - Muted (Confort visuel) */
+    --muted: 33 40% 93%;
+    --muted-foreground: 25 15% 40%;
 
-    /* Forest Green - Accent */
-    --accent: 112 37% 25%;
-    --accent-foreground: 35 60% 98%;
+    /* Vert MIYASHI - Accent (Confiance) */
+    --accent: 152 70% 39%;
+    --accent-foreground: 38 45% 96%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 35 60% 98%;
+    /* Rouge Échange - Destructive */
+    --destructive: 14 85% 40%;
+    --destructive-foreground: 38 45% 96%;
 
-    --border: 35 30% 88%;
-    --input: 35 30% 88%;
-    --ring: 42 62% 58%;
+    /* Info blue */
+    --info: 210 60% 50%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 33 30% 88%;
+    --input: 33 30% 88%;
+    --ring: 43 93% 49%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens */
-    --gradient-hero: linear-gradient(135deg, hsl(42 62% 58%) 0%, hsl(14 56% 50%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(112 37% 25%) 0%, hsl(112 37% 35%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(35 60% 98%) 0%, hsl(35 40% 94%) 100%);
-    --shadow-soft: 0 4px 20px -4px hsl(25 30% 12% / 0.1);
-    --shadow-card: 0 8px 32px -8px hsl(25 30% 12% / 0.12);
-    --shadow-elevated: 0 16px 48px -12px hsl(25 30% 12% / 0.18);
+    /* MIYASHI Custom tokens */
+    --gradient-hero: linear-gradient(135deg, hsl(43 93% 49%) 0%, hsl(27 100% 45%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(152 70% 39%) 0%, hsl(152 50% 50%) 100%);
+    --gradient-warm: linear-gradient(180deg, hsl(38 45% 96%) 0%, hsl(33 40% 93%) 100%);
+    --gradient-dark: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(25 20% 15%) 100%);
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 6% / 0.08);
+    --shadow-card: 0 8px 32px -8px hsl(0 0% 6% / 0.1);
+    --shadow-elevated: 0 16px 48px -12px hsl(0 0% 6% / 0.15);
+
+    /* ASHIZAN tokens (institutional) */
+    --gold: 42 54% 51%;
+    --terre-rouge: 0 56% 39%;
+    --racine-verte: 152 56% 27%;
+    --noir-institutionnel: 0 0% 6%;
 
     /* Sidebar */
-    --sidebar-background: 35 50% 99%;
-    --sidebar-foreground: 25 30% 12%;
-    --sidebar-primary: 42 62% 58%;
-    --sidebar-primary-foreground: 25 30% 12%;
-    --sidebar-accent: 35 40% 94%;
-    --sidebar-accent-foreground: 25 30% 12%;
-    --sidebar-border: 35 30% 88%;
-    --sidebar-ring: 42 62% 58%;
+    --sidebar-background: 38 40% 99%;
+    --sidebar-foreground: 0 0% 6%;
+    --sidebar-primary: 43 93% 49%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 33 40% 93%;
+    --sidebar-accent-foreground: 0 0% 6%;
+    --sidebar-border: 33 30% 88%;
+    --sidebar-ring: 43 93% 49%;
   }
 
   .dark {
-    --background: 25 25% 8%;
-    --foreground: 35 40% 94%;
+    --background: 0 0% 6%;
+    --foreground: 33 40% 93%;
 
-    --card: 25 20% 12%;
-    --card-foreground: 35 40% 94%;
+    --card: 25 15% 12%;
+    --card-foreground: 33 40% 93%;
 
-    --popover: 25 20% 12%;
-    --popover-foreground: 35 40% 94%;
+    --popover: 25 15% 12%;
+    --popover-foreground: 33 40% 93%;
 
-    --primary: 42 62% 58%;
-    --primary-foreground: 25 30% 12%;
+    --primary: 43 93% 49%;
+    --primary-foreground: 0 0% 6%;
 
-    --secondary: 14 56% 50%;
-    --secondary-foreground: 35 60% 98%;
+    --secondary: 27 100% 45%;
+    --secondary-foreground: 38 45% 96%;
 
-    --muted: 25 20% 18%;
-    --muted-foreground: 35 20% 60%;
+    --muted: 25 15% 18%;
+    --muted-foreground: 33 20% 60%;
 
-    --accent: 112 37% 35%;
-    --accent-foreground: 35 60% 98%;
+    --accent: 152 70% 39%;
+    --accent-foreground: 38 45% 96%;
 
-    --destructive: 0 62% 40%;
-    --destructive-foreground: 35 60% 98%;
+    --destructive: 14 70% 45%;
+    --destructive-foreground: 38 45% 96%;
 
-    --border: 25 20% 20%;
-    --input: 25 20% 20%;
-    --ring: 42 62% 58%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
+    --ring: 43 93% 49%;
 
-    --sidebar-background: 25 20% 10%;
-    --sidebar-foreground: 35 40% 94%;
-    --sidebar-primary: 42 62% 58%;
-    --sidebar-primary-foreground: 25 30% 12%;
-    --sidebar-accent: 25 20% 18%;
-    --sidebar-accent-foreground: 35 40% 94%;
-    --sidebar-border: 25 20% 20%;
-    --sidebar-ring: 42 62% 58%;
+    --sidebar-background: 25 15% 10%;
+    --sidebar-foreground: 33 40% 93%;
+    --sidebar-primary: 43 93% 49%;
+    --sidebar-primary-foreground: 0 0% 6%;
+    --sidebar-accent: 25 15% 18%;
+    --sidebar-accent-foreground: 33 40% 93%;
+    --sidebar-border: 25 15% 22%;
+    --sidebar-ring: 43 93% 49%;
   }
 }
 
@@ -107,11 +119,12 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', 'Open Sans', system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Poppins', 'Montserrat', system-ui, sans-serif;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -135,6 +148,10 @@
     background: var(--gradient-warm);
   }
 
+  .bg-gradient-dark {
+    background: var(--gradient-dark);
+  }
+
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
@@ -153,6 +170,18 @@
 
   .animate-pulse-slow {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* African-inspired geometric pattern */
+  .pattern-african {
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        hsl(var(--primary) / 0.03) 10px,
+        hsl(var(--primary) / 0.03) 20px
+      );
   }
 
   @keyframes float {
