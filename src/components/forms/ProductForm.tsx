@@ -38,6 +38,7 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
+  const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
