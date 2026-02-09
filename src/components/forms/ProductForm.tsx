@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Package, MapPin, DollarSign, Archive, Loader2 } from "lucide-react";
+import { Package, MapPin, DollarSign, Archive, Loader2, ImagePlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
+import ProductMediaUpload from "./ProductMediaUpload";
 
 type Category = Tables<"categories">;
 
@@ -37,6 +38,7 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
+  const [images, setImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -81,6 +83,7 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
       location: formData.location || null,
       category_id: formData.category_id || null,
       seller_id: user.id,
+      images: images.length > 0 ? images : null,
     });
 
     setLoading(false);
@@ -135,6 +138,13 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 className="min-h-[120px]"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <ImagePlus className="w-4 h-4" /> Photos & Vidéos
+              </Label>
+              <ProductMediaUpload images={images} onImagesChange={setImages} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

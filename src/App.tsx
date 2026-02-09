@@ -22,6 +22,15 @@ import Favorites from "./pages/Favorites";
 import SearchAlerts from "./pages/SearchAlerts";
 import DriverRegistration from "./pages/DriverRegistration";
 import DriverDashboard from "./pages/DriverDashboard";
+import DriverSelection from "./pages/DriverSelection";
+import Checkout from "./pages/Checkout";
+import Support from "./pages/Support";
+import FAQ from "./pages/FAQ";
+import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
+import HelpCenter from "./pages/HelpCenter";
+import ProviderSpace from "./pages/ProviderSpace";
+import Boost from "./pages/Boost";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +59,15 @@ const App = () => (
                 <Route path="/alerts" element={<SearchAlerts />} />
                 <Route path="/driver-registration" element={<DriverRegistration />} />
                 <Route path="/driver-dashboard" element={<DriverDashboard />} />
+                <Route path="/select-driver" element={<DriverSelection />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/provider-space" element={<ProviderSpace />} />
+                <Route path="/boost" element={<Boost />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
