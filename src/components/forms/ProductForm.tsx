@@ -83,6 +83,7 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
       location: formData.location || null,
       category_id: formData.category_id || null,
       seller_id: user.id,
+      images: images.length > 0 ? images : null,
     });
 
     setLoading(false);
