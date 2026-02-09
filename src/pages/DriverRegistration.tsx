@@ -209,24 +209,24 @@ const DriverRegistration = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="velo">
-                            <div className="flex items-center gap-2">
-                              <Bike className="w-4 h-4" /> Vélo
-                            </div>
-                          </SelectItem>
                           <SelectItem value="moto">
                             <div className="flex items-center gap-2">
-                              <Bike className="w-4 h-4" /> Moto
+                              <Bike className="w-4 h-4" /> Moto - 550F/km
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="tricycle">
+                            <div className="flex items-center gap-2">
+                              <Truck className="w-4 h-4" /> Tricycle - 1000F/km
                             </div>
                           </SelectItem>
                           <SelectItem value="voiture">
                             <div className="flex items-center gap-2">
-                              <Car className="w-4 h-4" /> Voiture
+                              <Car className="w-4 h-4" /> Voiture - 1500F/km
                             </div>
                           </SelectItem>
                           <SelectItem value="camionnette">
                             <div className="flex items-center gap-2">
-                              <Truck className="w-4 h-4" /> Camionnette
+                              <Truck className="w-4 h-4" /> Camionnette - 2000F/km
                             </div>
                           </SelectItem>
                         </SelectContent>
