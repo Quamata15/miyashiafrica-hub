@@ -9,10 +9,11 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Package, MapPin, DollarSign, Archive, Loader2 } from "lucide-react";
+import { Package, MapPin, DollarSign, Archive, Loader2, ImagePlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
+import ProductMediaUpload from "./ProductMediaUpload";
 
 type Category = Tables<"categories">;
 
