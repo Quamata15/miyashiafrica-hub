@@ -55,6 +55,48 @@ export type Database = {
           },
         ]
       }
+      boosts: {
+        Row: {
+          boost_type: string
+          created_at: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          period: string
+          price_paid: number
+          starts_at: string
+          target_id: string | null
+          user_id: string
+          zone_radius_km: number
+        }
+        Insert: {
+          boost_type: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          period: string
+          price_paid: number
+          starts_at?: string
+          target_id?: string | null
+          user_id: string
+          zone_radius_km?: number
+        }
+        Update: {
+          boost_type?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          period?: string
+          price_paid?: number
+          starts_at?: string
+          target_id?: string | null
+          user_id?: string
+          zone_radius_km?: number
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -130,6 +172,7 @@ export type Database = {
           surcharge_amount: number | null
           total_delivery_price: number
           updated_at: string
+          vehicle_type: string | null
         }
         Insert: {
           accepted_at?: string | null
@@ -154,6 +197,7 @@ export type Database = {
           surcharge_amount?: number | null
           total_delivery_price?: number
           updated_at?: string
+          vehicle_type?: string | null
         }
         Update: {
           accepted_at?: string | null
@@ -178,6 +222,7 @@ export type Database = {
           surcharge_amount?: number | null
           total_delivery_price?: number
           updated_at?: string
+          vehicle_type?: string | null
         }
         Relationships: [
           {
@@ -341,39 +386,90 @@ export type Database = {
           },
         ]
       }
+      faq_items: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          question: string
+          sort_order: number | null
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          question: string
+          sort_order?: number | null
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          question?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
       freelance_profiles: {
         Row: {
+          alert_preferences: Json | null
           availability: string | null
+          bio: string | null
           created_at: string
+          cv_url: string | null
           experience_years: number | null
           hourly_rate: number | null
           id: string
+          interests: string[] | null
+          photo_url: string | null
           portfolio_urls: string[] | null
+          realizations: Json | null
           skills: string[] | null
+          social_links: Json | null
           title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          alert_preferences?: Json | null
           availability?: string | null
+          bio?: string | null
           created_at?: string
+          cv_url?: string | null
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
+          interests?: string[] | null
+          photo_url?: string | null
           portfolio_urls?: string[] | null
+          realizations?: Json | null
           skills?: string[] | null
+          social_links?: Json | null
           title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          alert_preferences?: Json | null
           availability?: string | null
+          bio?: string | null
           created_at?: string
+          cv_url?: string | null
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
+          interests?: string[] | null
+          photo_url?: string | null
           portfolio_urls?: string[] | null
+          realizations?: Json | null
           skills?: string[] | null
+          social_links?: Json | null
           title?: string | null
           updated_at?: string
           user_id?: string
@@ -435,6 +531,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      kyc_documents: {
+        Row: {
+          document_type: string
+          document_url: string
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          document_type: string
+          document_url: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          document_type?: string
+          document_url?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       messages: {
         Row: {
@@ -577,6 +706,63 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          escrow_id: string | null
+          id: string
+          metadata: Json | null
+          order_id: string | null
+          payer_id: string
+          payment_method: string
+          provider_reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          escrow_id?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payer_id: string
+          payment_method: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          escrow_id?: string | null
+          id?: string
+          metadata?: Json | null
+          order_id?: string | null
+          payer_id?: string
+          payment_method?: string
+          provider_reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_escrow_id_fkey"
+            columns: ["escrow_id"]
+            isOneToOne: false
+            referencedRelation: "escrow_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -668,6 +854,54 @@ export type Database = {
           location?: string | null
           phone?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          created_at: string
+          discount_type: string | null
+          discount_value: number | null
+          end_date: string
+          event_tag: string | null
+          id: string
+          is_active: boolean | null
+          min_quantity: number | null
+          name: string
+          start_date: string
+          target_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_type?: string | null
+          discount_value?: number | null
+          end_date: string
+          event_tag?: string | null
+          id?: string
+          is_active?: boolean | null
+          min_quantity?: number | null
+          name: string
+          start_date?: string
+          target_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_type?: string | null
+          discount_value?: number | null
+          end_date?: string
+          event_tag?: string | null
+          id?: string
+          is_active?: boolean | null
+          min_quantity?: number | null
+          name?: string
+          start_date?: string
+          target_id?: string | null
+          type?: string
           user_id?: string
         }
         Relationships: []
@@ -866,6 +1100,39 @@ export type Database = {
         }
         Relationships: []
       }
+      support_tickets: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          message: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -965,15 +1232,29 @@ export type Database = {
       }
     }
     Functions: {
-      calculate_delivery_price: {
-        Args: { p_distance_km: number; p_is_night?: boolean }
-        Returns: {
-          base_price: number
-          commission: number
-          surcharge: number
-          total: number
-        }[]
-      }
+      calculate_delivery_price:
+        | {
+            Args: { p_distance_km: number; p_is_night?: boolean }
+            Returns: {
+              base_price: number
+              commission: number
+              surcharge: number
+              total: number
+            }[]
+          }
+        | {
+            Args: {
+              p_distance_km: number
+              p_is_night?: boolean
+              p_vehicle_type?: string
+            }
+            Returns: {
+              base_price: number
+              commission: number
+              surcharge: number
+              total: number
+            }[]
+          }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
