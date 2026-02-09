@@ -26,10 +26,10 @@ const Footer = () => {
       { label: "Publier une mission", href: "/create" },
     ],
     support: [
-      { label: "Centre d'aide", href: "#" },
-      { label: "Nous contacter", href: "#" },
-      { label: "FAQ", href: "#" },
-      { label: "Conditions d'utilisation", href: "#" },
+      { label: "Centre d'aide", href: "/help" },
+      { label: "Nous contacter", href: "/contact" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Conditions d'utilisation", href: "/terms" },
     ],
   };
 

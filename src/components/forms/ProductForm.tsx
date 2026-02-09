@@ -140,6 +140,13 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
               />
             </div>
 
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <ImagePlus className="w-4 h-4" /> Photos & Vidéos
+              </Label>
+              <ProductMediaUpload images={images} onImagesChange={setImages} />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="price" className="flex items-center gap-2">

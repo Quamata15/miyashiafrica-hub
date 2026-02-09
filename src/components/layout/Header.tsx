@@ -207,6 +207,9 @@ const Header = () => {
                       <DropdownMenuItem onClick={() => navigate("/driver-dashboard")} className="cursor-pointer">
                         <Truck className="mr-2 h-4 w-4" /> Espace Livreur
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/provider-space")} className="cursor-pointer">
+                        <Briefcase className="mr-2 h-4 w-4" /> Espace Prestataire
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/messages")} className="cursor-pointer">
                         <MessageSquare className="mr-2 h-4 w-4" /> Messages
                         {unreadMessages > 0 && <Badge className="ml-auto bg-secondary text-xs">{unreadMessages}</Badge>}

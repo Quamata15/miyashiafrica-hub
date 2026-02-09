@@ -150,20 +150,25 @@ const DriverRegistration = () => {
                 <p className="opacity-90">Transparente et avantageuse</p>
               </div>
               <CardContent className="p-6">
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-3xl font-bold text-primary">550F</p>
-                    <p className="text-sm text-muted-foreground">par km (tarif client)</p>
+                    <p className="text-2xl font-bold text-primary">550F</p>
+                    <p className="text-xs text-muted-foreground">Moto /km</p>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-3xl font-bold text-accent">100F</p>
-                    <p className="text-sm text-muted-foreground">commission plateforme/km</p>
+                    <p className="text-2xl font-bold text-primary">1000F</p>
+                    <p className="text-xs text-muted-foreground">Tricycle /km</p>
                   </div>
                   <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-3xl font-bold text-secondary">+25%</p>
-                    <p className="text-sm text-muted-foreground">majoration après 19H GMT</p>
+                    <p className="text-2xl font-bold text-primary">1500F</p>
+                    <p className="text-xs text-muted-foreground">Voiture /km</p>
+                  </div>
+                  <div className="text-center p-4 rounded-xl bg-muted/50">
+                    <p className="text-2xl font-bold text-primary">2000F</p>
+                    <p className="text-xs text-muted-foreground">Camionnette /km</p>
                   </div>
                 </div>
+                <p className="text-center text-sm text-muted-foreground mt-4">Commission plateforme : 18% fixe • Majoration +25% après 19H GMT</p>
               </CardContent>
             </Card>
           </motion.div>
