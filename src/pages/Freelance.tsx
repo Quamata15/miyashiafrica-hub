@@ -6,12 +6,12 @@ import JobOffers from "@/components/freelance/JobOffers";
 
 const Freelance = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Freelance & Emplois</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">Freelance & Emplois</h1>
+          <p className="text-lg text-muted-foreground">
             Trouvez des freelances qualifiés ou des opportunités d'emploi
           </p>
         </div>
