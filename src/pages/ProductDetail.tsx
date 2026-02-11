@@ -36,8 +36,6 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [ordering, setOrdering] = useState(false);
 
   useEffect(() => {
     if (id) fetchProduct();
