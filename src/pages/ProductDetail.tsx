@@ -52,7 +52,7 @@ const ProductDetail = () => {
     setLoading(false);
   };
 
-  const handleOrder = async () => {
+  const handleOrder = () => {
     if (!user) {
       toast({
         title: "Connexion requise",
@@ -65,31 +65,8 @@ const ProductDetail = () => {
 
     if (!product) return;
 
-    setOrdering(true);
-    const { error } = await supabase.from("orders").insert({
-      buyer_id: user.id,
-      seller_id: product.seller_id,
-      product_id: product.id,
-      quantity,
-      total_price: product.price * quantity,
-      status: "pending",
-    });
-
-    setOrdering(false);
-
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de passer la commande",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Commande passée!",
-        description: "Votre commande a été enregistrée avec succès",
-      });
-      navigate("/dashboard");
-    }
+    const totalAmount = product.price * quantity;
+    navigate(`/checkout?amount=${totalAmount}&product=${product.id}&seller=${product.seller_id}&qty=${quantity}`);
   };
 
   const handleContactSeller = async () => {
