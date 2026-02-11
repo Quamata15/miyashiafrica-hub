@@ -38,6 +38,8 @@ type Product = Tables<"products">;
 type Category = Tables<"categories">;
 
 const Marketplace = () => {
+  const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
