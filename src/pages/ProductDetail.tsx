@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
+import { useFavorites } from "@/hooks/useFavorites";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -27,13 +29,13 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [ordering, setOrdering] = useState(false);
 
   useEffect(() => {
     if (id) fetchProduct();
@@ -52,7 +54,7 @@ const ProductDetail = () => {
     setLoading(false);
   };
 
-  const handleOrder = async () => {
+  const handleOrder = () => {
     if (!user) {
       toast({
         title: "Connexion requise",
@@ -65,31 +67,8 @@ const ProductDetail = () => {
 
     if (!product) return;
 
-    setOrdering(true);
-    const { error } = await supabase.from("orders").insert({
-      buyer_id: user.id,
-      seller_id: product.seller_id,
-      product_id: product.id,
-      quantity,
-      total_price: product.price * quantity,
-      status: "pending",
-    });
-
-    setOrdering(false);
-
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de passer la commande",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Commande passée!",
-        description: "Votre commande a été enregistrée avec succès",
-      });
-      navigate("/dashboard");
-    }
+    const totalAmount = product.price * quantity;
+    navigate(`/checkout?amount=${totalAmount}&product=${product.id}&seller=${product.seller_id}&qty=${quantity}`);
   };
 
   const handleContactSeller = async () => {
@@ -236,9 +215,9 @@ const ProductDetail = () => {
                     variant="secondary"
                     size="icon"
                     className="rounded-full"
-                    onClick={() => setIsFavorite(!isFavorite)}
+                    onClick={() => product && toggleFavorite(product.id)}
                   >
-                    <Heart className={isFavorite ? "h-4 w-4 fill-destructive text-destructive" : "h-4 w-4"} />
+                    <Heart className={product && checkIsFavorite(product.id) ? "h-4 w-4 fill-destructive text-destructive" : "h-4 w-4"} />
                   </Button>
                   <Button variant="secondary" size="icon" className="rounded-full">
                     <Share2 className="h-4 w-4" />
@@ -356,10 +335,18 @@ const ProductDetail = () => {
                     size="lg" 
                     className="flex-1 rounded-xl"
                     onClick={handleOrder}
-                    disabled={ordering}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
-                    {ordering ? "Commande en cours..." : "Commander maintenant"}
+                    Commander maintenant
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="rounded-xl"
+                    onClick={() => product && addToCart(product.id)}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Ajouter au panier
                   </Button>
                   <Button 
                     variant="outline" 
