@@ -348,13 +348,13 @@ const Marketplace = () => {
                         
                         {/* Quick Actions Overlay */}
                         <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/20 transition-all duration-300 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                          <Button size="icon" variant="secondary" className="rounded-full h-10 w-10">
-                            <Heart className="h-4 w-4" />
+                          <Button size="icon" variant="secondary" className="rounded-full h-10 w-10" onClick={(e) => { e.stopPropagation(); toggleFavorite(product.id); }}>
+                            <Heart className={`h-4 w-4 ${isFavorite(product.id) ? "fill-destructive text-destructive" : ""}`} />
                           </Button>
-                          <Button size="icon" variant="secondary" className="rounded-full h-10 w-10">
+                          <Button size="icon" variant="secondary" className="rounded-full h-10 w-10" onClick={() => navigate(`/product/${product.id}`)}>
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="hero" className="rounded-full h-10 w-10">
+                          <Button size="icon" variant="hero" className="rounded-full h-10 w-10" onClick={(e) => { e.stopPropagation(); addToCart(product.id); }}>
                             <ShoppingCart className="h-4 w-4" />
                           </Button>
                         </div>
