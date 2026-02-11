@@ -335,10 +335,18 @@ const ProductDetail = () => {
                     size="lg" 
                     className="flex-1 rounded-xl"
                     onClick={handleOrder}
-                    disabled={ordering}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
-                    {ordering ? "Commande en cours..." : "Commander maintenant"}
+                    Commander maintenant
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="rounded-xl"
+                    onClick={() => product && addToCart(product.id)}
+                  >
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Ajouter au panier
                   </Button>
                   <Button 
                     variant="outline" 
