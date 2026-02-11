@@ -215,9 +215,9 @@ const ProductDetail = () => {
                     variant="secondary"
                     size="icon"
                     className="rounded-full"
-                    onClick={() => setIsFavorite(!isFavorite)}
+                    onClick={() => product && toggleFavorite(product.id)}
                   >
-                    <Heart className={isFavorite ? "h-4 w-4 fill-destructive text-destructive" : "h-4 w-4"} />
+                    <Heart className={product && checkIsFavorite(product.id) ? "h-4 w-4 fill-destructive text-destructive" : "h-4 w-4"} />
                   </Button>
                   <Button variant="secondary" size="icon" className="rounded-full">
                     <Share2 className="h-4 w-4" />
