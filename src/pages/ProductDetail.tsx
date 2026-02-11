@@ -29,6 +29,8 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { addToCart } = useCart();
+  const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
