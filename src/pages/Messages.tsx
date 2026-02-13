@@ -51,8 +51,14 @@ const Messages = () => {
   const handleSend = async () => {
     if (!newMessage.trim()) return;
     setSending(true);
-    const success = await sendMessage(newMessage);
-    if (success) setNewMessage("");
+    const result = await sendMessage(newMessage);
+    if (result === true) {
+      setNewMessage("");
+    } else if (typeof result === "string") {
+      // Message was blocked by firewall
+      const { toast } = await import("sonner");
+      toast.error(result);
+    }
     setSending(false);
   };
 

@@ -55,15 +55,46 @@ const DriverSelection = () => {
     moto: 550, tricycle: 1000, voiture: 1500, camionnette: 2000,
   };
 
+  // Check if there's a paid order
+  const [hasPaidOrder, setHasPaidOrder] = useState(false);
+  const [paidOrder, setPaidOrder] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) checkPaidOrder();
+  }, [user]);
+
+  const checkPaidOrder = async () => {
+    if (!user) return;
+    // Get latest paid order for this buyer
+    const { data } = await supabase.from("orders")
+      .select("*")
+      .eq("buyer_id", user.id)
+      .eq("payment_status", "paid")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      setPaidOrder(data);
+      setHasPaidOrder(true);
+    }
+  };
+
   const requestDriver = async (driverId: string) => {
-    if (!user || !orderId) return;
+    if (!user) return;
+    if (!hasPaidOrder || !paidOrder) {
+      toast({ title: "Paiement requis", description: "Vous devez d'abord payer votre commande", variant: "destructive" });
+      navigate("/checkout");
+      return;
+    }
     setRequesting(driverId);
 
+    const actualOrderId = paidOrder.id;
+
     const { error } = await (supabase.from("delivery_requests") as any).insert({
-      order_id: orderId,
+      order_id: actualOrderId,
       driver_id: driverId,
       buyer_id: user.id,
-      seller_id: user.id,
+      seller_id: paidOrder.seller_id,
       status: "pending",
       vehicle_type: selectedVehicle,
       distance_km: 5,
@@ -72,11 +103,22 @@ const DriverSelection = () => {
       total_delivery_price: 5 * vehicleRates[selectedVehicle],
     });
 
+    if (!error) {
+      // Send notification to the chosen driver
+      await (supabase.from("notifications") as any).insert({
+        user_id: driverId,
+        title: "Nouvelle demande de livraison 🚚",
+        message: `Un client vous a choisi pour une livraison de ${(5 * vehicleRates[selectedVehicle]).toLocaleString()} FCFA`,
+        type: "delivery_request",
+        data: { order_id: actualOrderId },
+      });
+    }
+
     setRequesting(null);
     if (error) {
       toast({ title: "Erreur", description: "Impossible de demander ce livreur", variant: "destructive" });
     } else {
-      toast({ title: "Demande envoyée!", description: "Le livreur a été notifié" });
+      toast({ title: "Demande envoyée! 🚀", description: "Le livreur a été notifié de votre demande" });
       navigate("/dashboard");
     }
   };
