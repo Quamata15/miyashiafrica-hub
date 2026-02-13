@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { filterMessage } from "@/utils/messageFilter";
 
 interface Message {
   id: string;
@@ -90,8 +91,14 @@ export const useChat = () => {
     }
   }, [user]);
 
-  const sendMessage = useCallback(async (content: string) => {
+  const sendMessage = useCallback(async (content: string): Promise<boolean | string> => {
     if (!content.trim() || !selectedConversation || !user) return false;
+
+    // Firewall: block contact sharing
+    const filterResult = filterMessage(content.trim());
+    if (filterResult.blocked) {
+      return filterResult.reason || "Message bloqué";
+    }
 
     const otherUserId = selectedConversation.participant_1 === user.id
       ? selectedConversation.participant_2

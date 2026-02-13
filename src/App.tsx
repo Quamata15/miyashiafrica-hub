@@ -31,6 +31,9 @@ import Terms from "./pages/Terms";
 import HelpCenter from "./pages/HelpCenter";
 import ProviderSpace from "./pages/ProviderSpace";
 import Boost from "./pages/Boost";
+import Wallet from "./pages/Wallet";
+import AdminDashboard from "./pages/AdminDashboard";
+import Disputes from "./pages/Disputes";
 
 const queryClient = new QueryClient();
 
@@ -68,6 +71,9 @@ const App = () => (
                 <Route path="/help" element={<HelpCenter />} />
                 <Route path="/provider-space" element={<ProviderSpace />} />
                 <Route path="/boost" element={<Boost />} />
+                <Route path="/wallet" element={<Wallet />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/disputes" element={<Disputes />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

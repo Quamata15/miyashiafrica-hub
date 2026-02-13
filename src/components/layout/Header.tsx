@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut, 
-  MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck
+  MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck, Wallet, Shield
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -209,6 +209,9 @@ const Header = () => {
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/provider-space")} className="cursor-pointer">
                         <Briefcase className="mr-2 h-4 w-4" /> Espace Prestataire
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/wallet")} className="cursor-pointer">
+                        <Wallet className="mr-2 h-4 w-4" /> Mon Portefeuille
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/messages")} className="cursor-pointer">
                         <MessageSquare className="mr-2 h-4 w-4" /> Messages
