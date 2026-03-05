@@ -37,6 +37,24 @@ const ReviewForm = ({ productId, serviceId, reviewedUserId, orderId, onSuccess }
     setSubmitting(true);
 
     try {
+      // Check for existing review to prevent duplicates
+      const targetColumn = productId ? "product_id" : "service_id";
+      const targetValue = productId || serviceId;
+      if (targetValue) {
+        const { data: existing } = await supabase
+          .from("reviews")
+          .select("id")
+          .eq("reviewer_id", user.id)
+          .eq(targetColumn, targetValue)
+          .maybeSingle();
+
+        if (existing) {
+          toast.error("Vous avez déjà laissé un avis pour cet article");
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const { error } = await supabase.from("reviews").insert({
         reviewer_id: user.id,
         reviewed_user_id: reviewedUserId,
