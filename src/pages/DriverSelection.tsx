@@ -103,16 +103,7 @@ const DriverSelection = () => {
       total_delivery_price: 5 * vehicleRates[selectedVehicle],
     });
 
-    if (!error) {
-      // Send notification to the chosen driver
-      await (supabase.from("notifications") as any).insert({
-        user_id: driverId,
-        title: "Nouvelle demande de livraison 🚚",
-        message: `Un client vous a choisi pour une livraison de ${(5 * vehicleRates[selectedVehicle]).toLocaleString()} FCFA`,
-        type: "delivery_request",
-        data: { order_id: actualOrderId },
-      });
-    }
+    // Notification is now handled automatically by database trigger on delivery_requests insert
 
     setRequesting(null);
     if (error) {

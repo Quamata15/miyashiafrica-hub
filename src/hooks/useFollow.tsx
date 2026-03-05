@@ -60,13 +60,14 @@ export const useFollow = (targetUserId?: string) => {
       setFollowersCount(prev => prev + 1);
       toast.success('Abonnement réussi');
 
-      // Create notification for the followed user
-      await supabase.from('notifications').insert({
-        user_id: targetUserId,
-        type: 'follow',
-        title: 'Nouvel abonné',
-        message: 'Un utilisateur s\'est abonné à votre profil'
-      });
+      // Create notification via server-side function
+      await supabase.rpc('send_notification', {
+        p_user_id: targetUserId,
+        p_type: 'follow',
+        p_title: 'Nouvel abonné',
+        p_message: 'Un utilisateur s\'est abonné à votre profil',
+        p_data: JSON.stringify({})
+      } as any);
     }
     setLoading(false);
   };
