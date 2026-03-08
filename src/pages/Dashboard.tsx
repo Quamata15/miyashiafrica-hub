@@ -130,8 +130,18 @@ const Dashboard = () => {
       <SEOHead title="Tableau de bord" description="Gérez votre activité sur MIYASHI" canonical="/dashboard" />
       <Header />
       <div className="flex-1 flex pt-[65px]">
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex relative">
           <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} userRoles={userRoles} collapsed={sidebarCollapsed} />
+          <button
+            onClick={() => {
+              const next = !sidebarCollapsed;
+              setSidebarCollapsed(next);
+              try { localStorage.setItem("dashboard-sidebar-collapsed", String(next)); } catch {}
+            }}
+            className="absolute -right-3 top-6 z-10 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md text-xs hover:scale-110 transition-transform"
+          >
+            {sidebarCollapsed ? "»" : "«"}
+          </button>
         </div>
         {mobileSidebarOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex">
