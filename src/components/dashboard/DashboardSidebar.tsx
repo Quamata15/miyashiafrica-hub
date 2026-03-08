@@ -52,6 +52,14 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
     { label: "Carte GPS", icon: MapPin, value: "map" },
   ] : [];
 
+  const freelanceItems: SidebarItem[] = userRoles.includes("freelance") ? [
+    { label: "Candidatures", icon: Users, value: "overview" },
+  ] : [];
+
+  const employerItems: SidebarItem[] = userRoles.includes("employer") ? [
+    { label: "Recrutement", icon: Users, value: "overview" },
+  ] : [];
+
   const quickActions = [
     { label: "Créer", icon: Plus, action: () => navigate("/create") },
     { label: "Messages", icon: MessageSquare, action: () => navigate("/messages") },

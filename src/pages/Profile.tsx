@@ -20,7 +20,7 @@ import {
 import {
   Loader2, User, Briefcase, Settings, ShoppingBag, Package,
   MessageSquare, Star, LayoutDashboard, Bell, Camera, MapPin,
-  Phone, Mail, CheckCircle, TrendingUp, LogOut, Shield
+  Phone, Mail, CheckCircle, TrendingUp, LogOut, Shield, Lock, Upload
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
@@ -44,6 +44,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [profile, setProfile] = useState<Partial<ProfileType>>({});
   const [freelanceProfile, setFreelanceProfile] = useState<Partial<FreelanceProfile>>({});
   const [userRoles, setUserRoles] = useState<string[]>([]);
@@ -118,6 +122,45 @@ const Profile = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop();
+    const path = `${user.id}/avatar.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    if (uploadError) {
+      toast({ title: "Erreur", description: "Impossible d'uploader la photo", variant: "destructive" });
+    } else {
+      const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
+      await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("user_id", user.id);
+      setProfile({ ...profile, avatar_url: publicUrl });
+      toast({ title: "Photo mise à jour" });
+    }
+    setUploadingAvatar(false);
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword.length < 6) {
+      toast({ title: "Erreur", description: "Le mot de passe doit faire au moins 6 caractères", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Erreur", description: "Les mots de passe ne correspondent pas", variant: "destructive" });
+      return;
+    }
+    setChangingPassword(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      toast({ title: "Erreur", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Mot de passe mis à jour" });
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+    setChangingPassword(false);
+  };
+
   if (authLoading) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-warm"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -149,8 +192,11 @@ const Profile = () => {
                     {profile.full_name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <Button size="icon" variant="secondary" className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full shadow-md">
-                  <Camera className="h-3 w-3" />
+                <Button size="icon" variant="secondary" className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full shadow-md" asChild>
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                    <input id="avatar-upload" type="file" accept="image/*" className="sr-only" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+                  </label>
                 </Button>
               </div>
               <div className="flex-1 min-w-0">
@@ -321,37 +367,61 @@ const Profile = () => {
 
               {/* Settings Tab */}
               <TabsContent value="settings">
-                <Card className="border-0 shadow-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg">Paramètres du compte</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Mail className="h-4 w-4 text-primary" />
+                <div className="space-y-6">
+                  <Card className="border-0 shadow-card">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg">Paramètres du compte</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Mail className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">Email</p>
+                          <p className="text-xs text-muted-foreground">{user?.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">Email</p>
-                        <p className="text-xs text-muted-foreground">{user?.email}</p>
+                      <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Bell className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Notifications</p>
+                          <p className="text-xs text-muted-foreground">Préférences de notification</p>
+                        </div>
+                        <Button variant="outline" size="sm">Configurer</Button>
                       </div>
-                    </div>
-                    <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Bell className="h-4 w-4 text-primary" />
+                      <div className="pt-4 border-t">
+                        <Button variant="destructive" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
+                          <LogOut className="h-4 w-4 mr-1" /> Se déconnecter
+                        </Button>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">Notifications</p>
-                        <p className="text-xs text-muted-foreground">Préférences de notification</p>
+                    </CardContent>
+                  </Card>
+
+                  {/* Password change */}
+                  <Card className="border-0 shadow-card">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Lock className="h-5 w-5" /> Changer le mot de passe
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="new-password" className="text-xs">Nouveau mot de passe</Label>
+                        <Input id="new-password" type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
                       </div>
-                      <Button variant="outline" size="sm">Configurer</Button>
-                    </div>
-                    <div className="pt-4 border-t">
-                      <Button variant="destructive" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
-                        <LogOut className="h-4 w-4 mr-1" /> Se déconnecter
+                      <div className="space-y-1.5">
+                        <Label htmlFor="confirm-password" className="text-xs">Confirmer le mot de passe</Label>
+                        <Input id="confirm-password" type="password" placeholder="••••••••" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                      </div>
+                      <Button onClick={handlePasswordChange} disabled={changingPassword || !newPassword}>
+                        {changingPassword ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Mise à jour...</> : "Mettre à jour"}
                       </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </Tabs>
           </motion.div>

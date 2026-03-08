@@ -10,6 +10,8 @@ import BuyerOverview from "@/components/dashboard/BuyerOverview";
 import SellerOverview from "@/components/dashboard/SellerOverview";
 import ProviderOverview from "@/components/dashboard/ProviderOverview";
 import DriverOverview from "@/components/dashboard/DriverOverview";
+import FreelanceOverview from "@/components/dashboard/FreelanceOverview";
+import EmployerOverview from "@/components/dashboard/EmployerOverview";
 import OrdersTable from "@/components/dashboard/OrdersTable";
 import ProductsList from "@/components/dashboard/ProductsList";
 import ServicesList from "@/components/dashboard/ServicesList";
@@ -20,14 +22,12 @@ import PromotionsManager from "@/components/dashboard/PromotionsManager";
 import BoostAnalytics from "@/components/dashboard/BoostAnalytics";
 import DeliveryMap from "@/components/map/DeliveryMap";
 import SellerOnboarding from "@/components/dashboard/SellerOnboarding";
+import ProviderOnboarding from "@/components/dashboard/ProviderOnboarding";
 import EmailVerificationBanner from "@/components/dashboard/EmailVerificationBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Menu, X, Plus, MessageSquare, BarChart3, MapPin
-} from "lucide-react";
+import { Menu, Plus, MessageSquare } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -37,12 +37,11 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showSellerOnboarding, setShowSellerOnboarding] = useState(true);
+  const [showProviderOnboarding, setShowProviderOnboarding] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
+    if (user) fetchUserData();
   }, [user]);
 
   const fetchUserData = async () => {
@@ -55,9 +54,10 @@ const Dashboard = () => {
     if (profileRes.data) setProfile(profileRes.data);
   };
 
-  // Determine primary role for default overview
   const primaryRole = useMemo(() => {
     if (userRoles.includes("driver")) return "driver";
+    if (userRoles.includes("employer")) return "employer";
+    if (userRoles.includes("freelance")) return "freelance";
     if (userRoles.includes("provider")) return "provider";
     if (userRoles.includes("seller")) return "seller";
     return "buyer";
@@ -66,67 +66,43 @@ const Dashboard = () => {
   const renderContent = () => {
     switch (activeTab) {
       case "overview":
-        // Show role-specific overview
         if (primaryRole === "driver") return <DriverOverview />;
+        if (primaryRole === "employer") return <EmployerOverview />;
+        if (primaryRole === "freelance") return <FreelanceOverview />;
         if (primaryRole === "provider") return <ProviderOverview />;
         if (primaryRole === "seller") return <SellerOverview />;
         return <BuyerOverview />;
-
       case "orders":
         return (
           <Card className="border-0 shadow-card">
-            <CardHeader>
-              <CardTitle>Toutes les commandes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OrdersTable />
-            </CardContent>
+            <CardHeader><CardTitle>Toutes les commandes</CardTitle></CardHeader>
+            <CardContent><OrdersTable /></CardContent>
           </Card>
         );
-
       case "products":
         return <ProductsList />;
-
       case "services":
         return <ServicesList />;
-
       case "milestones":
         return <ServiceMilestones />;
-
       case "promotions":
         return <PromotionsManager />;
-
       case "boosts":
         return <BoostAnalytics />;
-
       case "delivery":
-        return (
-          <div className="space-y-6">
-            <DeliveryTracking />
-          </div>
-        );
-
+        return <div className="space-y-6"><DeliveryTracking /></div>;
       case "map":
         return (
           <Card className="border-0 shadow-card">
             <CardContent className="p-0">
-              <DeliveryMap
-                orderId="live"
-                deliveryRequestId={null}
-                origin={{ lat: 6.1319, lng: 1.2228 }}
-                destination={{ lat: 6.1725, lng: 1.2314 }}
-                deliveryStatus="in_transit"
-                estimatedTime="25 min"
-                trackingNumber="MYS-LIVE"
-                enableRealtime={true}
-              />
+              <DeliveryMap orderId="live" deliveryRequestId={null}
+                origin={{ lat: 6.1319, lng: 1.2228 }} destination={{ lat: 6.1725, lng: 1.2314 }}
+                deliveryStatus="in_transit" estimatedTime="25 min" trackingNumber="MYS-LIVE" enableRealtime={true} />
             </CardContent>
           </Card>
         );
-
       case "notifications":
         return <NotificationsList />;
-
       default:
         return <BuyerOverview />;
     }
@@ -140,57 +116,28 @@ const Dashboard = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Tableau de bord" description="Gérez votre activité sur MIYASHI" canonical="/dashboard" />
       <Header />
-
       <div className="flex-1 flex pt-[65px]">
-        {/* Desktop Sidebar */}
         <div className="hidden lg:block">
-          <DashboardSidebar
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            userRoles={userRoles}
-            collapsed={sidebarCollapsed}
-          />
+          <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} userRoles={userRoles} collapsed={sidebarCollapsed} />
         </div>
-
-        {/* Mobile Sidebar Overlay */}
         {mobileSidebarOpen && (
           <div className="lg:hidden fixed inset-0 z-50 flex">
             <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setMobileSidebarOpen(false)} />
             <div className="relative z-10">
-              <DashboardSidebar
-                activeTab={activeTab}
-                onTabChange={(tab) => { setActiveTab(tab); setMobileSidebarOpen(false); }}
-                userRoles={userRoles}
-              />
+              <DashboardSidebar activeTab={activeTab} onTabChange={(tab) => { setActiveTab(tab); setMobileSidebarOpen(false); }} userRoles={userRoles} />
             </div>
           </div>
         )}
-
-        {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="p-4 md:p-6 lg:p-8 max-w-6xl mx-auto">
-            {/* Top Bar */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between mb-6"
-            >
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="lg:hidden"
-                  onClick={() => setMobileSidebarOpen(true)}
-                >
+                <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileSidebarOpen(true)}>
                   <Menu className="h-5 w-5" />
                 </Button>
                 <div>
-                  <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
-                    {greeting}, {greetingName} 👋
-                  </h1>
-                  <p className="text-sm text-muted-foreground">
-                    Voici un résumé de votre activité
-                  </p>
+                  <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">{greeting}, {greetingName} 👋</h1>
+                  <p className="text-sm text-muted-foreground">Voici un résumé de votre activité</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -208,18 +155,15 @@ const Dashboard = () => {
               <EmailVerificationBanner email={user.email} />
             )}
 
-            {/* Seller onboarding tutorial */}
-            {activeTab === "overview" && primaryRole === "seller" && showOnboarding && (
-              <SellerOnboarding onDismiss={() => setShowOnboarding(false)} />
+            {/* Onboarding tutorials */}
+            {activeTab === "overview" && primaryRole === "seller" && showSellerOnboarding && (
+              <SellerOnboarding onDismiss={() => setShowSellerOnboarding(false)} />
+            )}
+            {activeTab === "overview" && primaryRole === "provider" && showProviderOnboarding && (
+              <ProviderOnboarding onDismiss={() => setShowProviderOnboarding(false)} />
             )}
 
-            {/* Content */}
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2 }}
-            >
+            <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
               {renderContent()}
             </motion.div>
           </div>
