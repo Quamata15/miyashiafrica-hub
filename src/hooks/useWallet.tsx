@@ -31,13 +31,13 @@ export const useWallet = () => {
     setLoading(true);
 
     // Get or create wallet
-    let { data } = await (supabase.from("wallets") as any)
+    let { data } = await supabase.from("wallets")
       .select("*")
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (!data) {
-      const { data: newWallet } = await (supabase.from("wallets") as any)
+      const { data: newWallet } = await supabase.from("wallets")
         .insert({ user_id: user.id })
         .select()
         .single();
@@ -47,7 +47,7 @@ export const useWallet = () => {
     if (data) setWallet(data);
 
     // Fetch transactions
-    const { data: txns } = await (supabase.from("wallet_transactions") as any)
+    const { data: txns } = await supabase.from("wallet_transactions")
       .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
@@ -64,8 +64,7 @@ export const useWallet = () => {
   const requestWithdrawal = useCallback(async (amount: number, paymentMethod: string, phone: string) => {
     if (!user || !wallet || amount > wallet.balance) return false;
 
-    // Debit wallet and create transaction record via secure server-side function
-    const { error: debitError } = await supabase.rpc("debit_wallet" as any, {
+    const { error: debitError } = await supabase.rpc("debit_wallet", {
       p_amount: amount,
       p_payment_method: paymentMethod,
       p_phone: phone,
