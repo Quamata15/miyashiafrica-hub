@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -20,10 +20,11 @@ import {
 import {
   Loader2, User, Briefcase, Settings, ShoppingBag, Package,
   MessageSquare, Star, LayoutDashboard, Bell, Camera, MapPin,
-  Phone, Mail, CheckCircle, TrendingUp, LogOut
+  Phone, Mail, CheckCircle, TrendingUp, LogOut, Shield
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
+import KYCVerification from "@/components/kyc/KYCVerification";
 
 type ProfileType = Tables<"profiles">;
 type FreelanceProfile = Tables<"freelance_profiles">;
