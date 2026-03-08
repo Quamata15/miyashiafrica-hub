@@ -43,6 +43,7 @@ const Disputes = lazy(() => import("./pages/Disputes"));
 const Install = lazy(() => import("./pages/Install"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const UserFollows = lazy(() => import("./pages/UserFollows"));
 
 const queryClient = new QueryClient();
 
