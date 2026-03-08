@@ -28,14 +28,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-const Header = forwardRef<HTMLElement>((_props, ref) => {
+const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut, loading } = useAuth();
-  const { unreadCount: unreadNotifications } = user ? useNotifications() : { unreadCount: 0 };
+  const { unreadCount: unreadNotifications } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
 
