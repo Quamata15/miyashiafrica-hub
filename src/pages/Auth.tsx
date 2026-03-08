@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Loader2, Truck, ArrowLeft, Apple } from "lucide-react";
+import { Loader2, Truck, ArrowLeft, Apple, ShoppingBag, Store, Briefcase } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { lovable } from "@/integrations/lovable/index";
 import { motion } from "framer-motion";
 
