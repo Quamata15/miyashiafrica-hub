@@ -119,9 +119,11 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
             <button
               key={action.label}
               onClick={action.action}
+              aria-label={collapsed ? action.label : undefined}
+              title={collapsed ? action.label : undefined}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
             >
-              <action.icon className="h-4 w-4 shrink-0" />
+              <action.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span>{action.label}</span>}
             </button>
           ))}
