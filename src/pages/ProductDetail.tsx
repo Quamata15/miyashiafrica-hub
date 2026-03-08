@@ -147,6 +147,13 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead
+        title={product.title}
+        description={product.description?.slice(0, 155) || `${product.title} sur MIYASHI`}
+        canonical={`/product/${product.id}`}
+        type="product"
+        image={product.images?.[0] || undefined}
+      />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

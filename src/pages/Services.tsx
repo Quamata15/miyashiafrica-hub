@@ -102,6 +102,7 @@ const Services = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Services" description="Trouvez des prestataires qualifiés pour tous vos besoins. Design, développement, marketing et plus sur MIYASHI." canonical="/services" />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
