@@ -36,7 +36,7 @@ const testimonials = [
     name: "Fatou Bamba",
     role: "Prestataire de services",
     location: "Abidjan, Côte d'Ivoire",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&q=75&fm=webp",
     rating: 5,
     content: "En tant que coiffeuse, MIYASHI m'a permis de développer ma clientèle. Le système de réservation est pratique et je reçois des avis positifs.",
   },
