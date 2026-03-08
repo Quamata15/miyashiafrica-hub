@@ -18,7 +18,7 @@ const testimonials = [
     name: "Aminata Diallo",
     role: "Freelance Designer",
     location: "Dakar, Sénégal",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&q=75&fm=webp",
     rating: 5,
     content: "Grâce à MIYASHI, j'ai pu trouver des clients à travers toute l'Afrique de l'Ouest. La plateforme est intuitive et les paiements sont sécurisés.",
   },
