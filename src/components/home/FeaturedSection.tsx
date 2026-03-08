@@ -235,8 +235,10 @@ const FeaturedSection = () => {
                         <div className="aspect-video bg-muted relative overflow-hidden">
                           {service.images?.[0] ? (
                             <img
-                              src={service.images[0]}
+                              src={getOptimizedImageUrl(service.images[0], 400, 225)}
                               alt={service.title}
+                              width={400}
+                              height={225}
                               loading="lazy"
                               decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
