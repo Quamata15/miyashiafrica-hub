@@ -44,6 +44,10 @@ const Profile = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [profile, setProfile] = useState<Partial<ProfileType>>({});
   const [freelanceProfile, setFreelanceProfile] = useState<Partial<FreelanceProfile>>({});
   const [userRoles, setUserRoles] = useState<string[]>([]);
