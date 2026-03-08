@@ -36,6 +36,7 @@ const Marketplace = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
+  const [sellerNames, setSellerNames] = useState<Map<string, string>>(new Map());
   const [categories, setCategories] = useState<Category[]>([]);
   const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
   const [promotions, setPromotions] = useState<Map<string, { discount_type: string; discount_value: number }>>(new Map());
@@ -96,7 +97,7 @@ const Marketplace = () => {
       // Fetch verified status and active promotions for all sellers
       const sellerIds = [...new Set(data.map(p => p.seller_id))];
       if (sellerIds.length > 0) {
-        const [profilesRes, promosRes] = await Promise.all([
+         const [profilesRes, promosRes, namesRes] = await Promise.all([
           supabase
             .from("profiles_public")
             .select("user_id, is_verified")
@@ -108,7 +109,18 @@ const Marketplace = () => {
             .in("user_id", sellerIds)
             .eq("is_active", true)
             .gt("end_date", new Date().toISOString()),
+          supabase
+            .from("profiles_public")
+            .select("user_id, full_name, username")
+            .in("user_id", sellerIds),
         ]);
+        if (namesRes.data) {
+          const nm = new Map<string, string>();
+          for (const p of namesRes.data) {
+            if (p.user_id) nm.set(p.user_id, p.username || p.full_name || "");
+          }
+          setSellerNames(nm);
+        }
         if (profilesRes.data) {
           setVerifiedSellers(new Set(profilesRes.data.map(p => p.user_id!)));
         }
@@ -170,8 +182,11 @@ const Marketplace = () => {
 
   const filteredProducts = useMemo(() => products
     .filter((product) => {
-      const matchesSearch = product.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      const searchLower = filters.searchTerm.toLowerCase();
+      const sellerName = sellerNames.get(product.seller_id) || "";
+      const matchesSearch = product.title.toLowerCase().includes(searchLower) ||
+        product.description?.toLowerCase().includes(searchLower) ||
+        sellerName.toLowerCase().includes(searchLower);
       const matchesCategory = !filters.selectedCategory || product.category_id === filters.selectedCategory;
       const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
       const matchesLocation = !filters.location || product.location?.toLowerCase().includes(filters.location.toLowerCase());
@@ -244,7 +259,7 @@ const Marketplace = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
-                  placeholder="Rechercher un produit..."
+                  placeholder="Rechercher un produit ou vendeur..."
                   value={filters.searchTerm}
                   onChange={(e) => updateFilters({ searchTerm: e.target.value })}
                   className="pl-12 h-12 rounded-xl border-muted"

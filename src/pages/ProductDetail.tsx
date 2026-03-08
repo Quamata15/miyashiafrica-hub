@@ -23,6 +23,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Tables } from "@/integrations/supabase/types";
+import ReportDialog from "@/components/reports/ReportDialog";
 
 type Product = Tables<"products">;
 
@@ -425,12 +426,17 @@ const ProductDetail = () => {
             </motion.div>
           </div>
 
+          {/* Report */}
+          <div className="mt-8 flex justify-end">
+            <ReportDialog targetType="product" targetId={product.id} />
+          </div>
+
           {/* Reviews Section */}
           <div className="mt-12 lg:mt-16">
             <h2 className="text-2xl font-display font-bold mb-6">Avis clients</h2>
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
-                <ReviewsList productId={product.id} />
+                <ReviewsList productId={product.id} sellerId={product.seller_id} />
               </div>
               <div>
                 {user && (
