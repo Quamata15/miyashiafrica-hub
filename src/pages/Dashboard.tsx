@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -24,6 +25,8 @@ import DeliveryMap from "@/components/map/DeliveryMap";
 import SellerOnboarding from "@/components/dashboard/SellerOnboarding";
 import ProviderOnboarding from "@/components/dashboard/ProviderOnboarding";
 import EmailVerificationBanner from "@/components/dashboard/EmailVerificationBanner";
+import LowStockAlert from "@/components/dashboard/LowStockAlert";
+import DriverDeliveryHistory from "@/components/dashboard/DriverDeliveryHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,13 +35,12 @@ import { Menu, Plus, MessageSquare } from "lucide-react";
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { preferences, updatePreference } = useUserPreferences();
   const [activeTab, setActiveTab] = useState("overview");
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [profile, setProfile] = useState<any>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [showSellerOnboarding, setShowSellerOnboarding] = useState(true);
-  const [showProviderOnboarding, setShowProviderOnboarding] = useState(true);
 
   useEffect(() => {
     if (user) fetchUserData();
@@ -91,6 +93,8 @@ const Dashboard = () => {
         return <BoostAnalytics />;
       case "delivery":
         return <div className="space-y-6"><DeliveryTracking /></div>;
+      case "history":
+        return <DriverDeliveryHistory />;
       case "map":
         return (
           <Card className="border-0 shadow-card">
@@ -155,12 +159,15 @@ const Dashboard = () => {
               <EmailVerificationBanner email={user.email} />
             )}
 
+            {/* Low stock alert for sellers */}
+            {activeTab === "overview" && (primaryRole === "seller") && <LowStockAlert />}
+
             {/* Onboarding tutorials */}
-            {activeTab === "overview" && primaryRole === "seller" && showSellerOnboarding && (
-              <SellerOnboarding onDismiss={() => setShowSellerOnboarding(false)} />
+            {activeTab === "overview" && primaryRole === "seller" && !preferences.dismissed_seller_onboarding && (
+              <SellerOnboarding onDismiss={() => updatePreference("dismissed_seller_onboarding", true)} />
             )}
-            {activeTab === "overview" && primaryRole === "provider" && showProviderOnboarding && (
-              <ProviderOnboarding onDismiss={() => setShowProviderOnboarding(false)} />
+            {activeTab === "overview" && primaryRole === "provider" && !preferences.dismissed_provider_onboarding && (
+              <ProviderOnboarding onDismiss={() => updatePreference("dismissed_provider_onboarding", true)} />
             )}
 
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>

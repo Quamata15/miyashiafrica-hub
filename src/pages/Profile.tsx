@@ -25,6 +25,7 @@ import {
 import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
 import KYCVerification from "@/components/kyc/KYCVerification";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 type ProfileType = Tables<"profiles">;
 type FreelanceProfile = Tables<"freelance_profiles">;
@@ -391,6 +392,16 @@ const Profile = () => {
                           <p className="text-xs text-muted-foreground">Préférences de notification</p>
                         </div>
                         <Button variant="outline" size="sm">Configurer</Button>
+                      </div>
+                      <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Settings className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">Thème</p>
+                          <p className="text-xs text-muted-foreground">Apparence de l'application</p>
+                        </div>
+                        <ThemeToggle />
                       </div>
                       <div className="pt-4 border-t">
                         <Button variant="destructive" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>

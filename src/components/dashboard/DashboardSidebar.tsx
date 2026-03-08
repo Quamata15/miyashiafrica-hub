@@ -49,6 +49,7 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
 
   const deliveryItems: SidebarItem[] = userRoles.includes("driver") ? [
     { label: "Livraisons", icon: Truck, value: "delivery" },
+    { label: "Historique", icon: Award, value: "history" },
     { label: "Carte GPS", icon: MapPin, value: "map" },
   ] : [];
 
