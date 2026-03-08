@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, MapPin, Package, SlidersHorizontal, Grid3X3, 
-  List, Heart, Eye, ShoppingCart, Star, ArrowUpDown
+  List, Heart, Eye, ShoppingCart, Star, ArrowUpDown, CheckCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -45,6 +45,7 @@ const Marketplace = () => {
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,18 @@ const Marketplace = () => {
 
     if (!error && data) {
       setProducts(data);
+      // Fetch verified status for all sellers
+      const sellerIds = [...new Set(data.map(p => p.seller_id))];
+      if (sellerIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles_public")
+          .select("user_id, is_verified")
+          .in("user_id", sellerIds)
+          .eq("is_verified", true);
+        if (profiles) {
+          setVerifiedSellers(new Set(profiles.map(p => p.user_id!)));
+        }
+      }
     }
     setLoading(false);
   };
@@ -390,9 +403,17 @@ const Marketplace = () => {
                             ))}
                             <span className="text-xs text-muted-foreground ml-1">(0)</span>
                           </div>
-                          <h3 className="font-semibold text-foreground line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-                            {product.title}
-                          </h3>
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                              {product.title}
+                            </h3>
+                            {verifiedSellers.has(product.seller_id) && (
+                              <Badge variant="secondary" className="shrink-0 gap-0.5 text-[10px] px-1.5 py-0 h-5">
+                                <CheckCircle className="h-3 w-3 text-primary" />
+                                Vérifié
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                             {product.description}
                           </p>
