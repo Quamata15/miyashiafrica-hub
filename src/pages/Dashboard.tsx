@@ -90,6 +90,12 @@ const Dashboard = () => {
       case "milestones":
         return <ServiceMilestones />;
 
+      case "promotions":
+        return <PromotionsManager />;
+
+      case "boosts":
+        return <BoostAnalytics />;
+
       case "delivery":
         return (
           <div className="space-y-6">
