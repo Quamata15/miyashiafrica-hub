@@ -113,7 +113,7 @@ const Checkout = () => {
           return {
             productId: item.product_id || undefined,
             serviceId: item.service_id || undefined,
-            sellerId: (item.product as any)?.seller_id || (item.service as any)?.provider_id || user.id,
+            sellerId: (item.product as { seller_id: string } | null)?.seller_id || (item.service as { provider_id: string } | null)?.provider_id || user.id,
             title: data?.title || "Article",
             price: data?.price || 0,
             quantity: item.quantity,
