@@ -122,7 +122,7 @@ const Feed = () => {
           images: s.images,
           created_at: s.created_at,
           owner_id: s.provider_id,
-          owner_name: profile?.full_name || null,
+          owner_name: profile?.username || profile?.full_name || null,
           owner_avatar: profile?.avatar_url || null,
         };
       }),

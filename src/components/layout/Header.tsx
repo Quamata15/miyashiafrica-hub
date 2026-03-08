@@ -222,9 +222,12 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     <DropdownMenuSeparator />
 
                     {/* Main */}
-                    <DropdownMenuGroup>
+                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" /> Tableau de bord
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/feed")} className="cursor-pointer">
+                        <Rss className="mr-2 h-4 w-4" /> Fil d'actualité
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" /> Mon Profil
