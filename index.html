@@ -31,5 +31,18 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "MIYASHI",
+      "url": "https://miyashi-hub.lovable.app",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://miyashi-hub.lovable.app/marketplace?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
   </body>
 </html>

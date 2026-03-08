@@ -229,7 +229,15 @@ const Marketplace = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
-      <SEOHead title="Marketplace" description="Découvrez des milliers de produits authentiques africains sur MIYASHI. Artisanat, mode, tech et plus." canonical="/marketplace" />
+      <SEOHead
+        title="Marketplace"
+        description="Découvrez des milliers de produits authentiques africains sur MIYASHI. Artisanat, mode, tech et plus."
+        canonical="/marketplace"
+        breadcrumbs={[
+          { name: "Accueil", url: "/" },
+          { name: "Marketplace", url: "/marketplace" },
+        ]}
+      />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
