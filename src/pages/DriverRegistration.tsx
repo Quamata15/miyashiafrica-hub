@@ -174,11 +174,23 @@ const DriverRegistration = () => {
             </Card>
           </motion.div>
 
+          {/* Contract & Badge */}
+          {user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mb-12"
+            >
+              <DriverContract />
+            </motion.div>
+          )}
+
           {/* Registration Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.25 }}
           >
             <Card className="border-0 shadow-elevated">
               <CardHeader>

@@ -234,6 +234,9 @@ const DriverOverview = () => {
         </CardContent>
       </Card>
 
+      {/* Contract & Badge */}
+      <DriverContract />
+
       {/* QR Scanner */}
       <DriverQRScanner />
     </div>
