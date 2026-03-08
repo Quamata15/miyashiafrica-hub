@@ -1136,6 +1136,60 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          user_id: string
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          user_id: string
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          created_at: string
+          id: string
+          referred_id: string
+          referred_reward: number
+          referrer_id: string
+          referrer_reward: number
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_id: string
+          referred_reward?: number
+          referrer_id: string
+          referrer_reward?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referred_reward?: number
+          referrer_id?: string
+          referrer_reward?: number
+          status?: string
+        }
+        Relationships: []
+      }
       reports: {
         Row: {
           admin_notes: string | null
@@ -1711,6 +1765,7 @@ export type Database = {
       }
     }
     Functions: {
+      apply_referral: { Args: { p_referral_code: string }; Returns: boolean }
       calculate_delivery_price:
         | {
             Args: { p_distance_km: number; p_is_night?: boolean }
@@ -1749,6 +1804,7 @@ export type Database = {
             Returns: undefined
           }
       get_admin_stats: { Args: never; Returns: Json }
+      get_or_create_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
