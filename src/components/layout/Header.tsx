@@ -118,10 +118,11 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
-          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group" aria-label="MIYASHI - Accueil">
             <motion.div 
               whileHover={{ scale: 1.05, rotate: 5 }}
               className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg"
+              aria-hidden="true"
             >
               <span className="font-display font-bold text-xl text-primary-foreground">M</span>
             </motion.div>
