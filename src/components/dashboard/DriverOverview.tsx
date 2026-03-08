@@ -160,16 +160,34 @@ const DriverOverview = () => {
                     <span className="font-semibold text-foreground">{d.total_delivery_price?.toLocaleString()}F</span>
                   </div>
                 </div>
-                {d.status === "accepted" && (
-                  <Button size="sm" onClick={() => updateStatus(d.id, "picked_up")} className="bg-primary">
-                    <Package className="w-4 h-4 mr-1" /> Récupéré
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const loc = d.status === "accepted" ? d.pickup_location : d.delivery_location;
+                      const addr = d.status === "accepted" ? d.pickup_address : d.delivery_address;
+                      if (loc?.lat && loc?.lng) {
+                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`, "_blank");
+                      } else if (addr) {
+                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(addr)}`, "_blank");
+                      }
+                    }}
+                    className="text-xs"
+                  >
+                    <Navigation className="w-3 h-3 mr-1" /> GPS
                   </Button>
-                )}
-                {d.status === "picked_up" && (
-                  <Button size="sm" onClick={() => updateStatus(d.id, "delivered")} className="bg-accent text-accent-foreground">
-                    <CheckCircle className="w-4 h-4 mr-1" /> Livré
-                  </Button>
-                )}
+                  {d.status === "accepted" && (
+                    <Button size="sm" onClick={() => updateStatus(d.id, "picked_up")} className="bg-primary">
+                      <Package className="w-4 h-4 mr-1" /> Récupéré
+                    </Button>
+                  )}
+                  {d.status === "picked_up" && (
+                    <Button size="sm" onClick={() => updateStatus(d.id, "delivered")} className="bg-accent text-accent-foreground">
+                      <CheckCircle className="w-4 h-4 mr-1" /> Livré
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </CardContent>

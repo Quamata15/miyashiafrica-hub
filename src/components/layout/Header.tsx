@@ -171,6 +171,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-1">
+            <ThemeToggle />
             {user ? (
               <>
                 <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => navigate("/favorites")}>
