@@ -26,6 +26,7 @@ import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
 import KYCVerification from "@/components/kyc/KYCVerification";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import PushNotificationToggle from "@/components/notifications/PushNotificationToggle";
 
 type ProfileType = Tables<"profiles">;
 type FreelanceProfile = Tables<"freelance_profiles">;
