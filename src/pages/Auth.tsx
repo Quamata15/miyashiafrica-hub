@@ -290,6 +290,47 @@ const Auth = () => {
                         className="h-12"
                       />
                     </div>
+
+                    {/* Role Selection */}
+                    <div className="space-y-2">
+                      <Label>Je suis</Label>
+                      <RadioGroup
+                        value={signupRole}
+                        onValueChange={(v) => setSignupRole(v as "buyer" | "seller" | "provider")}
+                        className="grid grid-cols-3 gap-2"
+                      >
+                        <Label
+                          htmlFor="role-buyer"
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                            signupRole === "buyer" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <RadioGroupItem value="buyer" id="role-buyer" className="sr-only" />
+                          <ShoppingBag className="w-5 h-5 text-primary" />
+                          <span className="text-xs font-medium">Acheteur</span>
+                        </Label>
+                        <Label
+                          htmlFor="role-seller"
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                            signupRole === "seller" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <RadioGroupItem value="seller" id="role-seller" className="sr-only" />
+                          <Store className="w-5 h-5 text-primary" />
+                          <span className="text-xs font-medium">Vendeur</span>
+                        </Label>
+                        <Label
+                          htmlFor="role-provider"
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                            signupRole === "provider" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <RadioGroupItem value="provider" id="role-provider" className="sr-only" />
+                          <Briefcase className="w-5 h-5 text-primary" />
+                          <span className="text-xs font-medium">Prestataire</span>
+                        </Label>
+                      </RadioGroup>
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-password">Mot de passe</Label>
                       <Input
