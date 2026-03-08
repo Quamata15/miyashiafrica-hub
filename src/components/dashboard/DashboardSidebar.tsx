@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   BarChart3, ShoppingCart, Package, Briefcase, Truck, Bell,
   User, Wallet, Star, MessageSquare, Shield, Plus, Settings,
-  Home, Heart, TrendingUp, MapPin, Award, Users
+  Home, Heart, TrendingUp, MapPin, Award, Users, Zap, Megaphone
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -34,11 +34,15 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
 
   const sellerItems: SidebarItem[] = userRoles.includes("seller") ? [
     { label: "Mes Produits", icon: Package, value: "products" },
+    { label: "Promotions", icon: Megaphone, value: "promotions" },
+    { label: "Boosts", icon: Zap, value: "boosts" },
   ] : [];
 
   const providerItems: SidebarItem[] = userRoles.includes("provider") ? [
     { label: "Mes Services", icon: Briefcase, value: "services" },
     { label: "Étapes prestations", icon: TrendingUp, value: "milestones" },
+    { label: "Promotions", icon: Megaphone, value: "promotions" },
+    { label: "Boosts", icon: Zap, value: "boosts" },
   ] : [];
 
   const deliveryItems: SidebarItem[] = userRoles.includes("driver") ? [

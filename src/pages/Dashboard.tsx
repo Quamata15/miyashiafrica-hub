@@ -16,6 +16,8 @@ import ServicesList from "@/components/dashboard/ServicesList";
 import DeliveryTracking from "@/components/dashboard/DeliveryTracking";
 import ServiceMilestones from "@/components/dashboard/ServiceMilestones";
 import NotificationsList from "@/components/dashboard/NotificationsList";
+import PromotionsManager from "@/components/dashboard/PromotionsManager";
+import BoostAnalytics from "@/components/dashboard/BoostAnalytics";
 import DeliveryMap from "@/components/map/DeliveryMap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -87,6 +89,12 @@ const Dashboard = () => {
 
       case "milestones":
         return <ServiceMilestones />;
+
+      case "promotions":
+        return <PromotionsManager />;
+
+      case "boosts":
+        return <BoostAnalytics />;
 
       case "delivery":
         return (
