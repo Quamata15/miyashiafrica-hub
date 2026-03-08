@@ -32,7 +32,7 @@ import GlobalSearch from "@/components/search/GlobalSearch";
 
 const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [scrolled, setScrolled] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
