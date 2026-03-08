@@ -1,5 +1,7 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Home, ArrowLeft, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,13 +11,34 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-4">
+      <div className="text-center max-w-md">
+        <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+          <span className="font-bold text-5xl text-primary-foreground">M</span>
+        </div>
+        <h1 className="text-7xl font-bold text-primary mb-2">404</h1>
+        <h2 className="text-2xl font-semibold text-foreground mb-3">Page introuvable</h2>
+        <p className="text-muted-foreground mb-8">
+          Désolé, la page <code className="text-sm bg-muted px-2 py-1 rounded">{location.pathname}</code> n'existe pas ou a été déplacée.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button asChild className="bg-gradient-to-r from-primary to-secondary">
+            <Link to="/">
+              <Home className="h-4 w-4 mr-2" />
+              Retour à l'accueil
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/marketplace">
+              <Search className="h-4 w-4 mr-2" />
+              Voir les produits
+            </Link>
+          </Button>
+          <Button variant="ghost" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Page précédente
+          </Button>
+        </div>
       </div>
     </div>
   );

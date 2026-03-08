@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,86 +7,100 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CartProvider } from "@/hooks/useCart";
 import { FavoritesProvider } from "@/hooks/useFavorites";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import Marketplace from "./pages/Marketplace";
-import Services from "./pages/Services";
-import Freelance from "./pages/Freelance";
-import Profile from "./pages/Profile";
-import Create from "./pages/Create";
-import Dashboard from "./pages/Dashboard";
-import Messages from "./pages/Messages";
-import ProductDetail from "./pages/ProductDetail";
-import ServiceDetail from "./pages/ServiceDetail";
-import Favorites from "./pages/Favorites";
-import SearchAlerts from "./pages/SearchAlerts";
-import DriverRegistration from "./pages/DriverRegistration";
-import DriverDashboard from "./pages/DriverDashboard";
-import DriverSelection from "./pages/DriverSelection";
-import Checkout from "./pages/Checkout";
-import Support from "./pages/Support";
-import FAQ from "./pages/FAQ";
-import Contact from "./pages/Contact";
-import Terms from "./pages/Terms";
-import HelpCenter from "./pages/HelpCenter";
-import ProviderSpace from "./pages/ProviderSpace";
-import Boost from "./pages/Boost";
-import Wallet from "./pages/Wallet";
-import AdminDashboard from "./pages/AdminDashboard";
-import Disputes from "./pages/Disputes";
-import Install from "./pages/Install";
-import ResetPassword from "./pages/ResetPassword";
+import ErrorBoundary from "@/components/ErrorBoundary";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
+// Lazy-loaded pages
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const Services = lazy(() => import("./pages/Services"));
+const Freelance = lazy(() => import("./pages/Freelance"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Create = lazy(() => import("./pages/Create"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Messages = lazy(() => import("./pages/Messages"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const ServiceDetail = lazy(() => import("./pages/ServiceDetail"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const SearchAlerts = lazy(() => import("./pages/SearchAlerts"));
+const DriverRegistration = lazy(() => import("./pages/DriverRegistration"));
+const DriverDashboard = lazy(() => import("./pages/DriverDashboard"));
+const DriverSelection = lazy(() => import("./pages/DriverSelection"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const Support = lazy(() => import("./pages/Support"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Terms = lazy(() => import("./pages/Terms"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const ProviderSpace = lazy(() => import("./pages/ProviderSpace"));
+const Boost = lazy(() => import("./pages/Boost"));
+const Wallet = lazy(() => import("./pages/Wallet"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const Disputes = lazy(() => import("./pages/Disputes"));
+const Install = lazy(() => import("./pages/Install"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <FavoritesProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/service/:id" element={<ServiceDetail />} />
-                <Route path="/freelance" element={<Freelance />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/alerts" element={<SearchAlerts />} />
-                <Route path="/driver-registration" element={<DriverRegistration />} />
-                <Route path="/driver-dashboard" element={<DriverDashboard />} />
-                <Route path="/select-driver" element={<DriverSelection />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/support" element={<Support />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/help" element={<HelpCenter />} />
-                <Route path="/provider-space" element={<ProviderSpace />} />
-                <Route path="/boost" element={<Boost />} />
-                <Route path="/wallet" element={<Wallet />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/disputes" element={<Disputes />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </FavoritesProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <FavoritesProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Routes>
+                    {/* Public routes */}
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/marketplace" element={<Marketplace />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/services" element={<Services />} />
+                    <Route path="/service/:id" element={<ServiceDetail />} />
+                    <Route path="/freelance" element={<Freelance />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/help" element={<HelpCenter />} />
+                    <Route path="/support" element={<Support />} />
+                    <Route path="/install" element={<Install />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/driver-registration" element={<DriverRegistration />} />
+
+                    {/* Protected routes */}
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                    <Route path="/create" element={<ProtectedRoute><Create /></ProtectedRoute>} />
+                    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                    <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+                    <Route path="/alerts" element={<ProtectedRoute><SearchAlerts /></ProtectedRoute>} />
+                    <Route path="/driver-dashboard" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
+                    <Route path="/select-driver" element={<ProtectedRoute><DriverSelection /></ProtectedRoute>} />
+                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                    <Route path="/provider-space" element={<ProtectedRoute><ProviderSpace /></ProtectedRoute>} />
+                    <Route path="/boost" element={<ProtectedRoute><Boost /></ProtectedRoute>} />
+                    <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+                    <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+                    <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
+
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </BrowserRouter>
+            </TooltipProvider>
+          </FavoritesProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
