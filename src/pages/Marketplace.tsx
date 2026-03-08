@@ -46,6 +46,7 @@ const Marketplace = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
+  const [promotions, setPromotions] = useState<Map<string, { discount_type: string; discount_value: number }>>(new Map());
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -89,16 +90,39 @@ const Marketplace = () => {
 
       setProducts(sorted);
 
-      // Fetch verified status for all sellers
+      // Fetch verified status and active promotions for all sellers
       const sellerIds = [...new Set(data.map(p => p.seller_id))];
       if (sellerIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles_public")
-          .select("user_id, is_verified")
-          .in("user_id", sellerIds)
-          .eq("is_verified", true);
-        if (profiles) {
-          setVerifiedSellers(new Set(profiles.map(p => p.user_id!)));
+        const [profilesRes, promosRes] = await Promise.all([
+          supabase
+            .from("profiles_public")
+            .select("user_id, is_verified")
+            .in("user_id", sellerIds)
+            .eq("is_verified", true),
+          supabase
+            .from("promotions")
+            .select("user_id, discount_type, discount_value, target_id")
+            .in("user_id", sellerIds)
+            .eq("is_active", true)
+            .gt("end_date", new Date().toISOString()),
+        ]);
+        if (profilesRes.data) {
+          setVerifiedSellers(new Set(profilesRes.data.map(p => p.user_id!)));
+        }
+        if (promosRes.data && promosRes.data.length > 0) {
+          // Map seller_id -> best promotion (highest discount)
+          const promoMap = new Map<string, { discount_type: string; discount_value: number }>();
+          for (const p of promosRes.data) {
+            if (!p.user_id) continue;
+            const existing = promoMap.get(p.user_id);
+            if (!existing || (p.discount_value || 0) > existing.discount_value) {
+              promoMap.set(p.user_id, {
+                discount_type: p.discount_type || "percentage",
+                discount_value: p.discount_value || 0,
+              });
+            }
+          }
+          setPromotions(promoMap);
         }
       }
     }
@@ -408,9 +432,18 @@ const Marketplace = () => {
                         </div>
 
                         {/* Stock Badge */}
-                        {product.stock && product.stock <= 5 && (
+                        {product.stock && product.stock <= 5 && !promotions.has(product.seller_id) && (
                           <Badge className="absolute top-3 left-3 bg-secondary text-secondary-foreground">
                             Plus que {product.stock}
+                          </Badge>
+                        )}
+
+                        {/* Promo Badge */}
+                        {promotions.has(product.seller_id) && (
+                          <Badge className="absolute top-3 left-3 bg-destructive text-destructive-foreground font-bold">
+                            {promotions.get(product.seller_id)!.discount_type === "percentage"
+                              ? `-${promotions.get(product.seller_id)!.discount_value}%`
+                              : `-${promotions.get(product.seller_id)!.discount_value.toLocaleString()}F`}
                           </Badge>
                         )}
                       </div>
@@ -448,9 +481,29 @@ const Marketplace = () => {
                           "flex justify-between items-center",
                           viewMode === "grid" ? "px-4 pb-4" : "p-0"
                         )}>
-                          <span className="text-xl font-bold text-primary">
-                            {product.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
-                          </span>
+                          {(() => {
+                            const promo = promotions.get(product.seller_id);
+                            if (promo) {
+                              const discounted = promo.discount_type === "percentage"
+                                ? Math.round(product.price * (1 - promo.discount_value / 100))
+                                : Math.max(0, product.price - promo.discount_value);
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-muted-foreground line-through">
+                                    {product.price.toLocaleString()} FCFA
+                                  </span>
+                                  <span className="text-xl font-bold text-destructive">
+                                    {discounted.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return (
+                              <span className="text-xl font-bold text-primary">
+                                {product.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
+                              </span>
+                            );
+                          })()}
                           <Badge variant="outline" className="text-xs">
                             Stock: {product.stock}
                           </Badge>

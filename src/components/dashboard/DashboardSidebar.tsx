@@ -34,13 +34,15 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
 
   const sellerItems: SidebarItem[] = userRoles.includes("seller") ? [
     { label: "Mes Produits", icon: Package, value: "products" },
-    { label: "Promotions", icon: Megaphone, value: "promotions" },
-    { label: "Boosts", icon: Zap, value: "boosts" },
   ] : [];
 
   const providerItems: SidebarItem[] = userRoles.includes("provider") ? [
     { label: "Mes Services", icon: Briefcase, value: "services" },
     { label: "Étapes prestations", icon: TrendingUp, value: "milestones" },
+  ] : [];
+
+  // Promotions & Boosts shown once if seller OR provider
+  const marketingItems: SidebarItem[] = (userRoles.includes("seller") || userRoles.includes("provider")) ? [
     { label: "Promotions", icon: Megaphone, value: "promotions" },
     { label: "Boosts", icon: Zap, value: "boosts" },
   ] : [];
@@ -57,7 +59,7 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
     { label: "Portefeuille", icon: Wallet, action: () => navigate("/wallet") },
   ];
 
-  const allItems = [...mainItems, ...sellerItems, ...providerItems, ...deliveryItems];
+  const allItems = [...mainItems, ...sellerItems, ...providerItems, ...marketingItems, ...deliveryItems];
 
   return (
     <aside className={cn(
