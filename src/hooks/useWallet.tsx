@@ -64,28 +64,18 @@ export const useWallet = () => {
   const requestWithdrawal = useCallback(async (amount: number, paymentMethod: string, phone: string) => {
     if (!user || !wallet || amount > wallet.balance) return false;
 
-    // Create withdrawal transaction
-    const { error } = await (supabase.from("wallet_transactions") as any).insert({
-      user_id: user.id,
-      type: "withdrawal",
-      amount: -amount,
-      description: `Retrait via ${paymentMethod}`,
-      payment_method: paymentMethod,
-      status: "pending",
-      metadata: { phone },
+    // Debit wallet and create transaction record via secure server-side function
+    const { error: debitError } = await supabase.rpc("debit_wallet" as any, {
+      p_amount: amount,
+      p_payment_method: paymentMethod,
+      p_phone: phone,
     });
-
-    if (!error) {
-      // Debit wallet via secure server-side function
-      const { error: debitError } = await supabase.rpc("debit_wallet", { p_amount: amount });
-      if (debitError) {
-        console.error("Debit failed:", debitError.message);
-        return false;
-      }
-      await fetchWallet();
-      return true;
+    if (debitError) {
+      console.error("Debit failed:", debitError.message);
+      return false;
     }
-    return false;
+    await fetchWallet();
+    return true;
   }, [user, wallet, fetchWallet]);
 
   return { wallet, transactions, loading, fetchWallet, requestWithdrawal };

@@ -45,13 +45,10 @@ const AdminDashboard = () => {
 
   const checkAdmin = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin");
+    // Server-side admin verification via SECURITY DEFINER RPC
+    const { data, error } = await supabase.rpc("verify_admin_access" as any);
     
-    const admin = data && data.length > 0;
+    const admin = data === true && !error;
     setIsAdmin(admin);
     setChecking(false);
     if (admin) fetchAllData();
