@@ -62,6 +62,20 @@ export const useNotifications = () => {
             title: newNotif.title,
             description: newNotif.message || undefined,
           });
+
+          // Trigger browser notification if permitted
+          if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+            try {
+              new window.Notification(newNotif.title, {
+                body: newNotif.message || undefined,
+                icon: "/pwa-icon-192.png",
+                badge: "/pwa-icon-192.png",
+                tag: `miyashi-${newNotif.id}`,
+              });
+            } catch {
+              // Not available in this context
+            }
+          }
         }
       )
       .subscribe();
