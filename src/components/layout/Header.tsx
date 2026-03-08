@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import GlobalSearch from "@/components/search/GlobalSearch";
 
 const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
