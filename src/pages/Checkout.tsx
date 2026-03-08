@@ -168,58 +168,29 @@ const Checkout = () => {
         });
       }
 
-      // Create orders for each item/seller
+      // Use server-side RPC for each order item (price computed from DB)
+      let lastOrderId = "";
+      let lastTotal = 0;
+
       for (const orderItem of orderItems) {
-        let totalItemPrice = orderItem.price * orderItem.quantity;
-
-        // Apply discount proportionally if promo code used
-        if (discount > 0 && baseAmount > 0) {
-          const ratio = totalItemPrice / baseAmount;
-          totalItemPrice = Math.round(totalItemPrice - (discount * ratio));
-        }
-
-        // 1. Create order
-        const { data: order, error: orderErr } = await supabase.from("orders").insert({
-          buyer_id: user.id,
-          seller_id: orderItem.sellerId,
-          product_id: orderItem.productId || null,
-          service_id: orderItem.serviceId || null,
-          quantity: orderItem.quantity,
-          total_price: totalItemPrice,
-          status: "pending",
-          payment_status: "paid",
-          shipping_address: shippingAddress,
-          notes: appliedPromo ? `${notes || ""} [Code promo: ${appliedPromo.code}]`.trim() : notes || null,
-        }).select("id").single();
-
-        if (orderErr || !order) throw orderErr;
-
-        // 2. Create payment record
-        await (supabase.from("payments") as any).insert({
-          order_id: order.id,
-          payer_id: user.id,
-          amount: totalItemPrice,
-          payment_method: paymentMethod,
-          status: "completed",
-          metadata: { phone, promo_code: appliedPromo?.code || null },
+        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order" as any, {
+          p_product_id: orderItem.productId || null,
+          p_service_id: orderItem.serviceId || null,
+          p_quantity: orderItem.quantity,
+          p_shipping_address: shippingAddress,
+          p_notes: notes || null,
+          p_payment_method: paymentMethod,
+          p_phone: phone || null,
+          p_promo_code: appliedPromo?.code || null,
         });
 
-        // 3. Create escrow (funds held until delivery confirmed)
-        await (supabase.from("escrow_transactions") as any).insert({
-          order_id: order.id,
-          payer_id: user.id,
-          total_amount: totalItemPrice,
-          seller_amount: totalItemPrice * 0.9,
-          platform_commission: totalItemPrice * 0.1,
-          status: "held",
-        });
-      }
+        if (rpcErr) throw new Error(rpcErr.message);
 
-      // Increment promo code used_count
-      if (appliedPromo) {
-        await (supabase.from("promo_codes") as any)
-          .update({ used_count: (await (supabase.from("promo_codes") as any).select("used_count").eq("id", appliedPromo.id).single()).data?.used_count + 1 })
-          .eq("id", appliedPromo.id);
+        const res = result as any;
+        if (!res?.success) throw new Error(res?.error || "Erreur lors de la création de la commande");
+
+        lastOrderId = res.order_id;
+        lastTotal = res.total_price;
       }
 
       // Clear cart if using cart checkout
@@ -228,10 +199,10 @@ const Checkout = () => {
       }
 
       setLoading(false);
-      toast({ title: "Paiement réussi! ✅", description: "Vos fonds sont sécurisés. Choisissez un livreur." });
+      toast({ title: "Paiement réussi! ✅", description: "Vos fonds sont sécurisés." });
 
-      // Navigate to driver selection for last order
-      navigate("/select-driver?order=latest");
+      // Navigate to success page
+      navigate(`/order-success?order=${lastOrderId}&total=${lastTotal}`);
 
     } catch (error: any) {
       setLoading(false);
