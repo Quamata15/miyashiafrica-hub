@@ -46,6 +46,7 @@ const Marketplace = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
+  const [promotions, setPromotions] = useState<Map<string, { discount_type: string; discount_value: number }>>(new Map());
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
