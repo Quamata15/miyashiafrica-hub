@@ -42,8 +42,8 @@ const UserFollows = () => {
 
     const [profileRes, followersRes, followingRes] = await Promise.all([
       supabase.from("profiles_public").select("full_name").eq("user_id", userId).maybeSingle(),
-      (supabase as any).from("follows").select("follower_id").eq("followed_id", userId),
-      (supabase as any).from("follows").select("followed_id").eq("follower_id", userId),
+      supabase.from("follows").select("follower_id").eq("followed_id", userId),
+      supabase.from("follows").select("followed_id").eq("follower_id", userId),
     ]);
 
     setProfileName(profileRes.data?.full_name || "Utilisateur");
