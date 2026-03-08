@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import QuickStatsGrid from "./QuickStatsGrid";
+import DriverQRScanner from "@/components/shipping/DriverQRScanner";
 import { useDriverBroadcast } from "@/hooks/useDriverLocation";
 
 const DriverOverview = () => {
