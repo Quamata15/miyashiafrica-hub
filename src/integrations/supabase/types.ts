@@ -1507,7 +1507,17 @@ export type Database = {
         Args: { p_order_id: string }
         Returns: undefined
       }
-      debit_wallet: { Args: { p_amount: number }; Returns: undefined }
+      debit_wallet:
+        | { Args: { p_amount: number }; Returns: undefined }
+        | {
+            Args: {
+              p_amount: number
+              p_payment_method?: string
+              p_phone?: string
+            }
+            Returns: undefined
+          }
+      get_admin_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1525,6 +1535,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      verify_admin_access: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role:
