@@ -351,18 +351,9 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
         </div>
 
         {/* Mobile Search */}
-        <form onSubmit={handleSearch} className="md:hidden pb-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-card outline-none transition-all duration-300 text-sm"
-            />
-          </div>
-        </form>
+        <div className="md:hidden pb-3">
+          <GlobalSearch />
+        </div>
       </div>
 
       {/* Mobile Menu */}
