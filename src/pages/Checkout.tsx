@@ -253,7 +253,6 @@ const Checkout = () => {
               </CardContent>
             </Card>
 
-            {/* Payment Method */}
             <Card className="border-0 shadow-elevated mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -261,16 +260,28 @@ const Checkout = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Country selector */}
+                <div className="mb-4 space-y-2">
+                  <Label>Pays</Label>
+                  <Select value={country} onValueChange={(v) => { setCountry(v); setPaymentMethod(paymentsByCountry[v]?.methods[0]?.id || "card"); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(paymentsByCountry).map(([key, c]) => (
+                        <SelectItem key={key} value={key}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
                   {methods.map(m => (
                     <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.id ? "border-primary bg-primary/5" : "border-border"}`}>
-                      <RadioGroupItem value={m.id} id={m.id} />
-                      <label htmlFor={m.id} className="flex items-center gap-3 cursor-pointer flex-1">
+                      <RadioGroupItem value={m.id} id={`checkout-${m.id}`} />
+                      <label htmlFor={`checkout-${m.id}`} className="flex items-center gap-3 cursor-pointer flex-1">
                         <span className="text-2xl">{m.icon}</span>
-                        <div>
-                          <p className="font-medium">{m.label}</p>
-                          <p className="text-xs text-muted-foreground">{m.desc}</p>
-                        </div>
+                        <p className="font-medium">{m.label}</p>
                       </label>
                     </div>
                   ))}
@@ -280,7 +291,7 @@ const Checkout = () => {
                   <div className="mt-4 space-y-2">
                     <Label>Numéro de téléphone</Label>
                     <div className="flex gap-2">
-                      <Input value="+228" disabled className="w-20" />
+                      <Input value={countryData?.prefix || "+228"} disabled className="w-20" />
                       <Input placeholder="XX XX XX XX" value={phone} onChange={e => setPhone(e.target.value)} className="h-12" />
                     </div>
                   </div>

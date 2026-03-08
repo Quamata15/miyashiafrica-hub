@@ -34,7 +34,7 @@ import Boost from "./pages/Boost";
 import Wallet from "./pages/Wallet";
 import AdminDashboard from "./pages/AdminDashboard";
 import Disputes from "./pages/Disputes";
-
+import Install from "./pages/Install";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -74,6 +74,7 @@ const App = () => (
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/disputes" element={<Disputes />} />
+                <Route path="/install" element={<Install />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
