@@ -115,6 +115,43 @@ const PromotionsManager = () => {
     toast({ title: "Promotion supprimée" });
   };
 
+  const handleCreateCode = async () => {
+    if (!user || !codeForm.code || !codeForm.expires_at) return;
+    setSaving(true);
+
+    const { error } = await (supabase.from("promo_codes") as any).insert({
+      seller_id: user.id,
+      code: codeForm.code.toUpperCase(),
+      discount_type: codeForm.discount_type,
+      discount_value: codeForm.discount_value,
+      min_order_amount: codeForm.min_order_amount || 0,
+      max_uses: codeForm.max_uses ? parseInt(codeForm.max_uses) : null,
+      expires_at: new Date(codeForm.expires_at).toISOString(),
+      is_active: true,
+    });
+
+    setSaving(false);
+    if (error) {
+      toast({ title: "Erreur", description: error.message?.includes("unique") ? "Ce code existe déjà" : "Impossible de créer le code", variant: "destructive" });
+    } else {
+      toast({ title: "Code promo créé! 🎟️" });
+      setCodeDialogOpen(false);
+      setCodeForm({ code: "", discount_type: "percentage", discount_value: 10, min_order_amount: 0, max_uses: "", expires_at: "" });
+      fetchPromoCodes();
+    }
+  };
+
+  const deletePromoCode = async (id: string) => {
+    await (supabase.from("promo_codes") as any).delete().eq("id", id);
+    fetchPromoCodes();
+    toast({ title: "Code supprimé" });
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast({ title: "Copié! 📋", description: `Code ${code} copié dans le presse-papier` });
+  };
+
   const eventTags = [
     { value: "noel", label: "🎄 Noël" },
     { value: "rentree", label: "📚 Rentrée" },
