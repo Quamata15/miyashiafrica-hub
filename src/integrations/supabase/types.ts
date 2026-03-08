@@ -404,6 +404,47 @@ export type Database = {
           },
         ]
       }
+      dispute_events: {
+        Row: {
+          attachment_name: string | null
+          attachment_url: string | null
+          content: string | null
+          created_at: string
+          dispute_id: string
+          event_type: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          content?: string | null
+          created_at?: string
+          dispute_id: string
+          event_type?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
+          content?: string | null
+          created_at?: string
+          dispute_id?: string
+          event_type?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_events_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes: {
         Row: {
           admin_notes: string | null
