@@ -144,8 +144,10 @@ const FeaturedSection = () => {
                         <div className="aspect-square bg-muted relative overflow-hidden">
                           {product.images?.[0] ? (
                             <img
-                              src={product.images[0]}
+                              src={getOptimizedImageUrl(product.images[0], 400, 400)}
                               alt={product.title}
+                              width={400}
+                              height={400}
                               loading="lazy"
                               decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
