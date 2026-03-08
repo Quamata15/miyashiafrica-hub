@@ -95,6 +95,14 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
+      // Assign the selected role after signup
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) {
+        await supabase.from("user_roles").insert({
+          user_id: newUser.id,
+          role: signupRole,
+        });
+      }
       toast({
         title: "Inscription réussie",
         description: "Vérifiez votre email pour confirmer votre compte.",
