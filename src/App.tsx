@@ -47,6 +47,7 @@ const UserFollows = lazy(() => import("./pages/UserFollows"));
 const Feed = lazy(() => import("./pages/Feed"));
 const HelpGuide = lazy(() => import("./pages/HelpGuide"));
 const Campaigns = lazy(() => import("./pages/Campaigns"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => (
                     <Route path="/boost" element={<ProtectedRoute><Boost /></ProtectedRoute>} />
                     <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
                     <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+                    <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                     <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
                     <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
