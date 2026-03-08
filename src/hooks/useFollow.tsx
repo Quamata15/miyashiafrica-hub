@@ -18,15 +18,15 @@ export const useFollow = (targetUserId?: string) => {
       .select('id')
       .eq('follower_id', user.id)
       .eq('followed_id', targetUserId)
-      .single();
+      .maybeSingle();
 
     setIsFollowing(!!data);
   }, [user, targetUserId]);
 
   const fetchFollowCounts = useCallback(async (userId: string) => {
     const [followers, following] = await Promise.all([
-      (supabase as any).from('follows').select('id', { count: 'exact' }).eq('followed_id', userId),
-      (supabase as any).from('follows').select('id', { count: 'exact' }).eq('follower_id', userId)
+      (supabase as any).from('follows').select('id', { count: 'exact', head: true }).eq('followed_id', userId),
+      (supabase as any).from('follows').select('id', { count: 'exact', head: true }).eq('follower_id', userId)
     ]);
 
     setFollowersCount(followers.count || 0);
@@ -60,7 +60,6 @@ export const useFollow = (targetUserId?: string) => {
       setFollowersCount(prev => prev + 1);
       toast.success('Abonnement réussi');
 
-      // Create notification via server-side function
       await supabase.rpc('send_notification', {
         p_user_id: targetUserId,
         p_type: 'follow',

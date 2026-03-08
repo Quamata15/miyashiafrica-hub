@@ -1,32 +1,41 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  CheckCircle, MapPin, Calendar, Star, Package, Briefcase,
-  MessageSquare, ShoppingBag, Loader2, UserX
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  CheckCircle, Calendar, Star, Package, Briefcase,
+  MessageSquare, Loader2, UserX, Share2, Copy, ExternalLink
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import FollowButton from "@/components/follow/FollowButton";
+import { toast } from "sonner";
 
 const PublicProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [reviews, setReviews] = useState<any[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
+  const [followersCount, setFollowersCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
@@ -37,7 +46,6 @@ const PublicProfile = () => {
   const fetchProfile = async () => {
     if (!userId) return;
 
-    // Fetch public profile via the view
     const { data: profileData } = await supabase
       .from("profiles_public")
       .select("*")
@@ -51,8 +59,7 @@ const PublicProfile = () => {
     }
     setProfile(profileData);
 
-    // Fetch products, services, reviews in parallel
-    const [prodRes, servRes, revRes] = await Promise.all([
+    const [prodRes, servRes, revRes, followRes] = await Promise.all([
       supabase
         .from("products")
         .select("id, title, price, images, created_at")
@@ -74,13 +81,17 @@ const PublicProfile = () => {
         .eq("reviewed_user_id", userId)
         .order("created_at", { ascending: false })
         .limit(20),
+      (supabase as any)
+        .from("follows")
+        .select("id", { count: "exact", head: true })
+        .eq("followed_id", userId),
     ]);
 
     if (prodRes.data) setProducts(prodRes.data);
     if (servRes.data) setServices(servRes.data);
     if (revRes.data) setReviews(revRes.data);
+    setFollowersCount(followRes.count || 0);
 
-    // Determine visible roles
     const rolesArr: string[] = [];
     if (prodRes.data && prodRes.data.length > 0) rolesArr.push("Vendeur");
     if (servRes.data && servRes.data.length > 0) rolesArr.push("Prestataire");
@@ -92,6 +103,40 @@ const PublicProfile = () => {
   const avgRating = reviews.length > 0
     ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
     : null;
+
+  const profileUrl = `${window.location.origin}/user/${userId}`;
+
+  const handleShare = async (method: string) => {
+    const text = `Découvrez le profil de ${profile?.full_name || "cet utilisateur"} sur MIYASHI`;
+    switch (method) {
+      case "copy":
+        await navigator.clipboard.writeText(profileUrl);
+        toast.success("Lien copié !");
+        break;
+      case "whatsapp":
+        window.open(`https://wa.me/?text=${encodeURIComponent(text + " " + profileUrl)}`, "_blank");
+        break;
+      case "facebook":
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(profileUrl)}`, "_blank");
+        break;
+      case "twitter":
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(profileUrl)}`, "_blank");
+        break;
+      case "native":
+        if (navigator.share) {
+          navigator.share({ title: text, url: profileUrl }).catch(() => {});
+        }
+        break;
+    }
+  };
+
+  const handleContact = () => {
+    if (!currentUser) {
+      toast.error("Connectez-vous pour envoyer un message");
+      return;
+    }
+    navigate(`/messages?to=${userId}`);
+  };
 
   if (loading) {
     return (
@@ -180,6 +225,10 @@ const PublicProfile = () => {
                     <p className="text-[10px] text-muted-foreground">Services</p>
                   </div>
                   <div className="text-center">
+                    <p className="font-bold">{followersCount}</p>
+                    <p className="text-[10px] text-muted-foreground">Abonnés</p>
+                  </div>
+                  <div className="text-center">
                     <p className="font-bold">{reviews.length}</p>
                     <p className="text-[10px] text-muted-foreground">Avis</p>
                   </div>
@@ -192,20 +241,53 @@ const PublicProfile = () => {
                 </div>
               </div>
               {/* Actions */}
-              {!isOwnProfile && currentUser && (
-                <div className="flex flex-col gap-2">
-                  <FollowButton userId={userId!} />
+              <div className="flex flex-col gap-2">
+                {!isOwnProfile && currentUser && (
+                  <>
+                    <FollowButton userId={userId!} showCount />
+                    <Button variant="outline" size="sm" onClick={handleContact}>
+                      <MessageSquare className="h-4 w-4 mr-1" /> Contacter
+                    </Button>
+                  </>
+                )}
+                {!isOwnProfile && !currentUser && (
                   <Button variant="outline" size="sm" asChild>
-                    <Link to={`/messages?to=${userId}`}>
-                      <MessageSquare className="h-4 w-4 mr-1" /> Message
+                    <Link to="/auth">
+                      <MessageSquare className="h-4 w-4 mr-1" /> Se connecter
                     </Link>
                   </Button>
-                </div>
-              )}
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <Share2 className="h-4 w-4 mr-1" /> Partager
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleShare("copy")}>
+                      <Copy className="h-4 w-4 mr-2" /> Copier le lien
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare("whatsapp")}>
+                      <ExternalLink className="h-4 w-4 mr-2" /> WhatsApp
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare("facebook")}>
+                      <ExternalLink className="h-4 w-4 mr-2" /> Facebook
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleShare("twitter")}>
+                      <ExternalLink className="h-4 w-4 mr-2" /> X (Twitter)
+                    </DropdownMenuItem>
+                    {typeof navigator.share === "function" && (
+                      <DropdownMenuItem onClick={() => handleShare("native")}>
+                        <Share2 className="h-4 w-4 mr-2" /> Partage natif
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </motion.div>
 
-          {/* Tabs: Products, Services, Reviews */}
+          {/* Tabs */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <Tabs defaultValue={products.length > 0 ? "products" : services.length > 0 ? "services" : "reviews"}>
               <TabsList className="grid w-full grid-cols-3 mb-6">
@@ -223,7 +305,6 @@ const PublicProfile = () => {
                 </TabsTrigger>
               </TabsList>
 
-              {/* Products tab */}
               <TabsContent value="products">
                 {products.length === 0 ? (
                   <EmptyState icon={Package} text="Aucun produit en vente" />
@@ -252,7 +333,6 @@ const PublicProfile = () => {
                 )}
               </TabsContent>
 
-              {/* Services tab */}
               <TabsContent value="services">
                 {services.length === 0 ? (
                   <EmptyState icon={Briefcase} text="Aucun service proposé" />
@@ -289,7 +369,6 @@ const PublicProfile = () => {
                 )}
               </TabsContent>
 
-              {/* Reviews tab */}
               <TabsContent value="reviews">
                 {reviews.length === 0 ? (
                   <EmptyState icon={Star} text="Aucun avis pour le moment" />
