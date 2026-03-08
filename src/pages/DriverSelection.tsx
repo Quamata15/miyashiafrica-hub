@@ -27,7 +27,7 @@ const DriverSelection = () => {
   useEffect(() => { fetchDrivers(); }, []);
 
   const fetchDrivers = async () => {
-    const { data } = await (supabase.from("driver_profiles") as any)
+    const { data } = await (supabase.from("driver_profiles_public" as any) as any)
       .select("*")
       .eq("is_available", true)
       .order("loyalty_points", { ascending: false });
