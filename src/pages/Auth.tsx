@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Loader2, Truck, ArrowLeft, Apple } from "lucide-react";
+import { Loader2, Truck, ArrowLeft, Apple, ShoppingBag, Store, Briefcase } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { lovable } from "@/integrations/lovable/index";
 import { motion } from "framer-motion";
 
@@ -25,6 +26,7 @@ const Auth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupFullName, setSignupFullName] = useState("");
+  const [signupRole, setSignupRole] = useState<"buyer" | "seller" | "provider">("buyer");
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -93,6 +95,14 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
+      // Assign the selected role after signup
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      if (newUser) {
+        await supabase.from("user_roles").insert({
+          user_id: newUser.id,
+          role: signupRole,
+        });
+      }
       toast({
         title: "Inscription réussie",
         description: "Vérifiez votre email pour confirmer votre compte.",
@@ -279,6 +289,47 @@ const Auth = () => {
                         required
                         className="h-12"
                       />
+                    </div>
+
+                    {/* Role Selection */}
+                    <div className="space-y-2">
+                      <Label>Je suis</Label>
+                      <RadioGroup
+                        value={signupRole}
+                        onValueChange={(v) => setSignupRole(v as "buyer" | "seller" | "provider")}
+                        className="grid grid-cols-3 gap-2"
+                      >
+                        <Label
+                          htmlFor="role-buyer"
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                            signupRole === "buyer" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <RadioGroupItem value="buyer" id="role-buyer" className="sr-only" />
+                          <ShoppingBag className="w-5 h-5 text-primary" />
+                          <span className="text-xs font-medium">Acheteur</span>
+                        </Label>
+                        <Label
+                          htmlFor="role-seller"
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                            signupRole === "seller" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <RadioGroupItem value="seller" id="role-seller" className="sr-only" />
+                          <Store className="w-5 h-5 text-primary" />
+                          <span className="text-xs font-medium">Vendeur</span>
+                        </Label>
+                        <Label
+                          htmlFor="role-provider"
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                            signupRole === "provider" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+                          }`}
+                        >
+                          <RadioGroupItem value="provider" id="role-provider" className="sr-only" />
+                          <Briefcase className="w-5 h-5 text-primary" />
+                          <span className="text-xs font-medium">Prestataire</span>
+                        </Label>
+                      </RadioGroup>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-password">Mot de passe</Label>
