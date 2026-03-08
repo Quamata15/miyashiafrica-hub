@@ -170,11 +170,23 @@ const Dashboard = () => {
             {activeTab === "overview" && (primaryRole === "seller") && <LowStockAlert />}
 
             {/* Onboarding tutorials */}
+            {activeTab === "overview" && primaryRole === "buyer" && !preferences.dismissed_buyer_onboarding && (
+              <BuyerOnboarding onDismiss={() => updatePreference("dismissed_buyer_onboarding", true)} />
+            )}
             {activeTab === "overview" && primaryRole === "seller" && !preferences.dismissed_seller_onboarding && (
               <SellerOnboarding onDismiss={() => updatePreference("dismissed_seller_onboarding", true)} />
             )}
             {activeTab === "overview" && primaryRole === "provider" && !preferences.dismissed_provider_onboarding && (
               <ProviderOnboarding onDismiss={() => updatePreference("dismissed_provider_onboarding", true)} />
+            )}
+            {activeTab === "overview" && primaryRole === "freelance" && !preferences.dismissed_freelance_onboarding && (
+              <FreelanceOnboarding onDismiss={() => updatePreference("dismissed_freelance_onboarding", true)} />
+            )}
+            {activeTab === "overview" && primaryRole === "employer" && !preferences.dismissed_employer_onboarding && (
+              <EmployerOnboarding onDismiss={() => updatePreference("dismissed_employer_onboarding", true)} />
+            )}
+            {activeTab === "overview" && primaryRole === "driver" && !preferences.dismissed_driver_onboarding && (
+              <DriverOnboarding onDismiss={() => updatePreference("dismissed_driver_onboarding", true)} />
             )}
 
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
