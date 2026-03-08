@@ -42,6 +42,7 @@ const Profile = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Partial<ProfileType>>({});
   const [freelanceProfile, setFreelanceProfile] = useState<Partial<FreelanceProfile>>({});
