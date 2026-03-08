@@ -116,6 +116,21 @@ const Auth = () => {
     setIsLoading(false);
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    const { error } = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: window.location.origin,
+    });
+    if (error) {
+      toast({
+        title: "Erreur de connexion Google",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+    setIsLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Connexion" description="Connectez-vous ou créez votre compte MIYASHI pour acheter, vendre et proposer vos services." canonical="/auth" />
