@@ -27,14 +27,14 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-const MarketplaceProductCard = ({
+const MarketplaceProductCard = memo(forwardRef<HTMLDivElement, MarketplaceProductCardProps>(({
   product, viewMode, isFavorite: fav, toggleFavorite, addToCart,
   rating, isVerified, promotion,
-}: MarketplaceProductCardProps) => {
+}, ref) => {
   const navigate = useNavigate();
 
   return (
-    <motion.div variants={item} layout onClick={() => navigate(`/product/${product.id}`)}>
+    <motion.div ref={ref} variants={item} layout onClick={() => navigate(`/product/${product.id}`)}>
       <Card className={cn(
         "overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-elevated border-0 shadow-card",
         viewMode === "list" && "flex flex-row"
@@ -138,6 +138,8 @@ const MarketplaceProductCard = ({
       </Card>
     </motion.div>
   );
-};
+}));
+
+MarketplaceProductCard.displayName = "MarketplaceProductCard";
 
 export default MarketplaceProductCard;
