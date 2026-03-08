@@ -270,6 +270,7 @@ const Auth = () => {
                   </form>
                 </TabsContent>
               </Tabs>
+              )}
 
               {/* Driver CTA */}
               <div className="mt-6 pt-6 border-t border-border text-center">

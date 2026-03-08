@@ -35,6 +35,7 @@ import Wallet from "./pages/Wallet";
 import AdminDashboard from "./pages/AdminDashboard";
 import Disputes from "./pages/Disputes";
 import Install from "./pages/Install";
+import ResetPassword from "./pages/ResetPassword";
 const queryClient = new QueryClient();
 
 const App = () => (
