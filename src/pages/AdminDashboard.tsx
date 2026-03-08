@@ -16,6 +16,7 @@ import {
 import { motion } from "framer-motion";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
+import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -167,47 +168,7 @@ const AdminDashboard = () => {
               </TabsContent>
 
               <TabsContent value="users">
-                <Card className="border-0 shadow-card">
-                  <CardHeader><CardTitle>Utilisateurs ({users.length})</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Nom</TableHead>
-                            <TableHead>Pseudo</TableHead>
-                            <TableHead>Téléphone</TableHead>
-                            <TableHead>Localisation</TableHead>
-                            <TableHead>Vérifié</TableHead>
-                            <TableHead>Inscrit le</TableHead>
-                            <TableHead></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {users.map(u => (
-                            <TableRow key={u.id}>
-                              <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
-                              <TableCell className="text-muted-foreground">{u.username || "—"}</TableCell>
-                              <TableCell>{u.phone || "—"}</TableCell>
-                              <TableCell>{u.location || "—"}</TableCell>
-                              <TableCell>
-                                <Badge variant={u.is_verified ? "default" : "outline"}>
-                                  {u.is_verified ? "Oui" : "Non"}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>{format(new Date(u.created_at), "dd/MM/yy", { locale: fr })}</TableCell>
-                              <TableCell>
-                                <Button size="sm" variant="ghost" onClick={() => navigate(`/user/${u.user_id}`)}>
-                                  <Eye className="w-4 h-4" />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </CardContent>
-                </Card>
+                <AdminUserManagement users={users} onRefresh={fetchAllData} />
               </TabsContent>
 
               <TabsContent value="orders">
