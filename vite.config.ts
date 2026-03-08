@@ -52,13 +52,49 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallbackDenylist: [/^\/~oauth/],
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*supabase.*$/,
+            urlPattern: /^https:\/\/.*supabase.*\/rest\//,
             handler: "NetworkFirst",
             options: {
-              cacheName: "supabase-cache",
-              expiration: { maxEntries: 50, maxAgeSeconds: 300 },
+              cacheName: "supabase-api",
+              expiration: { maxEntries: 100, maxAgeSeconds: 300 },
+              networkTimeoutSeconds: 5,
+            },
+          },
+          {
+            urlPattern: /^https:\/\/.*supabase.*\/storage\//,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "supabase-storage",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 7 },
+            },
+          },
+          {
+            urlPattern: /\.(png|jpg|jpeg|webp|gif|svg)$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "images-cache",
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "google-fonts-stylesheets",
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-webfonts",
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
         ],
