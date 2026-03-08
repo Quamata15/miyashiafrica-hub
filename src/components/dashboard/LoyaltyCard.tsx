@@ -5,15 +5,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
-import { Crown, Star, Gem, Trophy, Gift, TrendingUp } from "lucide-react";
+import { Crown, Star, Gem, Trophy, Gift, TrendingUp, Percent, Truck, Zap } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 const LEVELS = {
-  bronze: { label: "Bronze", icon: Star, color: "text-orange-600", bg: "bg-orange-100", min: 0, next: 2000 },
-  silver: { label: "Argent", icon: Gem, color: "text-slate-500", bg: "bg-slate-100", min: 2000, next: 5000 },
-  gold: { label: "Or", icon: Crown, color: "text-yellow-600", bg: "bg-yellow-100", min: 5000, next: 10000 },
-  platinum: { label: "Platine", icon: Trophy, color: "text-purple-600", bg: "bg-purple-100", min: 10000, next: 999999 },
+  bronze: {
+    label: "Bronze", icon: Star, color: "text-orange-600", bg: "bg-orange-100",
+    min: 0, next: 2000,
+    perks: ["1 pt / 100F d'achat", "Protection acheteur"],
+    cashback: 0,
+  },
+  silver: {
+    label: "Argent", icon: Gem, color: "text-slate-500", bg: "bg-slate-100",
+    min: 2000, next: 5000,
+    perks: ["2 pts / 100F d'achat", "2% cashback", "Offres exclusives"],
+    cashback: 2,
+  },
+  gold: {
+    label: "Or", icon: Crown, color: "text-yellow-600", bg: "bg-yellow-100",
+    min: 5000, next: 10000,
+    perks: ["3 pts / 100F d'achat", "5% cashback", "Livraison prioritaire", "Promos VIP"],
+    cashback: 5,
+  },
+  platinum: {
+    label: "Platine", icon: Trophy, color: "text-purple-600", bg: "bg-purple-100",
+    min: 10000, next: 999999,
+    perks: ["5 pts / 100F d'achat", "10% cashback", "Livraison gratuite", "Support prioritaire", "Accès avant-première"],
+    cashback: 10,
+  },
+};
+
+const PERK_ICONS: Record<string, React.ElementType> = {
+  "cashback": Percent,
+  "livraison": Truck,
+  "pts": Gift,
+  "default": Zap,
+};
+
+const getPerkIcon = (perk: string) => {
+  const lower = perk.toLowerCase();
+  if (lower.includes("cashback")) return Percent;
+  if (lower.includes("livraison")) return Truck;
+  if (lower.includes("pts") || lower.includes("pt")) return Gift;
+  return Zap;
 };
 
 const LoyaltyCard = () => {
@@ -90,17 +125,48 @@ const LoyaltyCard = () => {
               </div>
             )}
 
+            {/* Cashback highlight */}
+            {levelInfo.cashback > 0 && (
+              <div className="mt-4 p-3 rounded-xl bg-primary/10 border border-primary/20">
+                <p className="text-sm font-semibold text-primary flex items-center gap-2">
+                  <Percent className="h-4 w-4" />
+                  {levelInfo.cashback}% de cashback sur chaque achat
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Crédit automatique sur votre portefeuille MIYASHI
+                </p>
+              </div>
+            )}
+
             {/* Perks */}
-            <div className="mt-4 flex gap-3 flex-wrap">
-              <Badge variant="outline" className="gap-1 text-xs">
-                <Gift className="w-3 h-3" /> 1 pt / 100F d'achat
-              </Badge>
-              {level !== "bronze" && (
-                <Badge variant="outline" className="gap-1 text-xs">
-                  <TrendingUp className="w-3 h-3" /> Offres exclusives
-                </Badge>
-              )}
+            <div className="mt-4 flex gap-2 flex-wrap">
+              {levelInfo.perks.map((perk) => {
+                const PerkIcon = getPerkIcon(perk);
+                return (
+                  <Badge key={perk} variant="outline" className="gap-1 text-xs">
+                    <PerkIcon className="w-3 h-3" /> {perk}
+                  </Badge>
+                );
+              })}
             </div>
+
+            {/* Next level preview */}
+            {nextLevel && (
+              <div className="mt-4 pt-3 border-t border-border/50">
+                <p className="text-xs text-muted-foreground mb-1.5">
+                  🎯 Débloquez au niveau <span className="font-semibold">{nextLevel.label}</span> :
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {nextLevel.perks
+                    .filter(p => !levelInfo.perks.includes(p))
+                    .map((perk) => (
+                      <Badge key={perk} variant="secondary" className="gap-1 text-[10px] opacity-70">
+                        {perk}
+                      </Badge>
+                    ))}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
