@@ -157,18 +157,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           </nav>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-sm mx-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-card focus:shadow-md outline-none transition-all duration-300 text-sm"
-              />
-            </div>
-          </form>
+          <GlobalSearch className="hidden md:block flex-1 max-w-sm mx-4" />
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-1">
