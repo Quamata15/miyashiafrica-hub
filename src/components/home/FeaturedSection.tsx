@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,34 +28,53 @@ const FeaturedSection = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const fetchFeatured = async () => {
-      try {
-        const [productsRes, servicesRes] = await Promise.all([
-          supabase
-            .from("products")
-            .select("id, title, price, images, location")
-            .eq("is_active", true)
-            .limit(4),
-          supabase
-            .from("services")
-            .select("id, title, price, price_type, images")
-            .eq("is_active", true)
-            .limit(4),
-        ]);
+    if (hasLoaded) return;
 
-        setProducts(productsRes.data || []);
-        setServices(servicesRes.data || []);
-      } catch (error) {
-        console.error("Error fetching featured items:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchFeatured();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" }
+    );
 
-    fetchFeatured();
-  }, []);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasLoaded]);
+
+  const fetchFeatured = async () => {
+    try {
+      const [productsRes, servicesRes] = await Promise.all([
+        supabase
+          .from("products")
+          .select("id, title, price, images, location")
+          .eq("is_active", true)
+          .limit(4),
+        supabase
+          .from("services")
+          .select("id, title, price, price_type, images")
+          .eq("is_active", true)
+          .limit(4),
+      ]);
+
+      setProducts(productsRes.data || []);
+      setServices(servicesRes.data || []);
+    } catch (error) {
+      console.error("Error fetching featured items:", error);
+    } finally {
+      setLoading(false);
+      setHasLoaded(true);
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -71,7 +90,7 @@ const FeaturedSection = () => {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-background">
+    <section ref={sectionRef} className="py-16 md:py-24 bg-background">
       <div className="container">
         {/* Featured Products */}
         <div className="mb-16">
