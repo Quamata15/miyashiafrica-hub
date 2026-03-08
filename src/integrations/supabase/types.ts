@@ -55,9 +55,61 @@ export type Database = {
           },
         ]
       }
+      boost_metrics: {
+        Row: {
+          boost_id: string
+          campaign_id: string | null
+          clicks: number
+          conversions: number
+          created_at: string
+          date: string
+          id: string
+          revenue_generated: number
+          views: number
+        }
+        Insert: {
+          boost_id: string
+          campaign_id?: string | null
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          date?: string
+          id?: string
+          revenue_generated?: number
+          views?: number
+        }
+        Update: {
+          boost_id?: string
+          campaign_id?: string | null
+          clicks?: number
+          conversions?: number
+          created_at?: string
+          date?: string
+          id?: string
+          revenue_generated?: number
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boost_metrics_boost_id_fkey"
+            columns: ["boost_id"]
+            isOneToOne: false
+            referencedRelation: "boosts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "boost_metrics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       boosts: {
         Row: {
           boost_type: string
+          campaign_id: string | null
           created_at: string
           expires_at: string
           id: string
@@ -71,6 +123,7 @@ export type Database = {
         }
         Insert: {
           boost_type: string
+          campaign_id?: string | null
           created_at?: string
           expires_at: string
           id?: string
@@ -84,6 +137,7 @@ export type Database = {
         }
         Update: {
           boost_type?: string
+          campaign_id?: string | null
           created_at?: string
           expires_at?: string
           id?: string
@@ -94,6 +148,59 @@ export type Database = {
           target_id?: string | null
           user_id?: string
           zone_radius_km?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boosts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          budget_spent: number
+          budget_total: number
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          start_date: string | null
+          status: string
+          target_audience: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_spent?: number
+          budget_total?: number
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_spent?: number
+          budget_total?: number
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1896,6 +2003,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_boost_metric: {
+        Args: { p_boost_id: string; p_metric?: string }
+        Returns: undefined
       }
       search_products: {
         Args: {
