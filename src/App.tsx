@@ -62,8 +62,9 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <SkipToContent />
                 <Suspense fallback={<LoadingSpinner />}>
-                  <Routes>
+                  <main id="main-content">
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
