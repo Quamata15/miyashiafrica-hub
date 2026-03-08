@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
