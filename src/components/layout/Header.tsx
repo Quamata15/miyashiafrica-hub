@@ -131,7 +131,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1" aria-label="Navigation principale">
             {publicLinks.map((link) => (
               <Link
                 key={link.label}
