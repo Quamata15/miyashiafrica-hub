@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut, 
   MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck, Wallet,
-  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star
+  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star, Rss
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
