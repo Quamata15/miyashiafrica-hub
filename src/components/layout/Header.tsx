@@ -96,12 +96,6 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
     return location.pathname.startsWith(href);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/marketplace?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
 
   const go = (path: string) => {
     navigate(path);
