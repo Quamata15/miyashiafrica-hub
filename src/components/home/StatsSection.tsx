@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Package, Briefcase, ShoppingCart, TrendingUp, Globe } from "lucide-react";
 
@@ -17,30 +17,49 @@ const StatsSection = () => {
     totalOrders: 0,
     totalUsers: 0,
   });
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const [productsRes, servicesRes, ordersRes, usersRes] = await Promise.all([
-          supabase.from("products").select("*", { count: "exact", head: true }),
-          supabase.from("services").select("*", { count: "exact", head: true }),
-          supabase.from("orders").select("*", { count: "exact", head: true }),
-          supabase.from("profiles").select("*", { count: "exact", head: true }),
-        ]);
+    if (hasLoaded) return;
 
-        setStats({
-          totalProducts: productsRes.count || 0,
-          totalServices: servicesRes.count || 0,
-          totalOrders: ordersRes.count || 0,
-          totalUsers: usersRes.count || 0,
-        });
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      }
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          fetchStats();
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "200px" }
+    );
 
-    fetchStats();
-  }, []);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasLoaded]);
+
+  const fetchStats = async () => {
+    try {
+      const [productsRes, servicesRes, ordersRes, usersRes] = await Promise.all([
+        supabase.from("products").select("id", { count: "exact", head: true }),
+        supabase.from("services").select("id", { count: "exact", head: true }),
+        supabase.from("orders").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
+      ]);
+
+      setStats({
+        totalProducts: productsRes.count || 0,
+        totalServices: servicesRes.count || 0,
+        totalOrders: ordersRes.count || 0,
+        totalUsers: usersRes.count || 0,
+      });
+      setHasLoaded(true);
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
 
   const statsItems = [
     {
@@ -88,7 +107,7 @@ const StatsSection = () => {
   ];
 
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-r from-primary via-secondary to-accent relative overflow-hidden">
+    <section ref={sectionRef} className="py-12 md:py-16 bg-gradient-to-r from-primary via-secondary to-accent relative overflow-hidden">
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-10">
         <motion.div
