@@ -16,6 +16,7 @@ import {
 import { motion } from "framer-motion";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
+import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
