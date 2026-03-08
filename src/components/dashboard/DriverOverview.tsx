@@ -122,6 +122,11 @@ const DriverOverview = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {gpsPosition && (
+                <Badge variant="outline" className="text-xs text-accent border-accent/30">
+                  <Wifi className="w-3 h-3 mr-1" /> GPS actif
+                </Badge>
+              )}
               <span className="text-sm">{isAvailable ? "En ligne" : "Hors ligne"}</span>
               <Switch checked={isAvailable} onCheckedChange={toggleAvailability} />
             </div>
