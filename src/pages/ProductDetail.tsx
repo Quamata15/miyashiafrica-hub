@@ -37,6 +37,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [sellerProfile, setSellerProfile] = useState<{ full_name: string | null; avatar_url: string | null; is_verified: boolean | null } | null>(null);
 
   useEffect(() => {
     if (id) fetchProduct();
@@ -51,6 +52,13 @@ const ProductDetail = () => {
 
     if (!error && data) {
       setProduct(data);
+      // Fetch seller profile
+      const { data: profile } = await supabase
+        .from("profiles_public")
+        .select("full_name, avatar_url, is_verified")
+        .eq("user_id", data.seller_id)
+        .single();
+      if (profile) setSellerProfile(profile);
     }
     setLoading(false);
   };
