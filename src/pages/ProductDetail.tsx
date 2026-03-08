@@ -203,8 +203,10 @@ const ProductDetail = () => {
                   >
                     {images[activeImage] ? (
                       <img
-                        src={images[activeImage]}
+                        src={getOptimizedImageUrl(images[activeImage]!, 800, 800)}
                         alt={product.title}
+                        width={800}
+                        height={800}
                         className="w-full h-full object-cover"
                       />
                     ) : (
