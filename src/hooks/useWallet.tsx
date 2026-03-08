@@ -76,13 +76,12 @@ export const useWallet = () => {
     });
 
     if (!error) {
-      // Update wallet balance
-      await (supabase.from("wallets") as any)
-        .update({
-          balance: wallet.balance - amount,
-          total_withdrawn: wallet.total_withdrawn + amount,
-        })
-        .eq("user_id", user.id);
+      // Debit wallet via secure server-side function
+      const { error: debitError } = await supabase.rpc("debit_wallet", { p_amount: amount });
+      if (debitError) {
+        console.error("Debit failed:", debitError.message);
+        return false;
+      }
       await fetchWallet();
       return true;
     }

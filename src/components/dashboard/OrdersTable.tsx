@@ -92,89 +92,16 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
     }
   };
 
-  // Buyer confirms reception → releases escrow to seller/driver wallets
+  // Buyer confirms reception → server-side escrow release via RPC
   const confirmReception = async (orderId: string) => {
     try {
-      // 1. Update order status to completed
-      await supabase.from("orders").update({ status: "completed", delivery_status: "delivered" }).eq("id", orderId);
-
-      // 2. Get escrow for this order
-      const { data: escrow } = await (supabase.from("escrow_transactions") as any)
-        .select("*")
-        .eq("order_id", orderId)
-        .eq("status", "held")
-        .maybeSingle();
-
-      if (escrow) {
-        // 3. Release escrow
-        await (supabase.from("escrow_transactions") as any)
-          .update({ status: "released", released_at: new Date().toISOString() })
-          .eq("id", escrow.id);
-
-        // 4. Get the order to find seller
-        const { data: order } = await supabase.from("orders").select("seller_id, total_price").eq("id", orderId).single();
-
-        if (order) {
-          // 5. Credit seller wallet
-          const sellerAmount = escrow.seller_amount || order.total_price * 0.9;
-          
-          // Get or create seller wallet
-          let { data: sellerWallet } = await (supabase.from("wallets") as any).select("*").eq("user_id", order.seller_id).maybeSingle();
-          if (!sellerWallet) {
-            const { data: newWallet } = await (supabase.from("wallets") as any).insert({ user_id: order.seller_id }).select().single();
-            sellerWallet = newWallet;
-          }
-          if (sellerWallet) {
-            await (supabase.from("wallets") as any).update({
-              balance: sellerWallet.balance + sellerAmount,
-              total_earned: sellerWallet.total_earned + sellerAmount,
-            }).eq("user_id", order.seller_id);
-
-            // Log transaction
-            await (supabase.from("wallet_transactions") as any).insert({
-              user_id: order.seller_id,
-              type: "escrow_release",
-              amount: sellerAmount,
-              description: `Vente commande #${orderId.slice(0, 8)}`,
-              reference_id: orderId,
-            });
-          }
-
-          // 6. Credit driver if delivery exists
-          const { data: delivery } = await (supabase.from("delivery_requests") as any)
-            .select("driver_id, total_delivery_price, commission")
-            .eq("order_id", orderId)
-            .maybeSingle();
-
-          if (delivery?.driver_id) {
-            const driverAmount = (delivery.total_delivery_price || 0) - (delivery.commission || 0);
-            let { data: driverWallet } = await (supabase.from("wallets") as any).select("*").eq("user_id", delivery.driver_id).maybeSingle();
-            if (!driverWallet) {
-              const { data: nw } = await (supabase.from("wallets") as any).insert({ user_id: delivery.driver_id }).select().single();
-              driverWallet = nw;
-            }
-            if (driverWallet) {
-              await (supabase.from("wallets") as any).update({
-                balance: driverWallet.balance + driverAmount,
-                total_earned: driverWallet.total_earned + driverAmount,
-              }).eq("user_id", delivery.driver_id);
-
-              await (supabase.from("wallet_transactions") as any).insert({
-                user_id: delivery.driver_id,
-                type: "escrow_release",
-                amount: driverAmount,
-                description: `Livraison commande #${orderId.slice(0, 8)}`,
-                reference_id: orderId,
-              });
-            }
-          }
-        }
-      }
+      const { error } = await supabase.rpc("confirm_order_reception", { p_order_id: orderId });
+      if (error) throw error;
 
       toast.success("Réception confirmée! Les fonds ont été libérés ✅");
       fetchOrders();
-    } catch (err) {
-      toast.error("Erreur lors de la confirmation");
+    } catch (err: any) {
+      toast.error(err?.message || "Erreur lors de la confirmation");
     }
   };
 
