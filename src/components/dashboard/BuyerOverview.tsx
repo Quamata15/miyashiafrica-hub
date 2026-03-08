@@ -72,6 +72,9 @@ const BuyerOverview = () => {
   return (
     <div className="space-y-6">
       <QuickStatsGrid stats={stats} loading={loading} />
+      
+      {/* Loyalty Program */}
+      <LoyaltyCard />
 
       {/* Shipments to confirm */}
       {orders.filter(o => o.status === "shipped" || o.status === "delivered").length > 0 && (
