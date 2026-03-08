@@ -68,7 +68,27 @@ const Marketplace = () => {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setProducts(data);
+      // Fetch active boosts to prioritize boosted products
+      const { data: activeBoosts } = await (supabase.from("boosts") as any)
+        .select("user_id, boost_type")
+        .eq("is_active", true)
+        .eq("boost_type", "product")
+        .gt("expires_at", new Date().toISOString());
+
+      const boostedSellerIds = new Set(
+        (activeBoosts || []).map((b: any) => b.user_id)
+      );
+
+      // Sort: boosted products first, then by created_at desc
+      const sorted = [...data].sort((a, b) => {
+        const aBoost = boostedSellerIds.has(a.seller_id) ? 1 : 0;
+        const bBoost = boostedSellerIds.has(b.seller_id) ? 1 : 0;
+        if (bBoost !== aBoost) return bBoost - aBoost;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setProducts(sorted);
+
       // Fetch verified status for all sellers
       const sellerIds = [...new Set(data.map(p => p.seller_id))];
       if (sellerIds.length > 0) {

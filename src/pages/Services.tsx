@@ -51,7 +51,26 @@ const Services = () => {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      setServices(data);
+      // Fetch active boosts to prioritize boosted services
+      const { data: activeBoosts } = await (supabase.from("boosts") as any)
+        .select("user_id, boost_type")
+        .eq("is_active", true)
+        .eq("boost_type", "service")
+        .gt("expires_at", new Date().toISOString());
+
+      const boostedProviderIds = new Set(
+        (activeBoosts || []).map((b: any) => b.user_id)
+      );
+
+      // Sort: boosted services first, then by created_at desc
+      const sorted = [...data].sort((a, b) => {
+        const aBoost = boostedProviderIds.has(a.provider_id) ? 1 : 0;
+        const bBoost = boostedProviderIds.has(b.provider_id) ? 1 : 0;
+        if (bBoost !== aBoost) return bBoost - aBoost;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+
+      setServices(sorted);
     }
     setLoading(false);
   };
