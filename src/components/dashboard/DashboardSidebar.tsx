@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   BarChart3, ShoppingCart, Package, Briefcase, Truck, Bell,
   User, Wallet, Star, MessageSquare, Shield, Plus, Settings,
-  Home, Heart, TrendingUp, MapPin, Award, Users
+  Home, Heart, TrendingUp, MapPin, Award, Users, Zap, Megaphone
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
