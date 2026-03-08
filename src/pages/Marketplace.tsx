@@ -182,8 +182,11 @@ const Marketplace = () => {
 
   const filteredProducts = useMemo(() => products
     .filter((product) => {
-      const matchesSearch = product.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      const searchLower = filters.searchTerm.toLowerCase();
+      const sellerName = sellerNames.get(product.seller_id) || "";
+      const matchesSearch = product.title.toLowerCase().includes(searchLower) ||
+        product.description?.toLowerCase().includes(searchLower) ||
+        sellerName.toLowerCase().includes(searchLower);
       const matchesCategory = !filters.selectedCategory || product.category_id === filters.selectedCategory;
       const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
       const matchesLocation = !filters.location || product.location?.toLowerCase().includes(filters.location.toLowerCase());
