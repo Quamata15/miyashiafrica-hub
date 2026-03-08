@@ -94,6 +94,7 @@ const App = () => (
                     <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                     <Route path="/provider-space" element={<ProtectedRoute><ProviderSpace /></ProtectedRoute>} />
                     <Route path="/boost" element={<ProtectedRoute><Boost /></ProtectedRoute>} />
+                    <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
                     <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                     <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
