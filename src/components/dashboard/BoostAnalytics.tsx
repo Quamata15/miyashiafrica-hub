@@ -144,8 +144,8 @@ const BoostAnalytics = () => {
         </Card>
         <Card className="border-0 shadow-card">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-              <MousePointer className="w-5 h-5 text-green-600 dark:text-green-400" />
+            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+              <MousePointer className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
               <p className="text-2xl font-bold">{ctr}%</p>
