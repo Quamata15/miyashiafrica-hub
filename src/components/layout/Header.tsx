@@ -28,10 +28,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import GlobalSearch from "@/components/search/GlobalSearch";
 
 const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -96,12 +96,6 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
     return location.pathname.startsWith(href);
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/marketplace?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
 
   const go = (path: string) => {
     navigate(path);
@@ -156,18 +150,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           </nav>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-sm mx-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-card focus:shadow-md outline-none transition-all duration-300 text-sm"
-              />
-            </div>
-          </form>
+          <GlobalSearch className="hidden md:block flex-1 max-w-sm mx-4" />
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-1">
@@ -361,18 +344,9 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
         </div>
 
         {/* Mobile Search */}
-        <form onSubmit={handleSearch} className="md:hidden pb-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-10 pr-4 rounded-xl bg-muted/50 border border-border focus:border-primary focus:bg-card outline-none transition-all duration-300 text-sm"
-            />
-          </div>
-        </form>
+        <div className="md:hidden pb-3">
+          <GlobalSearch />
+        </div>
       </div>
 
       {/* Mobile Menu */}
