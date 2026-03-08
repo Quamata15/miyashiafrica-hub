@@ -182,6 +182,13 @@ const DeliveryTracking = () => {
                         Livraison: {format(new Date(order.estimated_delivery), "dd MMM", { locale: fr })}
                       </div>
                     )}
+
+                    {/* Violation report for delivered/shipped orders */}
+                    {(order.delivery_status === "shipped" || order.delivery_status === "delivered" || order.status === "completed") && user && user.id === order.buyer_id && (
+                      <div className="mt-2 pt-2 border-t border-border/50">
+                        <VendorViolationReport orderId={order.id} sellerId={order.seller_id} />
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </motion.div>
