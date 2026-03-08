@@ -223,8 +223,10 @@ const ServiceDetail = () => {
                   >
                     {images[activeImage] ? (
                       <img
-                        src={images[activeImage]}
+                        src={getOptimizedImageUrl(images[activeImage]!, 800, 450)}
                         alt={service.title}
+                        width={800}
+                        height={450}
                         className="w-full h-full object-cover"
                       />
                     ) : (

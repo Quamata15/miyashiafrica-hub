@@ -266,7 +266,7 @@ const ProductDetail = () => {
                       }`}
                     >
                       {img ? (
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={getOptimizedImageUrl(img, 80, 80)} alt="" width={80} height={80} className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">
                           <Package className="h-6 w-6 text-muted-foreground" />
