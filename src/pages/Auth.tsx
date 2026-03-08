@@ -28,9 +28,17 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [signupFullName, setSignupFullName] = useState("");
   const [signupRole, setSignupRole] = useState<"buyer" | "seller" | "provider">("buyer");
+  const [referralCode, setReferralCode] = useState("");
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Pre-fill referral code from URL
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setReferralCode(ref);
+  }, [searchParams]);
 
   // Redirect if already logged in
   if (user) {
