@@ -65,6 +65,7 @@ const App = () => (
                 <SkipToContent />
                 <Suspense fallback={<LoadingSpinner />}>
                   <main id="main-content">
+                  <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
