@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
@@ -127,6 +128,7 @@ const Marketplace = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Marketplace" description="Découvrez des milliers de produits authentiques africains sur MIYASHI. Artisanat, mode, tech et plus." canonical="/marketplace" />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -50,6 +51,7 @@ const Install = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Installer l'application" description="Installez MIYASHI sur votre téléphone pour un accès rapide, des notifications et une expérience native." canonical="/install" />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-2xl">

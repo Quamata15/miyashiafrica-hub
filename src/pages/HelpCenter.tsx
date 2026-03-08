@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -24,6 +25,7 @@ const HelpCenter = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Centre d'Aide" description="Guides et tutoriels pour utiliser MIYASHI : acheter, vendre, livrer et plus." canonical="/help" />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-4xl">

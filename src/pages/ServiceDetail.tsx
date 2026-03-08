@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import SEOHead from "@/components/SEOHead";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -168,6 +169,13 @@ const ServiceDetail = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead
+        title={service.title}
+        description={service.description?.slice(0, 155) || `${service.title} sur MIYASHI`}
+        canonical={`/service/${service.id}`}
+        type="product"
+        image={service.images?.[0] || undefined}
+      />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">

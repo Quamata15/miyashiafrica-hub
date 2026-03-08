@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
@@ -21,6 +22,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead canonical="/" />
       <Header />
       <main>
         <HeroSection />

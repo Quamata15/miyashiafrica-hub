@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SEOHead from "@/components/SEOHead";
 import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Connexion" description="Connectez-vous ou créez votre compte MIYASHI pour acheter, vendre et proposer vos services." canonical="/auth" />
       <Header />
       <main className="flex-1 flex items-center justify-center py-12 px-4 pt-24">
         <motion.div

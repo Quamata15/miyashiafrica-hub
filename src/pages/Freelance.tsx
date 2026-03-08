@@ -1,3 +1,4 @@
+import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +8,7 @@ import JobOffers from "@/components/freelance/JobOffers";
 const Freelance = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Freelance & Emplois" description="Trouvez des freelances qualifiés ou des opportunités d'emploi en Afrique sur MIYASHI." canonical="/freelance" />
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="mb-8">
