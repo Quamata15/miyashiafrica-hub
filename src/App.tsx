@@ -75,6 +75,7 @@ const App = () => (
                     <Route path="/install" element={<Install />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/user/:userId" element={<PublicProfile />} />
+                    <Route path="/user/:userId/follows" element={<UserFollows />} />
                     <Route path="/driver-registration" element={<DriverRegistration />} />
 
                     {/* Protected routes */}
