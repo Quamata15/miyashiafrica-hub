@@ -52,6 +52,10 @@ const Checkout = () => {
   const checkoutAmount = isDirectOrder ? directAmount : totalPrice;
   const hasItems = isDirectOrder || items.length > 0;
 
+  useEffect(() => {
+    if (!user) navigate("/auth");
+  }, [user, navigate]);
+
   const countryData = paymentsByCountry[country];
   const methods = countryData?.methods || [];
 
