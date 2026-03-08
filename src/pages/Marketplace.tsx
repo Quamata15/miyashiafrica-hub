@@ -127,6 +127,27 @@ const Marketplace = () => {
           }
           setPromotions(promoMap);
         }
+      // Fetch product ratings
+      const productIds = data.map(p => p.id);
+      if (productIds.length > 0) {
+        const { data: reviewsData } = await supabase
+          .from("reviews")
+          .select("product_id, rating")
+          .in("product_id", productIds);
+        if (reviewsData) {
+          const ratingMap = new Map<string, number>();
+          const countMap = new Map<string, number>();
+          for (const r of reviewsData) {
+            if (!r.product_id) continue;
+            ratingMap.set(r.product_id, (ratingMap.get(r.product_id) || 0) + r.rating);
+            countMap.set(r.product_id, (countMap.get(r.product_id) || 0) + 1);
+          }
+          const avgMap = new Map<string, number>();
+          for (const [id, total] of ratingMap) {
+            avgMap.set(id, total / (countMap.get(id) || 1));
+          }
+          setProductRatings(avgMap);
+        }
       }
     }
     setLoading(false);
