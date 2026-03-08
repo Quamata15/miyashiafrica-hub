@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import DashboardSidebar from "@/components/dashboard/DashboardSidebar";
@@ -24,6 +25,8 @@ import DeliveryMap from "@/components/map/DeliveryMap";
 import SellerOnboarding from "@/components/dashboard/SellerOnboarding";
 import ProviderOnboarding from "@/components/dashboard/ProviderOnboarding";
 import EmailVerificationBanner from "@/components/dashboard/EmailVerificationBanner";
+import LowStockAlert from "@/components/dashboard/LowStockAlert";
+import DriverDeliveryHistory from "@/components/dashboard/DriverDeliveryHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -32,13 +35,12 @@ import { Menu, Plus, MessageSquare } from "lucide-react";
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { preferences, updatePreference } = useUserPreferences();
   const [activeTab, setActiveTab] = useState("overview");
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [profile, setProfile] = useState<any>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [showSellerOnboarding, setShowSellerOnboarding] = useState(true);
-  const [showProviderOnboarding, setShowProviderOnboarding] = useState(true);
 
   useEffect(() => {
     if (user) fetchUserData();
