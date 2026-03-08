@@ -67,7 +67,7 @@ const Checkout = () => {
     if (!code) return;
     setPromoLoading(true);
 
-    const { data, error } = await (supabase.from("promo_codes") as any)
+    const { data, error } = await supabase.from("promo_codes")
       .select("*").eq("code", code).eq("is_active", true)
       .gt("expires_at", new Date().toISOString()).maybeSingle();
 
