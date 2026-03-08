@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, ArrowRight, Package, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 interface Product {
   id: string;
