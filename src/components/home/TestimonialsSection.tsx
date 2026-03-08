@@ -9,7 +9,7 @@ const testimonials = [
     name: "Kofi Mensah",
     role: "Vendeur",
     location: "Accra, Ghana",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&q=75&fm=webp",
     rating: 5,
     content: "MIYASHI a transformé mon petit commerce en une entreprise prospère. Les outils de gestion sont excellents et le support est toujours disponible.",
   },
