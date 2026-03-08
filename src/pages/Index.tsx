@@ -21,21 +21,23 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <SEOHead canonical="/" />
-      <Header />
-      <main>
-        <HeroSection />
-        <StatsSection />
-        <CategoriesSection />
-        <FeaturedSection />
-        <HowItWorksSection />
-        <TestimonialsSection />
-        <CTASection />
-        <TrustSection />
-      </main>
-      <Footer />
-    </div>
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <SEOHead canonical="/" />
+        <Header />
+        <main>
+          <HeroSection />
+          <StatsSection />
+          <CategoriesSection />
+          <FeaturedSection />
+          <HowItWorksSection />
+          <TestimonialsSection />
+          <CTASection />
+          <TrustSection />
+        </main>
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 
