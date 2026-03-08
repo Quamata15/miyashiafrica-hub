@@ -192,8 +192,11 @@ const Profile = () => {
                     {profile.full_name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <Button size="icon" variant="secondary" className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full shadow-md">
-                  <Camera className="h-3 w-3" />
+                <Button size="icon" variant="secondary" className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full shadow-md" asChild>
+                  <label htmlFor="avatar-upload" className="cursor-pointer">
+                    {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                    <input id="avatar-upload" type="file" accept="image/*" className="sr-only" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+                  </label>
                 </Button>
               </div>
               <div className="flex-1 min-w-0">
