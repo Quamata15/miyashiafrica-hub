@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, MapPin, Package, SlidersHorizontal, Grid3X3, 
-  List, Heart, Eye, ShoppingCart, Star, ArrowUpDown
+  List, Heart, Eye, ShoppingCart, Star, ArrowUpDown, CheckCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
