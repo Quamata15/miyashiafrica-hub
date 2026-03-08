@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
   Truck, MapPin, Star, DollarSign, Package, Clock,
-  CheckCircle, Award, Navigation
+  CheckCircle, Award, Navigation, Wifi
 } from "lucide-react";
 import { toast } from "sonner";
 import QuickStatsGrid from "./QuickStatsGrid";
+import { useDriverBroadcast } from "@/hooks/useDriverLocation";
 
 const DriverOverview = () => {
   const { user } = useAuth();
