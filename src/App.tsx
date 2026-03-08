@@ -10,6 +10,7 @@ import { FavoritesProvider } from "@/hooks/useFavorites";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import SkipToContent from "@/components/layout/SkipToContent";
 
 // Lazy-loaded pages
 const Index = lazy(() => import("./pages/Index"));
@@ -61,7 +62,9 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <SkipToContent />
                 <Suspense fallback={<LoadingSpinner />}>
+                  <main id="main-content">
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
@@ -105,6 +108,7 @@ const App = () => (
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
+                  </main>
                 </Suspense>
               </BrowserRouter>
             </TooltipProvider>
