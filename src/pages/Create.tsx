@@ -139,11 +139,15 @@ const Create = () => {
           </TabsList>
 
           <TabsContent value="product">
-            <ProductForm categories={productCategories} />
+            <VerificationGate requiredFor="sell">
+              <ProductForm categories={productCategories} />
+            </VerificationGate>
           </TabsContent>
 
           <TabsContent value="service">
-            <ServiceForm categories={serviceCategories} />
+            <VerificationGate requiredFor="provide">
+              <ServiceForm categories={serviceCategories} />
+            </VerificationGate>
           </TabsContent>
 
           <TabsContent value="job">
