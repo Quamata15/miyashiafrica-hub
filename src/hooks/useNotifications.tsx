@@ -74,9 +74,8 @@ export const useNotifications = () => {
                     icon: "/pwa-icon-192.png",
                     badge: "/pwa-icon-192.png",
                     tag: `miyashi-${newNotif.id}`,
-                    vibrate: [100, 50, 100],
                     data: { url: "/dashboard", notifId: newNotif.id },
-                  });
+                  } as NotificationOptions);
                 });
               } else {
                 new window.Notification(newNotif.title, {
