@@ -481,9 +481,29 @@ const Marketplace = () => {
                           "flex justify-between items-center",
                           viewMode === "grid" ? "px-4 pb-4" : "p-0"
                         )}>
-                          <span className="text-xl font-bold text-primary">
-                            {product.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
-                          </span>
+                          {(() => {
+                            const promo = promotions.get(product.seller_id);
+                            if (promo) {
+                              const discounted = promo.discount_type === "percentage"
+                                ? Math.round(product.price * (1 - promo.discount_value / 100))
+                                : Math.max(0, product.price - promo.discount_value);
+                              return (
+                                <div className="flex flex-col">
+                                  <span className="text-xs text-muted-foreground line-through">
+                                    {product.price.toLocaleString()} FCFA
+                                  </span>
+                                  <span className="text-xl font-bold text-destructive">
+                                    {discounted.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
+                                  </span>
+                                </div>
+                              );
+                            }
+                            return (
+                              <span className="text-xl font-bold text-primary">
+                                {product.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
+                              </span>
+                            );
+                          })()}
                           <Badge variant="outline" className="text-xs">
                             Stock: {product.stock}
                           </Badge>
