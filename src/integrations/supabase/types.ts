@@ -1580,6 +1580,99 @@ export type Database = {
       }
     }
     Views: {
+      driver_profiles_public: {
+        Row: {
+          average_rating: number | null
+          badge: string | null
+          created_at: string | null
+          id: string | null
+          is_available: boolean | null
+          loyalty_points: number | null
+          total_deliveries: number | null
+          updated_at: string | null
+          user_id: string | null
+          vehicle_type: string | null
+          zone: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          badge?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_available?: boolean | null
+          loyalty_points?: number | null
+          total_deliveries?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          vehicle_type?: string | null
+          zone?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          badge?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_available?: boolean | null
+          loyalty_points?: number | null
+          total_deliveries?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          vehicle_type?: string | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
+      freelance_profiles_public: {
+        Row: {
+          availability: string | null
+          bio: string | null
+          created_at: string | null
+          experience_years: number | null
+          hourly_rate: number | null
+          id: string | null
+          photo_url: string | null
+          portfolio_urls: string[] | null
+          realizations: Json | null
+          skills: string[] | null
+          social_links: Json | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          availability?: string | null
+          bio?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          hourly_rate?: number | null
+          id?: string | null
+          photo_url?: string | null
+          portfolio_urls?: string[] | null
+          realizations?: Json | null
+          skills?: string[] | null
+          social_links?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          availability?: string | null
+          bio?: string | null
+          created_at?: string | null
+          experience_years?: number | null
+          hourly_rate?: number | null
+          id?: string | null
+          photo_url?: string | null
+          portfolio_urls?: string[] | null
+          realizations?: Json | null
+          skills?: string[] | null
+          social_links?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles_public: {
         Row: {
           avatar_url: string | null

@@ -162,6 +162,14 @@ const ProductDetail = () => {
         canonical={`/product/${product.id}`}
         type="product"
         image={product.images?.[0] || undefined}
+        price={product.price}
+        currency="XOF"
+        availability={product.stock && product.stock > 0 ? "InStock" : "OutOfStock"}
+        breadcrumbs={[
+          { name: "Accueil", url: "/" },
+          { name: "Marketplace", url: "/marketplace" },
+          { name: product.title, url: `/product/${product.id}` },
+        ]}
       />
       <Header />
       <main className="flex-1 pt-24 pb-12">

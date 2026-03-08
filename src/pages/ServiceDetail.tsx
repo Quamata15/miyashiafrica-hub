@@ -183,6 +183,13 @@ const ServiceDetail = () => {
         canonical={`/service/${service.id}`}
         type="product"
         image={service.images?.[0] || undefined}
+        price={service.price || undefined}
+        currency="XOF"
+        breadcrumbs={[
+          { name: "Accueil", url: "/" },
+          { name: "Services", url: "/services" },
+          { name: service.title, url: `/service/${service.id}` },
+        ]}
       />
       <Header />
       <main className="flex-1 pt-24 pb-12">
