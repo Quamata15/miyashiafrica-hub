@@ -44,7 +44,9 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [userRoles, setUserRoles] = useState<string[]>([]);
   const [profile, setProfile] = useState<any>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try { return localStorage.getItem("dashboard-sidebar-collapsed") === "true"; } catch { return false; }
+  });
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
