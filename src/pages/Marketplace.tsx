@@ -21,18 +21,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { useCart } from "@/hooks/useCart";
 import { useFavorites } from "@/hooks/useFavorites";
+import AdvancedSearchFilters, { ActiveFilterPills, type SearchFilters } from "@/components/search/AdvancedSearchFilters";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -47,14 +39,25 @@ const Marketplace = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
   const [promotions, setPromotions] = useState<Map<string, { discount_type: string; discount_value: number }>>(new Map());
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState<SearchFilters>({
+    searchTerm: searchParams.get("q") || "",
+    selectedCategory: null,
+    priceRange: [0, 10000000],
+    location: "",
+    minRating: 0,
+    sortBy: "newest",
+  });
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("newest");
-  const [priceRange, setPriceRange] = useState([0, 10000000]);
+  const [productRatings, setProductRatings] = useState<Map<string, number>>(new Map());
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 24;
+
+  const updateFilters = (partial: Partial<SearchFilters>) =>
+    setFilters((prev) => ({ ...prev, ...partial }));
+
+  const resetFilters = () =>
+    setFilters({ searchTerm: "", selectedCategory: null, priceRange: [0, 10000000], location: "", minRating: 0, sortBy: "newest" });
 
   useEffect(() => {
     fetchProducts();
@@ -125,6 +128,28 @@ const Marketplace = () => {
           setPromotions(promoMap);
         }
       }
+      // Fetch product ratings
+      const productIds = data.map(p => p.id);
+      if (productIds.length > 0) {
+        const { data: reviewsData } = await supabase
+          .from("reviews")
+          .select("product_id, rating")
+          .in("product_id", productIds);
+        if (reviewsData) {
+          const ratingMap = new Map<string, number>();
+          const countMap = new Map<string, number>();
+          for (const r of reviewsData) {
+            if (!r.product_id) continue;
+            ratingMap.set(r.product_id, (ratingMap.get(r.product_id) || 0) + r.rating);
+            countMap.set(r.product_id, (countMap.get(r.product_id) || 0) + 1);
+          }
+          const avgMap = new Map<string, number>();
+          for (const [id, total] of ratingMap) {
+            avgMap.set(id, total / (countMap.get(id) || 1));
+          }
+          setProductRatings(avgMap);
+        }
+      }
     }
     setLoading(false);
   };
@@ -141,28 +166,32 @@ const Marketplace = () => {
   };
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedCategory, sortBy, priceRange]);
+  useEffect(() => { setCurrentPage(1); }, [filters]);
 
   const filteredProducts = useMemo(() => products
     .filter((product) => {
-      const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !selectedCategory || product.category_id === selectedCategory;
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-      return matchesSearch && matchesCategory && matchesPrice;
+      const matchesSearch = product.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      const matchesCategory = !filters.selectedCategory || product.category_id === filters.selectedCategory;
+      const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
+      const matchesLocation = !filters.location || product.location?.toLowerCase().includes(filters.location.toLowerCase());
+      const matchesRating = filters.minRating === 0 || (productRatings.get(product.id) || 0) >= filters.minRating;
+      return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesRating;
     })
     .sort((a, b) => {
-      switch (sortBy) {
+      switch (filters.sortBy) {
         case "price-asc":
           return a.price - b.price;
         case "price-desc":
           return b.price - a.price;
+        case "rating-desc":
+          return (productRatings.get(b.id) || 0) - (productRatings.get(a.id) || 0);
         case "oldest":
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-    }), [products, searchTerm, selectedCategory, sortBy, priceRange]);
+    }), [products, filters, productRatings]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
@@ -216,8 +245,8 @@ const Marketplace = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
                   placeholder="Rechercher un produit..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={filters.searchTerm}
+                  onChange={(e) => updateFilters({ searchTerm: e.target.value })}
                   className="pl-12 h-12 rounded-xl border-muted"
                 />
               </div>
@@ -225,9 +254,9 @@ const Marketplace = () => {
               {/* Category Pills */}
               <div className="flex flex-wrap gap-2 items-center">
                 <Button
-                  variant={selectedCategory === null ? "default" : "outline"}
+                  variant={filters.selectedCategory === null ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(null)}
+                  onClick={() => updateFilters({ selectedCategory: null })}
                   className="rounded-full"
                 >
                   Tous
@@ -235,9 +264,9 @@ const Marketplace = () => {
                 {categories.slice(0, 4).map((category) => (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    variant={filters.selectedCategory === category.id ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => updateFilters({ selectedCategory: category.id })}
                     className="rounded-full"
                   >
                     {category.name}
@@ -247,7 +276,7 @@ const Marketplace = () => {
 
               {/* Sort & View Controls */}
               <div className="flex items-center gap-2">
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={filters.sortBy} onValueChange={(v) => updateFilters({ sortBy: v })}>
                   <SelectTrigger className="w-40 h-10 rounded-xl">
                     <ArrowUpDown className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Trier par" />
@@ -257,6 +286,7 @@ const Marketplace = () => {
                     <SelectItem value="oldest">Plus anciens</SelectItem>
                     <SelectItem value="price-asc">Prix croissant</SelectItem>
                     <SelectItem value="price-desc">Prix décroissant</SelectItem>
+                    <SelectItem value="rating-desc">Meilleures notes</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -281,58 +311,19 @@ const Marketplace = () => {
                 </div>
 
                 {/* Advanced Filters */}
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl">
-                      <SlidersHorizontal className="h-4 w-4" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent>
-                    <SheetHeader>
-                      <SheetTitle>Filtres avancés</SheetTitle>
-                      <SheetDescription>
-                        Affinez votre recherche avec des critères spécifiques
-                      </SheetDescription>
-                    </SheetHeader>
-                    <div className="mt-6 space-y-6">
-                      <div>
-                        <label className="text-sm font-medium mb-4 block">
-                          Fourchette de prix (FCFA)
-                        </label>
-                        <Slider
-                          value={priceRange}
-                          onValueChange={setPriceRange}
-                          max={10000000}
-                          step={10000}
-                          className="mb-2"
-                        />
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{priceRange[0].toLocaleString()}</span>
-                          <span>{priceRange[1].toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-3 block">Catégories</label>
-                        <div className="space-y-2">
-                          {categories.map((category) => (
-                            <Button
-                              key={category.id}
-                              variant={selectedCategory === category.id ? "default" : "outline"}
-                              size="sm"
-                              className="w-full justify-start"
-                              onClick={() => setSelectedCategory(category.id)}
-                            >
-                              {category.name}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
+                <AdvancedSearchFilters
+                  filters={filters}
+                  onFiltersChange={updateFilters}
+                  onReset={resetFilters}
+                  categories={categories}
+                  type="product"
+                />
               </div>
             </div>
           </motion.div>
+
+          {/* Active Filter Pills */}
+          <ActiveFilterPills filters={filters} categories={categories} onFiltersChange={updateFilters} />
 
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
@@ -373,7 +364,7 @@ const Marketplace = () => {
               <p className="text-muted-foreground mb-6">
                 Essayez de modifier vos critères de recherche
               </p>
-              <Button onClick={() => { setSearchTerm(""); setSelectedCategory(null); }}>
+              <Button onClick={resetFilters}>
                 Réinitialiser les filtres
               </Button>
             </motion.div>
@@ -451,10 +442,18 @@ const Marketplace = () => {
                       <div className={cn("flex-1", viewMode === "list" && "p-4")}>
                         <CardContent className={cn(viewMode === "grid" && "p-4")}>
                           <div className="flex items-center gap-1 mb-2">
-                            {[1,2,3,4,5].map((star) => (
-                              <Star key={star} className="h-3 w-3 fill-primary text-primary" />
-                            ))}
-                            <span className="text-xs text-muted-foreground ml-1">(0)</span>
+                          {(() => {
+                            const rating = productRatings.get(product.id) || 0;
+                            const reviewCount = rating > 0 ? Math.ceil(rating) : 0;
+                            return (
+                              <>
+                                {[1,2,3,4,5].map((star) => (
+                                  <Star key={star} className={`h-3 w-3 ${star <= Math.round(rating) ? "fill-primary text-primary" : "text-muted"}`} />
+                                ))}
+                                <span className="text-xs text-muted-foreground ml-1">({rating > 0 ? rating.toFixed(1) : "0"})</span>
+                              </>
+                            );
+                          })()}
                           </div>
                           <div className="flex items-center gap-1.5 mb-1">
                             <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
@@ -568,3 +567,4 @@ const Marketplace = () => {
 };
 
 export default Marketplace;
+
