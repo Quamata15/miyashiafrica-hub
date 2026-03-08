@@ -1366,6 +1366,10 @@ export type Database = {
       user_preferences: {
         Row: {
           created_at: string
+          dismissed_buyer_onboarding: boolean
+          dismissed_driver_onboarding: boolean
+          dismissed_employer_onboarding: boolean
+          dismissed_freelance_onboarding: boolean
           dismissed_provider_onboarding: boolean
           dismissed_seller_onboarding: boolean
           id: string
@@ -1375,6 +1379,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          dismissed_buyer_onboarding?: boolean
+          dismissed_driver_onboarding?: boolean
+          dismissed_employer_onboarding?: boolean
+          dismissed_freelance_onboarding?: boolean
           dismissed_provider_onboarding?: boolean
           dismissed_seller_onboarding?: boolean
           id?: string
@@ -1384,6 +1392,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          dismissed_buyer_onboarding?: boolean
+          dismissed_driver_onboarding?: boolean
+          dismissed_employer_onboarding?: boolean
+          dismissed_freelance_onboarding?: boolean
           dismissed_provider_onboarding?: boolean
           dismissed_seller_onboarding?: boolean
           id?: string
