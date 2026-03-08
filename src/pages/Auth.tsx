@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,11 +10,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Loader2, Truck } from "lucide-react";
+import { Loader2, Truck, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
@@ -46,6 +50,30 @@ const Auth = () => {
         description: "Bienvenue sur MIYASHI !",
       });
       navigate("/dashboard");
+    }
+    setIsLoading(false);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setForgotSent(true);
+      toast({
+        title: "Email envoyé",
+        description: "Vérifiez votre boîte mail pour réinitialiser votre mot de passe.",
+      });
     }
     setIsLoading(false);
   };
@@ -91,6 +119,57 @@ const Auth = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {showForgotPassword ? (
+                <div className="space-y-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setShowForgotPassword(false); setForgotSent(false); }}
+                    className="mb-2 -ml-2"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-1" /> Retour
+                  </Button>
+                  {forgotSent ? (
+                    <div className="text-center space-y-3 py-4">
+                      <div className="w-12 h-12 mx-auto rounded-full bg-accent/20 flex items-center justify-center">
+                        <span className="text-2xl">📧</span>
+                      </div>
+                      <h3 className="font-semibold text-lg">Email envoyé !</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Un lien de réinitialisation a été envoyé à <strong>{forgotEmail}</strong>. Vérifiez votre boîte mail (et vos spams).
+                      </p>
+                      <Button variant="outline" className="mt-4" onClick={() => { setShowForgotPassword(false); setForgotSent(false); }}>
+                        Retour à la connexion
+                      </Button>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleForgotPassword} className="space-y-4">
+                      <p className="text-sm text-muted-foreground">
+                        Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+                      </p>
+                      <div className="space-y-2">
+                        <Label htmlFor="forgot-email">Email</Label>
+                        <Input
+                          id="forgot-email"
+                          type="email"
+                          placeholder="votre@email.com"
+                          value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          required
+                          className="h-12"
+                        />
+                      </div>
+                      <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
+                        {isLoading ? (
+                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Envoi...</>
+                        ) : (
+                          "Envoyer le lien"
+                        )}
+                      </Button>
+                    </form>
+                  )}
+                </div>
+              ) : (
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="login">Connexion</TabsTrigger>
@@ -112,7 +191,16 @@ const Auth = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="login-password">Mot de passe</Label>
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="login-password">Mot de passe</Label>
+                        <button
+                          type="button"
+                          onClick={() => setShowForgotPassword(true)}
+                          className="text-xs text-primary hover:underline font-medium"
+                        >
+                          Mot de passe oublié ?
+                        </button>
+                      </div>
                       <Input
                         id="login-password"
                         type="password"
@@ -182,6 +270,7 @@ const Auth = () => {
                   </form>
                 </TabsContent>
               </Tabs>
+              )}
 
               {/* Driver CTA */}
               <div className="mt-6 pt-6 border-t border-border text-center">
