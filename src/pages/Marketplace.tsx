@@ -37,6 +37,7 @@ const Marketplace = () => {
   const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [sellerNames, setSellerNames] = useState<Map<string, string>>(new Map());
+  const [categories, setCategories] = useState<Category[]>([]);
   const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
   const [promotions, setPromotions] = useState<Map<string, { discount_type: string; discount_value: number }>>(new Map());
   const [filters, setFilters] = useState<SearchFilters>({
