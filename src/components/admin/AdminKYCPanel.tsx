@@ -81,8 +81,13 @@ const AdminKYCPanel = ({ docs, onRefresh }: AdminKYCPanelProps) => {
           .eq("user_id", userId);
 
         const approvedTypes = allDocs
-          ?.filter(d => d.status === "approved" || d.id === docId)
+          ?.filter(d => d.status === "approved")
           .map(d => d.document_type) || [];
+        // Include the current doc being approved
+        if (!approvedTypes.includes(DOCUMENT_TYPES.find(dt => docs.find(dd => dd.id === docId)?.document_type === dt)?.toString() || "")) {
+          const currentDoc = docs.find(dd => dd.id === docId);
+          if (currentDoc) approvedTypes.push(currentDoc.document_type);
+        }
 
         const hasBasicDocs = ["cni_recto", "cni_verso", "selfie_verification"]
           .every(t => approvedTypes.includes(t));
