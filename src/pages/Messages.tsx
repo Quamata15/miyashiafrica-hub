@@ -14,7 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
 import {
-  MessageSquare, Search, Send, MoreVertical, Phone, Video,
+  MessageSquare, Search, Send, MoreVertical,
   Smile, ArrowLeft
 } from "lucide-react";
 import { format } from "date-fns";
