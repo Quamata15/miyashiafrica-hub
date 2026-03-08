@@ -8,6 +8,7 @@ import ProductForm from "@/components/forms/ProductForm";
 import ServiceForm from "@/components/forms/ServiceForm";
 import JobForm from "@/components/forms/JobForm";
 import FreelanceProfileForm from "@/components/forms/FreelanceProfileForm";
+import VerificationGate from "@/components/kyc/VerificationGate";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Briefcase, Users, User, ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -138,11 +139,15 @@ const Create = () => {
           </TabsList>
 
           <TabsContent value="product">
-            <ProductForm categories={productCategories} />
+            <VerificationGate requiredFor="sell">
+              <ProductForm categories={productCategories} />
+            </VerificationGate>
           </TabsContent>
 
           <TabsContent value="service">
-            <ServiceForm categories={serviceCategories} />
+            <VerificationGate requiredFor="provide">
+              <ServiceForm categories={serviceCategories} />
+            </VerificationGate>
           </TabsContent>
 
           <TabsContent value="job">

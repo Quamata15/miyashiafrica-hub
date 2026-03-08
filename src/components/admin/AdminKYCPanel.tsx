@@ -73,6 +73,27 @@ const AdminKYCPanel = ({ docs, onRefresh }: AdminKYCPanelProps) => {
 
       await supabase.from("kyc_documents").update(updates).eq("id", docId);
 
+      // Send notification to user
+      const docLabel = DOC_TYPE_LABELS[docs.find(d => d.id === docId)?.document_type || ""] || "Document";
+      if (status === "approved") {
+        await supabase.rpc("send_notification", {
+          p_user_id: userId,
+          p_type: "kyc_approved",
+          p_title: "Document approuvé ✅",
+          p_message: `Votre ${docLabel} a été vérifié et approuvé.`,
+          p_data: { doc_id: docId },
+        });
+      } else if (status === "rejected") {
+        const reason = rejectionReasons[docId] || "Document non conforme";
+        await supabase.rpc("send_notification", {
+          p_user_id: userId,
+          p_type: "kyc_rejected",
+          p_title: "Document rejeté ❌",
+          p_message: `Votre ${docLabel} a été rejeté : ${reason}. Veuillez soumettre un nouveau document.`,
+          p_data: { doc_id: docId, reason },
+        });
+      }
+
       // If all required docs are approved, mark profile as verified
       if (status === "approved") {
         const { data: allDocs } = await supabase
@@ -95,6 +116,15 @@ const AdminKYCPanel = ({ docs, onRefresh }: AdminKYCPanelProps) => {
           await supabase.from("profiles")
             .update({ is_verified: true })
             .eq("user_id", userId);
+
+          // Notify full verification
+          await supabase.rpc("send_notification", {
+            p_user_id: userId,
+            p_type: "kyc_verified",
+            p_title: "Profil vérifié 🎉",
+            p_message: "Félicitations ! Votre identité est maintenant vérifiée. Vous pouvez accéder à toutes les fonctionnalités.",
+            p_data: {},
+          });
         }
       }
 
