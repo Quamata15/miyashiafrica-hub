@@ -207,6 +207,11 @@ const PublicProfile = () => {
                   {roles.map((r) => (
                     <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
                   ))}
+                  {profile?.location && (
+                    <span className="flex items-center gap-1">
+                      📍 {profile.location}
+                    </span>
+                  )}
                   {profile?.created_at && (
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />

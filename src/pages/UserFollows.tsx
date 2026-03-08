@@ -80,7 +80,7 @@ const UserFollows = () => {
         </Link>
         <div className="flex-1 min-w-0">
           <Link to={`/user/${user.user_id}`} className="hover:underline">
-            <p className="font-medium text-sm truncate">{user.full_name || "Utilisateur"}</p>
+            <p className="font-medium text-sm truncate">{user.username || user.full_name || "Utilisateur"}</p>
           </Link>
           {user.is_verified && (
             <Badge variant="outline" className="text-[10px] mt-0.5">Vérifié</Badge>
