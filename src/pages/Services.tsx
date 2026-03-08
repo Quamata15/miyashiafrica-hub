@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import SEOHead from "@/components/SEOHead";
@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
-  Search, Clock, Wrench, Star, SlidersHorizontal, 
+  Search, Clock, Wrench, Star, 
   Grid3X3, List, ArrowUpDown, CheckCircle, User
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import AdvancedSearchFilters, { ActiveFilterPills, type SearchFilters } from "@/components/search/AdvancedSearchFilters";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Service = Tables<"services">;
@@ -32,11 +33,23 @@ const Services = () => {
   const navigate = useNavigate();
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [serviceRatings, setServiceRatings] = useState<Map<string, number>>(new Map());
+  const [filters, setFilters] = useState<SearchFilters>({
+    searchTerm: "",
+    selectedCategory: null,
+    priceRange: [0, 10000000],
+    location: "",
+    minRating: 0,
+    sortBy: "newest",
+  });
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("newest");
+
+  const updateFilters = (partial: Partial<SearchFilters>) =>
+    setFilters((prev) => ({ ...prev, ...partial }));
+
+  const resetFilters = () =>
+    setFilters({ searchTerm: "", selectedCategory: null, priceRange: [0, 10000000], location: "", minRating: 0, sortBy: "newest" });
 
   useEffect(() => {
     fetchServices();
@@ -51,7 +64,6 @@ const Services = () => {
       .order("created_at", { ascending: false });
 
     if (!error && data) {
-      // Fetch active boosts to prioritize boosted services
       const { data: activeBoosts } = await (supabase.from("boosts") as any)
         .select("user_id, boost_type")
         .eq("is_active", true)
@@ -62,7 +74,6 @@ const Services = () => {
         (activeBoosts || []).map((b: any) => b.user_id)
       );
 
-      // Sort: boosted services first, then by created_at desc
       const sorted = [...data].sort((a, b) => {
         const aBoost = boostedProviderIds.has(a.provider_id) ? 1 : 0;
         const bBoost = boostedProviderIds.has(b.provider_id) ? 1 : 0;
@@ -71,6 +82,29 @@ const Services = () => {
       });
 
       setServices(sorted);
+
+      // Fetch service ratings
+      const serviceIds = data.map(s => s.id);
+      if (serviceIds.length > 0) {
+        const { data: reviewsData } = await supabase
+          .from("reviews")
+          .select("service_id, rating")
+          .in("service_id", serviceIds);
+        if (reviewsData) {
+          const ratingMap = new Map<string, number>();
+          const countMap = new Map<string, number>();
+          for (const r of reviewsData) {
+            if (!r.service_id) continue;
+            ratingMap.set(r.service_id, (ratingMap.get(r.service_id) || 0) + r.rating);
+            countMap.set(r.service_id, (countMap.get(r.service_id) || 0) + 1);
+          }
+          const avgMap = new Map<string, number>();
+          for (const [id, total] of ratingMap) {
+            avgMap.set(id, total / (countMap.get(id) || 1));
+          }
+          setServiceRatings(avgMap);
+        }
+      }
     }
     setLoading(false);
   };
@@ -86,25 +120,29 @@ const Services = () => {
     }
   };
 
-  const filteredServices = services
+  const filteredServices = useMemo(() => services
     .filter((service) => {
-      const matchesSearch = service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        service.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !selectedCategory || service.category_id === selectedCategory;
-      return matchesSearch && matchesCategory;
+      const matchesSearch = service.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        service.description?.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      const matchesCategory = !filters.selectedCategory || service.category_id === filters.selectedCategory;
+      const matchesPrice = !service.price || (service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1]);
+      const matchesRating = filters.minRating === 0 || (serviceRatings.get(service.id) || 0) >= filters.minRating;
+      return matchesSearch && matchesCategory && matchesPrice && matchesRating;
     })
     .sort((a, b) => {
-      switch (sortBy) {
+      switch (filters.sortBy) {
         case "price-asc":
           return (a.price || 0) - (b.price || 0);
         case "price-desc":
           return (b.price || 0) - (a.price || 0);
+        case "rating-desc":
+          return (serviceRatings.get(b.id) || 0) - (serviceRatings.get(a.id) || 0);
         case "oldest":
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-    });
+    }), [services, filters, serviceRatings]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -151,7 +189,7 @@ const Services = () => {
               { label: "Services disponibles", value: services.length.toString(), icon: Wrench },
               { label: "Projets complétés", value: "1,200+", icon: CheckCircle },
               { label: "Clients satisfaits", value: "98%", icon: Star },
-            ].map((stat, index) => (
+            ].map((stat) => (
               <Card key={stat.label} className="p-4 border-0 shadow-card">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -179,8 +217,8 @@ const Services = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
                   placeholder="Rechercher un service..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={filters.searchTerm}
+                  onChange={(e) => updateFilters({ searchTerm: e.target.value })}
                   className="pl-12 h-12 rounded-xl border-muted"
                 />
               </div>
@@ -188,9 +226,9 @@ const Services = () => {
               {/* Category Pills */}
               <div className="flex flex-wrap gap-2 items-center">
                 <Button
-                  variant={selectedCategory === null ? "secondary" : "outline"}
+                  variant={filters.selectedCategory === null ? "secondary" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(null)}
+                  onClick={() => updateFilters({ selectedCategory: null })}
                   className="rounded-full"
                 >
                   Tous
@@ -198,9 +236,9 @@ const Services = () => {
                 {categories.slice(0, 4).map((category) => (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "secondary" : "outline"}
+                    variant={filters.selectedCategory === category.id ? "secondary" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => updateFilters({ selectedCategory: category.id })}
                     className="rounded-full"
                   >
                     {category.name}
@@ -210,7 +248,7 @@ const Services = () => {
 
               {/* Sort & View Controls */}
               <div className="flex items-center gap-2">
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={filters.sortBy} onValueChange={(v) => updateFilters({ sortBy: v })}>
                   <SelectTrigger className="w-40 h-10 rounded-xl">
                     <ArrowUpDown className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Trier par" />
@@ -220,6 +258,7 @@ const Services = () => {
                     <SelectItem value="oldest">Plus anciens</SelectItem>
                     <SelectItem value="price-asc">Prix croissant</SelectItem>
                     <SelectItem value="price-desc">Prix décroissant</SelectItem>
+                    <SelectItem value="rating-desc">Meilleures notes</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -242,9 +281,21 @@ const Services = () => {
                     <List className="h-4 w-4" />
                   </Button>
                 </div>
+
+                {/* Advanced Filters */}
+                <AdvancedSearchFilters
+                  filters={filters}
+                  onFiltersChange={updateFilters}
+                  onReset={resetFilters}
+                  categories={categories}
+                  type="service"
+                />
               </div>
             </div>
           </motion.div>
+
+          {/* Active Filter Pills */}
+          <ActiveFilterPills filters={filters} categories={categories} onFiltersChange={updateFilters} />
 
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
@@ -285,7 +336,7 @@ const Services = () => {
               <p className="text-muted-foreground mb-6">
                 Essayez de modifier vos critères de recherche
               </p>
-              <Button onClick={() => { setSearchTerm(""); setSelectedCategory(null); }}>
+              <Button onClick={resetFilters}>
                 Réinitialiser les filtres
               </Button>
             </motion.div>
@@ -302,100 +353,102 @@ const Services = () => {
               )}
             >
               <AnimatePresence mode="popLayout">
-                {filteredServices.map((service) => (
-                  <motion.div
-                    key={service.id}
-                    variants={item}
-                    layout
-                    onClick={() => navigate(`/service/${service.id}`)}
-                  >
-                    <Card className={cn(
-                      "overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-elevated border-0 shadow-card",
-                      viewMode === "list" && "flex flex-row"
-                    )}>
-                      <div className={cn(
-                        "relative bg-muted overflow-hidden",
-                        viewMode === "grid" ? "aspect-video" : "w-64 h-48"
+                {filteredServices.map((service) => {
+                  const rating = serviceRatings.get(service.id) || 0;
+                  return (
+                    <motion.div
+                      key={service.id}
+                      variants={item}
+                      layout
+                      onClick={() => navigate(`/service/${service.id}`)}
+                    >
+                      <Card className={cn(
+                        "overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-elevated border-0 shadow-card",
+                        viewMode === "list" && "flex flex-row"
                       )}>
-                        {service.images && service.images[0] ? (
-                          <img
-                            src={service.images[0]}
-                            alt={service.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary/20 to-secondary/5">
-                            <Wrench className="h-12 w-12 text-secondary" />
-                          </div>
-                        )}
-                        
-                        {/* Price Type Badge */}
-                        <Badge className={cn(
-                          "absolute top-3 left-3",
-                          service.price_type === "fixed" 
-                            ? "bg-accent text-accent-foreground" 
-                            : "bg-secondary text-secondary-foreground"
+                        <div className={cn(
+                          "relative bg-muted overflow-hidden",
+                          viewMode === "grid" ? "aspect-video" : "w-64 h-48"
                         )}>
-                          {service.price_type === "fixed" ? "Prix fixe" : "À négocier"}
-                        </Badge>
-                      </div>
-
-                      <div className={cn("flex-1 flex flex-col", viewMode === "list" && "p-4")}>
-                        <CardContent className={cn("flex-1", viewMode === "grid" && "p-4")}>
-                          {/* Provider Info */}
-                          <div className="flex items-center gap-2 mb-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src="" />
-                              <AvatarFallback className="text-xs bg-secondary/20">
-                                <User className="h-4 w-4" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <div className="flex items-center gap-1">
-                                {[1,2,3,4,5].map((star) => (
-                                  <Star key={star} className="h-3 w-3 fill-primary text-primary" />
-                                ))}
-                                <span className="text-xs text-muted-foreground ml-1">(0)</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <h3 className="font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-secondary transition-colors">
-                            {service.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                            {service.description}
-                          </p>
-                          
-                          {service.delivery_days && (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="h-4 w-4" />
-                              <span>Livraison en {service.delivery_days} jours</span>
+                          {service.images && service.images[0] ? (
+                            <img
+                              src={service.images[0]}
+                              alt={service.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-secondary/20 to-secondary/5">
+                              <Wrench className="h-12 w-12 text-secondary" />
                             </div>
                           )}
-                        </CardContent>
-                        
-                        <CardFooter className={cn(
-                          "flex justify-between items-center border-t pt-4",
-                          viewMode === "grid" ? "px-4 pb-4" : "p-0 border-0"
-                        )}>
-                          <div>
-                            {service.price ? (
-                              <span className="text-xl font-bold text-secondary">
-                                {service.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
-                              </span>
-                            ) : (
-                              <span className="text-sm text-muted-foreground">Prix sur demande</span>
+                          
+                          <Badge className={cn(
+                            "absolute top-3 left-3",
+                            service.price_type === "fixed" 
+                              ? "bg-accent text-accent-foreground" 
+                              : "bg-secondary text-secondary-foreground"
+                          )}>
+                            {service.price_type === "fixed" ? "Prix fixe" : "À négocier"}
+                          </Badge>
+                        </div>
+
+                        <div className={cn("flex-1 flex flex-col", viewMode === "list" && "p-4")}>
+                          <CardContent className={cn("flex-1", viewMode === "grid" && "p-4")}>
+                            {/* Provider Info */}
+                            <div className="flex items-center gap-2 mb-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src="" />
+                                <AvatarFallback className="text-xs bg-secondary/20">
+                                  <User className="h-4 w-4" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-1">
+                                  {[1,2,3,4,5].map((star) => (
+                                    <Star key={star} className={`h-3 w-3 ${star <= Math.round(rating) ? "fill-primary text-primary" : "text-muted"}`} />
+                                  ))}
+                                  <span className="text-xs text-muted-foreground ml-1">({rating > 0 ? rating.toFixed(1) : "0"})</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <h3 className="font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-secondary transition-colors">
+                              {service.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                              {service.description}
+                            </p>
+                            
+                            {service.delivery_days && (
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Clock className="h-4 w-4" />
+                                <span>Livraison en {service.delivery_days} jours</span>
+                              </div>
                             )}
-                          </div>
-                          <Button size="sm" variant="secondary" className="rounded-xl">
-                            Voir détails
-                          </Button>
-                        </CardFooter>
-                      </div>
-                    </Card>
-                  </motion.div>
-                ))}
+                          </CardContent>
+                          
+                          <CardFooter className={cn(
+                            "flex justify-between items-center border-t pt-4",
+                            viewMode === "grid" ? "px-4 pb-4" : "p-0 border-0"
+                          )}>
+                            <div>
+                              {service.price ? (
+                                <span className="text-xl font-bold text-secondary">
+                                  {service.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
+                                </span>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">Prix sur demande</span>
+                              )}
+                            </div>
+                            <Button size="sm" variant="secondary" className="rounded-xl">
+                              Voir détails
+                            </Button>
+                          </CardFooter>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </motion.div>
           )}
