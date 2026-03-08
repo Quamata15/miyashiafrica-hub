@@ -85,7 +85,7 @@ const Feed = () => {
     const { data: profiles } = ownerIds.size > 0
       ? await supabase
           .from("profiles_public")
-          .select("user_id, full_name, avatar_url")
+          .select("user_id, full_name, username, avatar_url")
           .in("user_id", Array.from(ownerIds))
       : { data: [] };
 
