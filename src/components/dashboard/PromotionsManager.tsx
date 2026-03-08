@@ -40,8 +40,21 @@ const PromotionsManager = () => {
     event_tag: "",
   });
 
+  // Promo code form state
+  const [codeForm, setCodeForm] = useState({
+    code: "",
+    discount_type: "percentage",
+    discount_value: 10,
+    min_order_amount: 0,
+    max_uses: "",
+    expires_at: "",
+  });
+
   useEffect(() => {
-    if (user) fetchPromotions();
+    if (user) {
+      fetchPromotions();
+      fetchPromoCodes();
+    }
   }, [user]);
 
   const fetchPromotions = async () => {
@@ -53,6 +66,15 @@ const PromotionsManager = () => {
       .order("created_at", { ascending: false });
     if (data) setPromotions(data);
     setLoading(false);
+  };
+
+  const fetchPromoCodes = async () => {
+    if (!user) return;
+    const { data } = await (supabase.from("promo_codes") as any)
+      .select("*")
+      .eq("seller_id", user.id)
+      .order("created_at", { ascending: false });
+    if (data) setPromoCodes(data);
   };
 
   const handleCreate = async () => {
