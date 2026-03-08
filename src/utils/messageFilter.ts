@@ -1,5 +1,5 @@
-// Firewall: blocks attempts to share contact information in messages
-// Prevents platform disintermediation by filtering phone, email, URLs, addresses
+// Smart filter: silently blocks contact sharing while showing friendly, benefit-focused messages
+// The user sees helpful suggestions instead of strict "forbidden" warnings
 
 const PHONE_PATTERNS = [
   /(\+?\d{1,4}[\s.-]?\(?\d{1,4}\)?[\s.-]?\d{2,4}[\s.-]?\d{2,4}[\s.-]?\d{0,4})/g,
@@ -20,7 +20,7 @@ const SOCIAL_KEYWORDS = [
   /facebook/gi, /instagram/gi, /snapchat/gi, /tiktok/gi,
   /twitter/gi, /linkedin/gi, /viber/gi, /imo/gi,
   /messenger/gi, /wechat/gi,
-  /@[a-zA-Z0-9_]{2,}/g, // social handles
+  /@[a-zA-Z0-9_]{2,}/g,
 ];
 
 const CONTACT_INTENT = [
@@ -49,6 +49,16 @@ const ADDRESS_PATTERNS = [
   /\b\d{2,5}\s+(rue|av|bd|blvd)/gi,
 ];
 
+// Friendly, benefit-focused messages instead of harsh warnings
+const FRIENDLY_MESSAGES = {
+  phone: "💡 Astuce : en restant sur le chat MIYASHI, vous bénéficiez de la protection acheteur, du suivi de commande et de la résolution de litiges. Votre message n'a pas pu être envoyé.",
+  email: "💡 Bonne nouvelle : le chat MIYASHI est plus rapide qu'un email ! Vous profitez aussi de la protection acheteur et du support en cas de souci. Votre message n'a pas pu être envoyé.",
+  url: "💡 Pour votre sécurité, les transactions via MIYASHI incluent la garantie acheteur et le paiement sécurisé. Continuez la discussion ici ! Votre message n'a pas pu être envoyé.",
+  social: "💡 Le chat MIYASHI est conçu pour faciliter vos échanges avec les vendeurs. En bonus : protection acheteur, historique des conversations et support dédié ! Votre message n'a pas pu être envoyé.",
+  contact: "💡 Saviez-vous qu'en achetant via MIYASHI, vos fonds sont protégés en séquestre jusqu'à réception ? Vous gagnez aussi des points fidélité à chaque achat ! Votre message n'a pas pu être envoyé.",
+  address: "💡 Le système de livraison MIYASHI gère les adresses automatiquement. Le livreur reçoit les infos nécessaires de manière sécurisée. Votre message n'a pas pu être envoyé.",
+};
+
 export interface FilterResult {
   blocked: boolean;
   reason?: string;
@@ -59,14 +69,14 @@ export const filterMessage = (message: string): FilterResult => {
   // Check emails
   if (EMAIL_PATTERN.test(message)) {
     EMAIL_PATTERN.lastIndex = 0;
-    return { blocked: true, reason: "Le partage d'adresses email n'est pas autorisé. Utilisez le chat de la plateforme pour votre sécurité. 🔒" };
+    return { blocked: true, reason: FRIENDLY_MESSAGES.email };
   }
 
   // Check URLs
   for (const pattern of URL_PATTERNS) {
     if (pattern.test(message)) {
       pattern.lastIndex = 0;
-      return { blocked: true, reason: "Le partage de liens externes n'est pas autorisé. Toutes les transactions doivent passer par MIYASHI pour votre protection. 🛡️" };
+      return { blocked: true, reason: FRIENDLY_MESSAGES.url };
     }
   }
 
@@ -74,7 +84,7 @@ export const filterMessage = (message: string): FilterResult => {
   for (const pattern of SOCIAL_KEYWORDS) {
     if (pattern.test(message)) {
       pattern.lastIndex = 0;
-      return { blocked: true, reason: "Le partage de coordonnées de réseaux sociaux n'est pas autorisé. Restez sur MIYASHI pour bénéficier de la protection acheteur. 🔒" };
+      return { blocked: true, reason: FRIENDLY_MESSAGES.social };
     }
   }
 
@@ -82,7 +92,7 @@ export const filterMessage = (message: string): FilterResult => {
   for (const pattern of CONTACT_INTENT) {
     if (pattern.test(message)) {
       pattern.lastIndex = 0;
-      return { blocked: true, reason: "Pour votre sécurité, toutes les transactions doivent passer par MIYASHI. Vous bénéficiez ainsi de la garantie acheteur et du système de litiges. 🛡️" };
+      return { blocked: true, reason: FRIENDLY_MESSAGES.contact };
     }
   }
 
@@ -90,18 +100,18 @@ export const filterMessage = (message: string): FilterResult => {
   for (const pattern of ADDRESS_PATTERNS) {
     if (pattern.test(message)) {
       pattern.lastIndex = 0;
-      return { blocked: true, reason: "Le partage d'adresses physiques n'est pas autorisé dans le chat. Utilisez le système de livraison intégré pour votre sécurité. 📦" };
+      return { blocked: true, reason: FRIENDLY_MESSAGES.address };
     }
   }
 
-  // Check phone numbers (more permissive - only block obvious phone numbers)
+  // Check phone numbers
   for (const pattern of PHONE_PATTERNS) {
     const matches = message.match(pattern);
     if (matches) {
       for (const match of matches) {
         const digits = match.replace(/\D/g, "");
         if (digits.length >= 8 && digits.length <= 15) {
-          return { blocked: true, reason: "Le partage de numéros de téléphone n'est pas autorisé. Communiquez via le chat MIYASHI pour bénéficier de la protection plateforme. 🔒" };
+          return { blocked: true, reason: FRIENDLY_MESSAGES.phone };
         }
       }
     }

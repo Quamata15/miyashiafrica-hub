@@ -12,7 +12,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { MessageSquare, Loader2, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 interface VendorViolationReportProps {
@@ -41,9 +41,9 @@ const VendorViolationReport = ({ orderId, sellerId }: VendorViolationReportProps
       });
 
     if (error) {
-      toast.error("Erreur lors du signalement");
+      toast.error("Erreur lors de l'envoi");
     } else {
-      toast.success("Signalement envoyé. Notre équipe va examiner votre rapport.");
+      toast.success("Merci pour votre retour ! Notre équipe va examiner votre signalement.");
       setOpen(false);
       setDescription("");
     }
@@ -55,36 +55,36 @@ const VendorViolationReport = ({ orderId, sellerId }: VendorViolationReportProps
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive gap-1.5 text-xs">
-          <AlertTriangle className="h-3.5 w-3.5" />
-          Coordonnées sur le colis
+        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground gap-1.5 text-xs">
+          <MessageSquare className="h-3.5 w-3.5" />
+          Signaler un souci avec le colis
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            Signaler un contournement
+            <Shield className="h-5 w-5 text-primary" />
+            Nous aider à améliorer le service
           </DialogTitle>
           <DialogDescription>
-            Si le vendeur a inscrit ses coordonnées personnelles (téléphone, adresse, réseaux sociaux) 
-            directement sur le colis, signalez-le. Cette pratique est interdite pour protéger 
-            acheteurs et vendeurs.
+            Vous avez remarqué quelque chose d'inhabituel sur votre colis ? 
+            Par exemple, des coordonnées personnelles du vendeur inscrites sur l'emballage ? 
+            Faites-le nous savoir pour qu'on puisse améliorer l'expérience pour tout le monde.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
-          <div className="bg-muted/50 rounded-lg p-3 text-xs space-y-1.5">
-            <p className="font-medium">Politique de sanctions :</p>
+          <div className="bg-primary/5 rounded-lg p-3 text-xs space-y-1.5">
+            <p className="font-medium text-primary">Pourquoi c'est important ?</p>
             <ul className="list-disc list-inside text-muted-foreground space-y-0.5">
-              <li><strong>1ère infraction</strong> : Avertissement par email</li>
-              <li><strong>2ème infraction</strong> : Suspension temporaire (7 jours)</li>
-              <li><strong>3ème infraction</strong> : Suspension définitive du compte</li>
+              <li>Vos données personnelles restent protégées</li>
+              <li>Les retours et litiges sont gérés plus facilement</li>
+              <li>Le suivi de livraison fonctionne de manière optimale</li>
             </ul>
           </div>
 
           <Textarea
-            placeholder="Décrivez ce que vous avez trouvé sur le colis (ex: numéro de téléphone écrit sur l'emballage, carte de visite insérée...)"
+            placeholder="Décrivez ce que vous avez observé sur le colis (ex: un numéro de téléphone écrit sur l'emballage, une carte de visite glissée à l'intérieur...)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
@@ -96,7 +96,6 @@ const VendorViolationReport = ({ orderId, sellerId }: VendorViolationReportProps
             Annuler
           </Button>
           <Button
-            variant="destructive"
             onClick={handleSubmit}
             disabled={submitting || !description.trim()}
           >

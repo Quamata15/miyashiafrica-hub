@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { QrCode, Printer, Package, MapPin, Shield, CheckCircle, Loader2 } from "lucide-react";
+import { QrCode, Printer, Package, MapPin, Shield, CheckCircle, Loader2, Gift, Star } from "lucide-react";
 import { toast } from "sonner";
 
 interface ShippingLabelProps {
@@ -54,7 +54,6 @@ const ShippingLabel = ({
 
     if (error) {
       if (error.code === "23505") {
-        // Already exists, fetch it
         const { data: existing } = await (supabase as any)
           .from("shipping_labels")
           .select("*")
@@ -82,15 +81,11 @@ const ShippingLabel = ({
     setLoading(false);
   };
 
-  // Auto-fetch on mount
   useState(() => {
     fetchLabel();
   });
 
   const handlePrint = () => {
-    const printContent = document.getElementById(`label-${orderId}`);
-    if (!printContent) return;
-
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
@@ -109,7 +104,7 @@ const ShippingLabel = ({
           .info { margin: 8px 0; }
           .info-label { font-size: 10px; text-transform: uppercase; color: #888; margin-bottom: 2px; }
           .info-value { font-size: 14px; font-weight: 500; }
-          .warning { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 10px; margin-top: 12px; font-size: 11px; text-align: center; }
+          .tip { background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 10px; margin-top: 12px; font-size: 11px; text-align: center; }
           .footer { text-align: center; margin-top: 16px; font-size: 10px; color: #888; }
           @media print { body { padding: 0; } }
         </style>
@@ -118,10 +113,10 @@ const ShippingLabel = ({
         <div class="label">
           <div class="header">
             <div class="logo">📦 MIYASHI</div>
-            <div style="font-size: 12px; color: #666;">Étiquette d'expédition sécurisée</div>
+            <div style="font-size: 12px; color: #666;">Expédition sécurisée avec suivi</div>
           </div>
           <div class="qr">
-            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">QR Token (à scanner par le livreur)</div>
+            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Code de suivi (scanné par le livreur)</div>
             <div class="qr-code">${label?.qr_token || "---"}</div>
           </div>
           <div class="info">
@@ -132,13 +127,13 @@ const ShippingLabel = ({
             <div class="info-label">Article</div>
             <div class="info-value">${productTitle} × ${quantity}</div>
           </div>
-          <div class="warning">
-            ⚠️ <strong>IMPORTANT</strong> : Ne pas inscrire de coordonnées personnelles sur le colis.
-            Le livreur accède aux adresses via l'application MIYASHI uniquement.
-            Tout contournement entraîne des sanctions.
+          <div class="tip">
+            💡 <strong>Astuce vendeur</strong> : L'étiquette MIYASHI permet au livreur d'accéder 
+            aux adresses automatiquement. Pas besoin d'écrire quoi que ce soit sur le colis — 
+            c'est plus simple et plus pro !
           </div>
           <div class="footer">
-            Plateforme MIYASHI — Transactions sécurisées
+            MIYASHI — Livraison suivie & protégée
           </div>
         </div>
       </body>
@@ -164,14 +159,26 @@ const ShippingLabel = ({
         <CardContent className="p-4 text-center space-y-3">
           <QrCode className="h-10 w-10 mx-auto text-primary/50" />
           <div>
-            <p className="font-semibold text-sm">Étiquette d'expédition</p>
+            <p className="font-semibold text-sm">Étiquette d'expédition intelligente</p>
             <p className="text-xs text-muted-foreground">
-              Générez une étiquette MIYASHI pour ce colis. Le livreur scannera le QR code pour accéder aux adresses.
+              Générez une étiquette MIYASHI — le livreur recevra automatiquement les adresses. 
+              Plus simple, plus rapide, plus professionnel ! ✨
             </p>
+          </div>
+          <div className="flex flex-wrap gap-2 justify-center">
+            <Badge variant="outline" className="text-[10px] gap-1">
+              <Gift className="h-3 w-3" /> Suivi en temps réel
+            </Badge>
+            <Badge variant="outline" className="text-[10px] gap-1">
+              <Shield className="h-3 w-3" /> Protection vendeur
+            </Badge>
+            <Badge variant="outline" className="text-[10px] gap-1">
+              <Star className="h-3 w-3" /> Image pro
+            </Badge>
           </div>
           <Button onClick={generateLabel} disabled={generating} size="sm">
             {generating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <QrCode className="h-4 w-4 mr-2" />}
-            Générer l'étiquette
+            Générer mon étiquette
           </Button>
         </CardContent>
       </Card>
@@ -180,9 +187,8 @@ const ShippingLabel = ({
 
   if (!label) return null;
 
-  // Mask address for seller (they shouldn't see buyer's full address)
   const maskedDeliveryAddress = isSeller
-    ? (label.delivery_address?.split(",")[0] || "Adresse masquée") + " ••••"
+    ? (label.delivery_address?.split(",")[0] || "Adresse gérée par MIYASHI") + " ••••"
     : label.delivery_address;
 
   return (
@@ -199,15 +205,13 @@ const ShippingLabel = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {/* QR Token */}
         <div className="bg-muted/50 rounded-xl p-3 text-center">
-          <p className="text-[10px] text-muted-foreground mb-1">TOKEN QR</p>
+          <p className="text-[10px] text-muted-foreground mb-1">CODE DE SUIVI</p>
           <p className="font-mono text-sm font-bold tracking-widest text-primary">
             {label.qr_token}
           </p>
         </div>
 
-        {/* Addresses */}
         <div className="space-y-2">
           <div className="flex items-start gap-2">
             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -231,18 +235,16 @@ const ShippingLabel = ({
 
         <Separator />
 
-        {/* Warning */}
-        <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-2.5">
-          <p className="text-[10px] text-destructive font-medium flex items-center gap-1">
-            <Shield className="h-3 w-3" />
-            Ne pas inscrire de coordonnées sur le colis
+        {/* Positive tip instead of warning */}
+        <div className="bg-primary/5 border border-primary/15 rounded-lg p-2.5">
+          <p className="text-[10px] text-primary font-medium flex items-center gap-1">
+            💡 Astuce pro
           </p>
           <p className="text-[10px] text-muted-foreground mt-0.5">
-            Le livreur accède aux adresses via l'app. Tout contournement entraîne un avertissement.
+            Avec l'étiquette MIYASHI, votre colis a un aspect professionnel et le livreur gère tout automatiquement. Vos clients apprécient !
           </p>
         </div>
 
-        {/* Actions */}
         {isSeller && (
           <Button variant="outline" size="sm" className="w-full" onClick={handlePrint}>
             <Printer className="h-4 w-4 mr-2" />
