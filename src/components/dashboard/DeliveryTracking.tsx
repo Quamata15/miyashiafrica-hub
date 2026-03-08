@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { motion } from "framer-motion";
+import VendorViolationReport from "@/components/shipping/VendorViolationReport";
 
 interface Order {
   id: string;

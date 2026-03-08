@@ -232,6 +232,9 @@ const DriverOverview = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* QR Scanner */}
+      <DriverQRScanner />
     </div>
   );
 };
