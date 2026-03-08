@@ -12,3 +12,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /messages
+Disallow: /checkout
+Disallow: /wallet
+
+Sitemap: https://miyashi-hub.lovable.app/sitemap.xml
