@@ -1,37 +1,49 @@
 import { Link } from "react-router-dom";
 import { 
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
-  Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUpRight 
+  Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUpRight,
+  Truck, Wallet, Heart, LayoutDashboard, Shield, HelpCircle,
+  FileText, MessageSquare, Star, Download
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/hooks/useAuth";
 
 const Footer = () => {
-  const footerLinks = {
-    marketplace: [
-      { label: "Tous les produits", href: "/marketplace" },
-      { label: "Catégories", href: "/marketplace" },
-      { label: "Promotions", href: "/marketplace" },
-      { label: "Nouveautés", href: "/marketplace" },
-    ],
-    services: [
-      { label: "Trouver un service", href: "/services" },
-      { label: "Devenir prestataire", href: "/create" },
-      { label: "Comment ça marche", href: "/" },
-    ],
-    freelance: [
-      { label: "Offres d'emploi", href: "/freelance" },
-      { label: "Profils freelances", href: "/freelance" },
-      { label: "Publier une mission", href: "/create" },
-    ],
-    support: [
-      { label: "Centre d'aide", href: "/help" },
-      { label: "Nous contacter", href: "/contact" },
-      { label: "FAQ", href: "/faq" },
-      { label: "Conditions d'utilisation", href: "/terms" },
-    ],
-  };
+  const { user } = useAuth();
+
+  const exploreLinks = [
+    { label: "Tous les produits", href: "/marketplace", icon: ShoppingBag },
+    { label: "Services", href: "/services", icon: Briefcase },
+    { label: "Freelance & Emploi", href: "/freelance", icon: Users },
+    { label: "Devenir livreur", href: "/driver-registration", icon: Truck },
+  ];
+
+  const accountLinks = [
+    { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Mon Profil", href: "/profile" },
+    { label: "Portefeuille", href: "/wallet", icon: Wallet },
+    { label: "Mes Favoris", href: "/favorites", icon: Heart },
+    { label: "Messages", href: "/messages", icon: MessageSquare },
+    { label: "Booster", href: "/boost", icon: Star },
+  ];
+
+  const proLinks = [
+    { label: "Créer une annonce", href: "/create" },
+    { label: "Espace Prestataire", href: "/provider-space", icon: Briefcase },
+    { label: "Espace Livreur", href: "/driver-dashboard", icon: Truck },
+    { label: "Litiges", href: "/disputes", icon: Shield },
+  ];
+
+  const helpLinks = [
+    { label: "Centre d'aide", href: "/help", icon: HelpCircle },
+    { label: "FAQ", href: "/faq", icon: FileText },
+    { label: "Nous contacter", href: "/contact", icon: Phone },
+    { label: "Support", href: "/support", icon: MessageSquare },
+    { label: "Conditions d'utilisation", href: "/terms", icon: FileText },
+    { label: "Installer l'app", href: "/install", icon: Download },
+  ];
 
   const socialLinks = [
     { icon: Facebook, href: "#", label: "Facebook" },
@@ -75,9 +87,9 @@ const Footer = () => {
       </div>
 
       <div className="container py-12 md:py-16 relative">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 lg:gap-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10">
           {/* Brand */}
-          <div className="col-span-2">
+          <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6">
               <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg">
                 <span className="font-display font-bold text-2xl text-primary-foreground">M</span>
@@ -136,86 +148,52 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Marketplace */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <ShoppingBag className="w-4 h-4 text-primary" />
-              <h4 className="font-display font-semibold">Marketplace</h4>
-            </div>
-            <ul className="space-y-3">
-              {footerLinks.marketplace.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
-                  >
-                    {link.label}
-                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Explorer */}
+          <FooterColumn title="Explorer" icon={ShoppingBag} links={exploreLinks} />
 
-          {/* Services */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Briefcase className="w-4 h-4 text-primary" />
-              <h4 className="font-display font-semibold">Services</h4>
+          {/* Mon Compte — only when logged in */}
+          {user ? (
+            <FooterColumn title="Mon Compte" icon={LayoutDashboard} links={accountLinks} />
+          ) : (
+            <div>
+              <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4 text-primary" />
+                Commencer
+              </h4>
+              <ul className="space-y-3">
+                <li>
+                  <Link to="/auth" className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group">
+                    Se connecter
+                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/auth" className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group">
+                    Créer un compte
+                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/driver-registration" className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group">
+                    Devenir livreur
+                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </Link>
+                </li>
+              </ul>
             </div>
-            <ul className="space-y-3">
-              {footerLinks.services.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
-                  >
-                    {link.label}
-                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          )}
 
-          {/* Freelance */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Users className="w-4 h-4 text-primary" />
-              <h4 className="font-display font-semibold">Freelance</h4>
-            </div>
-            <ul className="space-y-3">
-              {footerLinks.freelance.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
-                  >
-                    {link.label}
-                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Espaces Pro — only when logged in */}
+          {user ? (
+            <FooterColumn title="Espaces Pro" icon={Briefcase} links={proLinks} />
+          ) : (
+            <FooterColumn title="Aide & Support" icon={HelpCircle} links={helpLinks} />
+          )}
 
-          {/* Support */}
-          <div>
-            <h4 className="font-display font-semibold mb-4">Support</h4>
-            <ul className="space-y-3">
-              {footerLinks.support.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
-                  >
-                    {link.label}
-                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Aide — always visible, but only if user is logged in (otherwise shown above) */}
+          {user && (
+            <FooterColumn title="Aide & Support" icon={HelpCircle} links={helpLinks} />
+          )}
         </div>
 
         {/* Bottom */}
@@ -223,15 +201,18 @@ const Footer = () => {
           <p className="text-sm text-background/50">
             © 2026 MIYASHI by ASHIZAN Group. Tous droits réservés.
           </p>
-          <div className="flex items-center gap-6">
-            <Link to="#" className="text-sm text-background/50 hover:text-primary transition-colors">
+          <div className="flex items-center gap-6 flex-wrap justify-center">
+            <Link to="/terms" className="text-sm text-background/50 hover:text-primary transition-colors">
+              Conditions d'utilisation
+            </Link>
+            <Link to="/terms" className="text-sm text-background/50 hover:text-primary transition-colors">
               Politique de confidentialité
             </Link>
-            <Link to="#" className="text-sm text-background/50 hover:text-primary transition-colors">
+            <Link to="/terms" className="text-sm text-background/50 hover:text-primary transition-colors">
               Mentions légales
             </Link>
-            <Link to="#" className="text-sm text-background/50 hover:text-primary transition-colors">
-              CGV
+            <Link to="/install" className="text-sm text-background/50 hover:text-primary transition-colors flex items-center gap-1">
+              <Download className="w-3 h-3" /> Installer l'app
             </Link>
           </div>
         </div>
@@ -239,5 +220,31 @@ const Footer = () => {
     </footer>
   );
 };
+
+const FooterColumn = ({ title, icon: Icon, links }: {
+  title: string;
+  icon: React.ElementType;
+  links: { label: string; href: string; icon?: React.ElementType }[];
+}) => (
+  <div>
+    <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+      <Icon className="w-4 h-4 text-primary" />
+      {title}
+    </h4>
+    <ul className="space-y-3">
+      {links.map((link) => (
+        <li key={link.label}>
+          <Link
+            to={link.href}
+            className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
+          >
+            {link.label}
+            <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+          </Link>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
 
 export default Footer;
