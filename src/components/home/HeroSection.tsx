@@ -152,7 +152,7 @@ const HeroSection = () => {
                 >
                   <card.icon className={`w-6 h-6 ${card.color}`} />
                 </motion.div>
-                <h3 className="font-display text-lg font-bold text-foreground mb-1">{card.title}</h3>
+                <h2 className="font-display text-lg font-bold text-foreground mb-1">{card.title}</h2>
                 <p className="text-sm text-muted-foreground mb-3">{card.desc}</p>
                 <span className={`inline-flex items-center gap-1 ${card.color} font-semibold text-sm group-hover:gap-2 transition-all`}>
                   Découvrir <ArrowRight className="w-4 h-4" />
