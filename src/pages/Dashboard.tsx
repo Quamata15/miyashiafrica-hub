@@ -203,6 +203,16 @@ const Dashboard = () => {
               </div>
             </motion.div>
 
+            {/* Email verification reminder */}
+            {user && !user.email_confirmed_at && user.email && (
+              <EmailVerificationBanner email={user.email} />
+            )}
+
+            {/* Seller onboarding tutorial */}
+            {activeTab === "overview" && primaryRole === "seller" && showOnboarding && (
+              <SellerOnboarding onDismiss={() => setShowOnboarding(false)} />
+            )}
+
             {/* Content */}
             <motion.div
               key={activeTab}
