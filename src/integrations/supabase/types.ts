@@ -1461,6 +1461,11 @@ export type Database = {
               total: number
             }[]
           }
+      confirm_order_reception: {
+        Args: { p_order_id: string }
+        Returns: undefined
+      }
+      debit_wallet: { Args: { p_amount: number }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
