@@ -19,6 +19,8 @@ import NotificationsList from "@/components/dashboard/NotificationsList";
 import PromotionsManager from "@/components/dashboard/PromotionsManager";
 import BoostAnalytics from "@/components/dashboard/BoostAnalytics";
 import DeliveryMap from "@/components/map/DeliveryMap";
+import SellerOnboarding from "@/components/dashboard/SellerOnboarding";
+import EmailVerificationBanner from "@/components/dashboard/EmailVerificationBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -35,6 +37,7 @@ const Dashboard = () => {
   const [profile, setProfile] = useState<any>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -199,6 +202,16 @@ const Dashboard = () => {
                 </Button>
               </div>
             </motion.div>
+
+            {/* Email verification reminder */}
+            {user && !user.email_confirmed_at && user.email && (
+              <EmailVerificationBanner email={user.email} />
+            )}
+
+            {/* Seller onboarding tutorial */}
+            {activeTab === "overview" && primaryRole === "seller" && showOnboarding && (
+              <SellerOnboarding onDismiss={() => setShowOnboarding(false)} />
+            )}
 
             {/* Content */}
             <motion.div
