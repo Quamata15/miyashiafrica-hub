@@ -27,7 +27,7 @@ const testimonials = [
     name: "Emmanuel Kodjo",
     role: "Acheteur régulier",
     location: "Lomé, Togo",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&q=75&fm=webp",
     rating: 5,
     content: "Je fais tous mes achats sur MIYASHI. Les produits sont de qualité, les prix sont justes et la livraison est rapide. Je recommande !",
   },
