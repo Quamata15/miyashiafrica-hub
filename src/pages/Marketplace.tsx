@@ -90,16 +90,39 @@ const Marketplace = () => {
 
       setProducts(sorted);
 
-      // Fetch verified status for all sellers
+      // Fetch verified status and active promotions for all sellers
       const sellerIds = [...new Set(data.map(p => p.seller_id))];
       if (sellerIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles_public")
-          .select("user_id, is_verified")
-          .in("user_id", sellerIds)
-          .eq("is_verified", true);
-        if (profiles) {
-          setVerifiedSellers(new Set(profiles.map(p => p.user_id!)));
+        const [profilesRes, promosRes] = await Promise.all([
+          supabase
+            .from("profiles_public")
+            .select("user_id, is_verified")
+            .in("user_id", sellerIds)
+            .eq("is_verified", true),
+          supabase
+            .from("promotions")
+            .select("user_id, discount_type, discount_value, target_id")
+            .in("user_id", sellerIds)
+            .eq("is_active", true)
+            .gt("end_date", new Date().toISOString()),
+        ]);
+        if (profilesRes.data) {
+          setVerifiedSellers(new Set(profilesRes.data.map(p => p.user_id!)));
+        }
+        if (promosRes.data && promosRes.data.length > 0) {
+          // Map seller_id -> best promotion (highest discount)
+          const promoMap = new Map<string, { discount_type: string; discount_value: number }>();
+          for (const p of promosRes.data) {
+            if (!p.user_id) continue;
+            const existing = promoMap.get(p.user_id);
+            if (!existing || (p.discount_value || 0) > existing.discount_value) {
+              promoMap.set(p.user_id, {
+                discount_type: p.discount_type || "percentage",
+                discount_value: p.discount_value || 0,
+              });
+            }
+          }
+          setPromotions(promoMap);
         }
       }
     }
