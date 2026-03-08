@@ -13,8 +13,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CreditCard, Smartphone, Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag } from "lucide-react";
+import { CreditCard, Smartphone, Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag, Tag, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { paymentsByCountry } from "@/utils/paymentMethods";
 
@@ -25,6 +26,14 @@ interface OrderItem {
   title: string;
   price: number;
   quantity: number;
+}
+
+interface AppliedPromo {
+  id: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  seller_id: string;
 }
 
 const Checkout = () => {
@@ -48,9 +57,22 @@ const Checkout = () => {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Promo code state
+  const [promoInput, setPromoInput] = useState("");
+  const [promoLoading, setPromoLoading] = useState(false);
+  const [appliedPromo, setAppliedPromo] = useState<AppliedPromo | null>(null);
+
   const isDirectOrder = !!directAmount && !!directSellerId;
-  const checkoutAmount = isDirectOrder ? directAmount : totalPrice;
+  const baseAmount = isDirectOrder ? directAmount : totalPrice;
   const hasItems = isDirectOrder || items.length > 0;
+
+  // Calculate discount
+  const discount = appliedPromo
+    ? appliedPromo.discount_type === "percentage"
+      ? Math.round(baseAmount * appliedPromo.discount_value / 100)
+      : Math.min(appliedPromo.discount_value, baseAmount)
+    : 0;
+  const checkoutAmount = baseAmount - discount;
 
   useEffect(() => {
     if (!user) navigate("/auth");
@@ -58,6 +80,54 @@ const Checkout = () => {
 
   const countryData = paymentsByCountry[country];
   const methods = countryData?.methods || [];
+
+  const applyPromoCode = async () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code) return;
+    setPromoLoading(true);
+
+    const { data, error } = await (supabase.from("promo_codes") as any)
+      .select("*")
+      .eq("code", code)
+      .eq("is_active", true)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
+
+    setPromoLoading(false);
+
+    if (error || !data) {
+      toast({ title: "Code invalide", description: "Ce code promo n'existe pas ou a expiré", variant: "destructive" });
+      return;
+    }
+
+    if (data.max_uses && data.used_count >= data.max_uses) {
+      toast({ title: "Code expiré", description: "Ce code promo a atteint sa limite d'utilisation", variant: "destructive" });
+      return;
+    }
+
+    if (data.min_order_amount && baseAmount < data.min_order_amount) {
+      toast({
+        title: "Montant minimum requis",
+        description: `Commande minimum de ${Number(data.min_order_amount).toLocaleString()} FCFA pour ce code`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setAppliedPromo({
+      id: data.id,
+      code: data.code,
+      discount_type: data.discount_type,
+      discount_value: data.discount_value,
+      seller_id: data.seller_id,
+    });
+    setPromoInput("");
+    toast({ title: "Code appliqué! 🎉", description: `Réduction de ${data.discount_type === "percentage" ? `${data.discount_value}%` : `${Number(data.discount_value).toLocaleString()}F`}` });
+  };
+
+  const removePromo = () => {
+    setAppliedPromo(null);
+  };
 
   const handlePayment = async () => {
     if (!user) return;
@@ -100,7 +170,13 @@ const Checkout = () => {
 
       // Create orders for each item/seller
       for (const orderItem of orderItems) {
-        const totalItemPrice = orderItem.price * orderItem.quantity;
+        let totalItemPrice = orderItem.price * orderItem.quantity;
+
+        // Apply discount proportionally if promo code used
+        if (discount > 0 && baseAmount > 0) {
+          const ratio = totalItemPrice / baseAmount;
+          totalItemPrice = Math.round(totalItemPrice - (discount * ratio));
+        }
 
         // 1. Create order
         const { data: order, error: orderErr } = await supabase.from("orders").insert({
@@ -113,7 +189,7 @@ const Checkout = () => {
           status: "pending",
           payment_status: "paid",
           shipping_address: shippingAddress,
-          notes: notes || null,
+          notes: appliedPromo ? `${notes || ""} [Code promo: ${appliedPromo.code}]`.trim() : notes || null,
         }).select("id").single();
 
         if (orderErr || !order) throw orderErr;
@@ -125,7 +201,7 @@ const Checkout = () => {
           amount: totalItemPrice,
           payment_method: paymentMethod,
           status: "completed",
-          metadata: { phone },
+          metadata: { phone, promo_code: appliedPromo?.code || null },
         });
 
         // 3. Create escrow (funds held until delivery confirmed)
@@ -137,6 +213,13 @@ const Checkout = () => {
           platform_commission: totalItemPrice * 0.1,
           status: "held",
         });
+      }
+
+      // Increment promo code used_count
+      if (appliedPromo) {
+        await (supabase.from("promo_codes") as any)
+          .update({ used_count: (await (supabase.from("promo_codes") as any).select("used_count").eq("id", appliedPromo.id).single()).data?.used_count + 1 })
+          .eq("id", appliedPromo.id);
       }
 
       // Clear cart if using cart checkout
@@ -227,6 +310,51 @@ const Checkout = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Promo Code */}
+            <Card className="border-0 shadow-card mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Tag className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Code promo</span>
+                </div>
+                {appliedPromo ? (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-accent/10 border border-accent/20">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-accent text-accent-foreground font-mono">
+                        {appliedPromo.code}
+                      </Badge>
+                      <span className="text-sm text-accent-foreground font-medium">
+                        -{appliedPromo.discount_type === "percentage"
+                          ? `${appliedPromo.discount_value}%`
+                          : `${Number(appliedPromo.discount_value).toLocaleString()}F`}
+                      </span>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={removePromo}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Entrez votre code promo"
+                      value={promoInput}
+                      onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                      onKeyDown={e => e.key === "Enter" && applyPromoCode()}
+                      className="h-10 font-mono uppercase"
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={applyPromoCode}
+                      disabled={promoLoading || !promoInput.trim()}
+                      className="shrink-0"
+                    >
+                      {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Appliquer"}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Shipping Address */}
             <Card className="border-0 shadow-card mb-6">
@@ -321,8 +449,16 @@ const Checkout = () => {
               <CardContent className="p-5">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-muted-foreground">Sous-total</span>
-                  <span className="font-semibold">{checkoutAmount.toLocaleString()} FCFA</span>
+                  <span className="font-semibold">{baseAmount.toLocaleString()} FCFA</span>
                 </div>
+                {discount > 0 && (
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-accent-foreground flex items-center gap-1">
+                      <Tag className="w-3 h-3" /> Réduction ({appliedPromo?.code})
+                    </span>
+                    <span className="font-semibold text-accent-foreground">-{discount.toLocaleString()} FCFA</span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-muted-foreground">Frais de livraison</span>
                   <span className="text-sm text-muted-foreground">Calculés après sélection du livreur</span>
@@ -330,7 +466,14 @@ const Checkout = () => {
                 <Separator className="my-3" />
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-lg">Total</span>
-                  <span className="font-bold text-2xl text-primary">{checkoutAmount.toLocaleString()} FCFA</span>
+                  <div className="text-right">
+                    {discount > 0 && (
+                      <span className="text-sm text-muted-foreground line-through block">
+                        {baseAmount.toLocaleString()} FCFA
+                      </span>
+                    )}
+                    <span className="font-bold text-2xl text-primary">{checkoutAmount.toLocaleString()} FCFA</span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
                   <Shield className="w-4 h-4 text-accent-foreground" />
