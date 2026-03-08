@@ -35,6 +35,7 @@ const ServiceDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [ordering, setOrdering] = useState(false);
   const [orderNote, setOrderNote] = useState("");
+  const [providerProfile, setProviderProfile] = useState<{ full_name: string | null; avatar_url: string | null; is_verified: boolean | null } | null>(null);
 
   useEffect(() => {
     if (id) fetchService();
@@ -49,6 +50,12 @@ const ServiceDetail = () => {
 
     if (!error && data) {
       setService(data);
+      const { data: profile } = await supabase
+        .from("profiles_public")
+        .select("full_name, avatar_url, is_verified")
+        .eq("user_id", data.provider_id)
+        .single();
+      if (profile) setProviderProfile(profile);
     }
     setLoading(false);
   };
