@@ -1,0 +1,122 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, Package, Clock, CheckCircle, Eye, Truck, Star } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import QuickStatsGrid from "./QuickStatsGrid";
+
+const BuyerOverview = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) fetchData();
+  }, [user]);
+
+  const fetchData = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("orders")
+      .select("*, product:products(title, images), service:services(title)")
+      .eq("buyer_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    if (data) setOrders(data);
+    setLoading(false);
+  };
+
+  const pending = orders.filter(o => ["pending", "confirmed", "processing"].includes(o.status));
+  const shipped = orders.filter(o => o.status === "shipped");
+  const completed = orders.filter(o => o.status === "completed");
+  const total = orders.reduce((s, o) => s + Number(o.total_price), 0);
+
+  const stats = [
+    { label: "Commandes totales", value: orders.length, icon: ShoppingCart, trend: "neutral" as const },
+    { label: "En cours", value: pending.length + shipped.length, icon: Clock, trend: pending.length > 0 ? "up" as const : "neutral" as const, trendValue: pending.length > 0 ? "actif" : "" },
+    { label: "Livraisons en route", value: shipped.length, icon: Truck },
+    { label: "Total dépensé", value: `${total.toLocaleString()}F`, icon: Package },
+  ];
+
+  const statusLabel: Record<string, string> = {
+    pending: "En attente", confirmed: "Confirmé", processing: "En cours",
+    shipped: "En livraison", delivered: "Livré", completed: "Terminé", cancelled: "Annulé"
+  };
+
+  const statusColor: Record<string, string> = {
+    pending: "bg-muted text-muted-foreground", confirmed: "bg-primary/10 text-primary",
+    processing: "bg-primary/10 text-primary", shipped: "bg-accent/10 text-accent",
+    delivered: "bg-accent/10 text-accent", completed: "bg-accent text-accent-foreground",
+    cancelled: "bg-destructive/10 text-destructive"
+  };
+
+  return (
+    <div className="space-y-6">
+      <QuickStatsGrid stats={stats} loading={loading} />
+
+      {/* Recent orders */}
+      <Card className="border-0 shadow-card">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Mes commandes récentes</CardTitle>
+            <Button variant="ghost" size="sm" className="text-primary" onClick={() => navigate("/dashboard")}>
+              Voir tout
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {orders.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground">
+              <ShoppingCart className="w-10 h-10 mx-auto mb-3 opacity-40" />
+              <p className="font-medium">Aucune commande</p>
+              <p className="text-sm">Explorez le marketplace pour commencer</p>
+              <Button variant="outline" className="mt-4" onClick={() => navigate("/marketplace")}>
+                Voir les produits
+              </Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {orders.slice(0, 5).map((order) => (
+                <div key={order.id} className="flex items-center gap-4 p-4 hover:bg-muted/30 transition-colors">
+                  {/* Thumbnail */}
+                  <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden shrink-0">
+                    {order.product?.images?.[0] ? (
+                      <img src={order.product.images[0]} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">
+                      {order.product?.title || order.service?.title || `Commande #${order.id.slice(0, 8)}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {format(new Date(order.created_at), "dd MMM yyyy", { locale: fr })}
+                    </p>
+                  </div>
+                  {/* Price */}
+                  <p className="font-semibold text-sm whitespace-nowrap">{Number(order.total_price).toLocaleString()}F</p>
+                  {/* Status */}
+                  <Badge className={`text-xs shrink-0 ${statusColor[order.status] || ""}`}>
+                    {statusLabel[order.status] || order.status}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default BuyerOverview;
