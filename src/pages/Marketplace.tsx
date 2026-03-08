@@ -441,10 +441,18 @@ const Marketplace = () => {
                       <div className={cn("flex-1", viewMode === "list" && "p-4")}>
                         <CardContent className={cn(viewMode === "grid" && "p-4")}>
                           <div className="flex items-center gap-1 mb-2">
-                            {[1,2,3,4,5].map((star) => (
-                              <Star key={star} className="h-3 w-3 fill-primary text-primary" />
-                            ))}
-                            <span className="text-xs text-muted-foreground ml-1">(0)</span>
+                          {(() => {
+                            const rating = productRatings.get(product.id) || 0;
+                            const reviewCount = rating > 0 ? Math.ceil(rating) : 0;
+                            return (
+                              <>
+                                {[1,2,3,4,5].map((star) => (
+                                  <Star key={star} className={`h-3 w-3 ${star <= Math.round(rating) ? "fill-primary text-primary" : "text-muted"}`} />
+                                ))}
+                                <span className="text-xs text-muted-foreground ml-1">({rating > 0 ? rating.toFixed(1) : "0"})</span>
+                              </>
+                            );
+                          })()}
                           </div>
                           <div className="flex items-center gap-1.5 mb-1">
                             <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
