@@ -41,6 +41,8 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
   const providerItems: SidebarItem[] = userRoles.includes("provider") ? [
     { label: "Mes Services", icon: Briefcase, value: "services" },
     { label: "Étapes prestations", icon: TrendingUp, value: "milestones" },
+    { label: "Promotions", icon: Megaphone, value: "promotions" },
+    { label: "Boosts", icon: Zap, value: "boosts" },
   ] : [];
 
   const deliveryItems: SidebarItem[] = userRoles.includes("driver") ? [
