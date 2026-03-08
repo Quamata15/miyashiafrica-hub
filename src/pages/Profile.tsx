@@ -411,9 +411,38 @@ const Profile = () => {
                         </div>
                         <ThemeToggle />
                       </div>
-                      <div className="pt-4 border-t">
+                      <div className="pt-4 border-t flex items-center gap-3">
                         <Button variant="destructive" size="sm" onClick={async () => { await signOut(); navigate("/"); }}>
                           <LogOut className="h-4 w-4 mr-1" /> Se déconnecter
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                          onClick={async () => {
+                            if (!confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) return;
+                            try {
+                              const { data: { session } } = await supabase.auth.getSession();
+                              const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
+                                method: "POST",
+                                headers: {
+                                  Authorization: `Bearer ${session?.access_token}`,
+                                  "Content-Type": "application/json",
+                                },
+                              });
+                              if (res.ok) {
+                                toast({ title: "Compte supprimé", description: "Votre compte a été définitivement supprimé." });
+                                await signOut();
+                                navigate("/");
+                              } else {
+                                toast({ title: "Erreur", description: "Impossible de supprimer le compte", variant: "destructive" });
+                              }
+                            } catch {
+                              toast({ title: "Erreur", description: "Impossible de supprimer le compte", variant: "destructive" });
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" /> Supprimer mon compte
                         </Button>
                       </div>
                     </CardContent>
