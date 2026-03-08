@@ -136,10 +136,10 @@ const Checkout = () => {
           p_promo_code: appliedPromo?.code || null,
         });
         if (rpcErr) throw new Error(rpcErr.message);
-        const res = result as any;
-        if (!res?.success) throw new Error(res?.error || "Erreur lors de la création de la commande");
-        lastOrderId = res.order_id;
-        lastTotal = res.total_price;
+        const res = result as Record<string, unknown> | null;
+        if (!res?.success) throw new Error((res?.error as string) || "Erreur lors de la création de la commande");
+        lastOrderId = res.order_id as string;
+        lastTotal = res.total_price as number;
       }
 
       if (!isDirectOrder) await clearCart();
