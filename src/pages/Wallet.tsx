@@ -1,4 +1,5 @@
 import { useState } from "react";
+import VerificationGate from "@/components/kyc/VerificationGate";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
