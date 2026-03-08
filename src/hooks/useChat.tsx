@@ -237,12 +237,16 @@ export const useChat = () => {
   }, [user, selectedConversation, fetchConversations]);
 
   // Typing indicator via presence
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
   useEffect(() => {
     if (!selectedConversation || !user) return;
 
     const channel = supabase.channel(`typing-${selectedConversation.id}`, {
       config: { presence: { key: user.id } },
     });
+
+    typingChannelRef.current = channel;
 
     channel
       .on("presence", { event: "sync" }, () => {
@@ -255,10 +259,15 @@ export const useChat = () => {
         );
         setOtherUserTyping(isOtherTyping);
       })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({ typing: false });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
+      typingChannelRef.current = null;
     };
   }, [selectedConversation, user]);
 
