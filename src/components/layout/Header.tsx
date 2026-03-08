@@ -404,7 +404,8 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   {/* Mon compte */}
                   <div className="pt-3 border-t border-border mt-3">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Mon Compte</p>
-                    <MobileMenuItem icon={LayoutDashboard} label="Tableau de bord" onClick={() => go("/dashboard")} badge={unreadNotifications} />
+                     <MobileMenuItem icon={LayoutDashboard} label="Tableau de bord" onClick={() => go("/dashboard")} badge={unreadNotifications} />
+                    <MobileMenuItem icon={Rss} label="Fil d'actualité" onClick={() => go("/feed")} />
                     <MobileMenuItem icon={User} label="Mon Profil" onClick={() => go("/profile")} />
                     <MobileMenuItem icon={Wallet} label="Portefeuille" onClick={() => go("/wallet")} />
                     <MobileMenuItem icon={Heart} label="Favoris" onClick={() => go("/favorites")} />
