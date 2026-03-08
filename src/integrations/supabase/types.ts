@@ -1537,7 +1537,9 @@ export type Database = {
           full_name: string | null
           id: string | null
           is_verified: boolean | null
+          location: string | null
           user_id: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1546,7 +1548,9 @@ export type Database = {
           full_name?: string | null
           id?: string | null
           is_verified?: boolean | null
+          location?: string | null
           user_id?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1555,7 +1559,9 @@ export type Database = {
           full_name?: string | null
           id?: string | null
           is_verified?: boolean | null
+          location?: string | null
           user_id?: string | null
+          username?: string | null
         }
         Relationships: []
       }
