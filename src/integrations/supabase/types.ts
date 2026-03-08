@@ -111,6 +111,9 @@ export type Database = {
           boost_type: string
           campaign_id: string | null
           created_at: string
+          creative_type: string | null
+          creative_url: string | null
+          description: string | null
           expires_at: string
           id: string
           is_active: boolean | null
@@ -118,6 +121,7 @@ export type Database = {
           price_paid: number
           starts_at: string
           target_id: string | null
+          target_name: string | null
           user_id: string
           zone_radius_km: number
         }
@@ -125,6 +129,9 @@ export type Database = {
           boost_type: string
           campaign_id?: string | null
           created_at?: string
+          creative_type?: string | null
+          creative_url?: string | null
+          description?: string | null
           expires_at: string
           id?: string
           is_active?: boolean | null
@@ -132,6 +139,7 @@ export type Database = {
           price_paid: number
           starts_at?: string
           target_id?: string | null
+          target_name?: string | null
           user_id: string
           zone_radius_km?: number
         }
@@ -139,6 +147,9 @@ export type Database = {
           boost_type?: string
           campaign_id?: string | null
           created_at?: string
+          creative_type?: string | null
+          creative_url?: string | null
+          description?: string | null
           expires_at?: string
           id?: string
           is_active?: boolean | null
@@ -146,6 +157,7 @@ export type Database = {
           price_paid?: number
           starts_at?: string
           target_id?: string | null
+          target_name?: string | null
           user_id?: string
           zone_radius_km?: number
         }
@@ -161,6 +173,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          boosts_count: number | null
           budget_spent: number
           budget_total: number
           created_at: string
@@ -168,6 +181,7 @@ export type Database = {
           end_date: string | null
           id: string
           name: string
+          objective: string | null
           start_date: string | null
           status: string
           target_audience: Json | null
@@ -175,6 +189,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          boosts_count?: number | null
           budget_spent?: number
           budget_total?: number
           created_at?: string
@@ -182,6 +197,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           name: string
+          objective?: string | null
           start_date?: string | null
           status?: string
           target_audience?: Json | null
@@ -189,6 +205,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          boosts_count?: number | null
           budget_spent?: number
           budget_total?: number
           created_at?: string
@@ -196,6 +213,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           name?: string
+          objective?: string | null
           start_date?: string | null
           status?: string
           target_audience?: Json | null
