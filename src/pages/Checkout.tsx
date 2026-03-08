@@ -13,8 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreditCard, Smartphone, Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
+import { paymentsByCountry } from "@/utils/paymentMethods";
 
 interface OrderItem {
   productId?: string;
@@ -39,7 +41,8 @@ const Checkout = () => {
   const directSellerId = searchParams.get("seller");
   const directQty = parseInt(searchParams.get("qty") || "1");
 
-  const [paymentMethod, setPaymentMethod] = useState("orange_money");
+  const [country, setCountry] = useState("togo");
+  const [paymentMethod, setPaymentMethod] = useState("tmoney");
   const [phone, setPhone] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -53,12 +56,8 @@ const Checkout = () => {
     if (!user) navigate("/auth");
   }, [user, navigate]);
 
-  const methods = [
-    { id: "orange_money", label: "Orange Money", icon: "🟠", desc: "Paiement par Orange Money" },
-    { id: "wave", label: "Wave", icon: "🔵", desc: "Paiement par Wave" },
-    { id: "tmoney", label: "TMoney", icon: "🟢", desc: "Paiement par TMoney (Togocel)" },
-    { id: "card", label: "Carte bancaire", icon: "💳", desc: "Visa, Mastercard" },
-  ];
+  const countryData = paymentsByCountry[country];
+  const methods = countryData?.methods || [];
 
   const handlePayment = async () => {
     if (!user) return;
@@ -258,7 +257,6 @@ const Checkout = () => {
               </CardContent>
             </Card>
 
-            {/* Payment Method */}
             <Card className="border-0 shadow-elevated mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -266,16 +264,28 @@ const Checkout = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Country selector */}
+                <div className="mb-4 space-y-2">
+                  <Label>Pays</Label>
+                  <Select value={country} onValueChange={(v) => { setCountry(v); setPaymentMethod(paymentsByCountry[v]?.methods[0]?.id || "card"); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(paymentsByCountry).map(([key, c]) => (
+                        <SelectItem key={key} value={key}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
                   {methods.map(m => (
                     <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.id ? "border-primary bg-primary/5" : "border-border"}`}>
-                      <RadioGroupItem value={m.id} id={m.id} />
-                      <label htmlFor={m.id} className="flex items-center gap-3 cursor-pointer flex-1">
+                      <RadioGroupItem value={m.id} id={`checkout-${m.id}`} />
+                      <label htmlFor={`checkout-${m.id}`} className="flex items-center gap-3 cursor-pointer flex-1">
                         <span className="text-2xl">{m.icon}</span>
-                        <div>
-                          <p className="font-medium">{m.label}</p>
-                          <p className="text-xs text-muted-foreground">{m.desc}</p>
-                        </div>
+                        <p className="font-medium">{m.label}</p>
                       </label>
                     </div>
                   ))}
@@ -285,7 +295,7 @@ const Checkout = () => {
                   <div className="mt-4 space-y-2">
                     <Label>Numéro de téléphone</Label>
                     <div className="flex gap-2">
-                      <Input value="+228" disabled className="w-20" />
+                      <Input value={countryData?.prefix || "+228"} disabled className="w-20" />
                       <Input placeholder="XX XX XX XX" value={phone} onChange={e => setPhone(e.target.value)} className="h-12" />
                     </div>
                   </div>
