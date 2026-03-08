@@ -93,6 +93,8 @@ const Dashboard = () => {
         return <BoostAnalytics />;
       case "delivery":
         return <div className="space-y-6"><DeliveryTracking /></div>;
+      case "history":
+        return <DriverDeliveryHistory />;
       case "map":
         return (
           <Card className="border-0 shadow-card">
