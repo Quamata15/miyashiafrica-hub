@@ -498,6 +498,54 @@ export type Database = {
           },
         ]
       }
+      driver_contracts: {
+        Row: {
+          badge_generated_at: string | null
+          badge_number: string | null
+          confidentiality_commitment: boolean
+          contract_version: string
+          honesty_commitment: boolean
+          id: string
+          ip_address: string | null
+          kyc_verified: boolean
+          loyalty_commitment: boolean
+          no_contact_on_packages: boolean
+          oath_accepted: boolean
+          signed_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_generated_at?: string | null
+          badge_number?: string | null
+          confidentiality_commitment?: boolean
+          contract_version?: string
+          honesty_commitment?: boolean
+          id?: string
+          ip_address?: string | null
+          kyc_verified?: boolean
+          loyalty_commitment?: boolean
+          no_contact_on_packages?: boolean
+          oath_accepted?: boolean
+          signed_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_generated_at?: string | null
+          badge_number?: string | null
+          confidentiality_commitment?: boolean
+          contract_version?: string
+          honesty_commitment?: boolean
+          id?: string
+          ip_address?: string | null
+          kyc_verified?: boolean
+          loyalty_commitment?: boolean
+          no_contact_on_packages?: boolean
+          oath_accepted?: boolean
+          signed_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       driver_profiles: {
         Row: {
           average_rating: number | null
@@ -2170,6 +2218,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      generate_driver_badge: {
+        Args: { p_contract_id: string }
+        Returns: string
+      }
       get_admin_stats: { Args: never; Returns: Json }
       get_or_create_referral_code: { Args: never; Returns: string }
       has_role: {
