@@ -24,6 +24,10 @@ import BoostAnalytics from "@/components/dashboard/BoostAnalytics";
 import DeliveryMap from "@/components/map/DeliveryMap";
 import SellerOnboarding from "@/components/dashboard/SellerOnboarding";
 import ProviderOnboarding from "@/components/dashboard/ProviderOnboarding";
+import BuyerOnboarding from "@/components/dashboard/BuyerOnboarding";
+import FreelanceOnboarding from "@/components/dashboard/FreelanceOnboarding";
+import EmployerOnboarding from "@/components/dashboard/EmployerOnboarding";
+import DriverOnboarding from "@/components/dashboard/DriverOnboarding";
 import EmailVerificationBanner from "@/components/dashboard/EmailVerificationBanner";
 import LowStockAlert from "@/components/dashboard/LowStockAlert";
 import DriverDeliveryHistory from "@/components/dashboard/DriverDeliveryHistory";
@@ -166,11 +170,23 @@ const Dashboard = () => {
             {activeTab === "overview" && (primaryRole === "seller") && <LowStockAlert />}
 
             {/* Onboarding tutorials */}
+            {activeTab === "overview" && primaryRole === "buyer" && !preferences.dismissed_buyer_onboarding && (
+              <BuyerOnboarding onDismiss={() => updatePreference("dismissed_buyer_onboarding", true)} />
+            )}
             {activeTab === "overview" && primaryRole === "seller" && !preferences.dismissed_seller_onboarding && (
               <SellerOnboarding onDismiss={() => updatePreference("dismissed_seller_onboarding", true)} />
             )}
             {activeTab === "overview" && primaryRole === "provider" && !preferences.dismissed_provider_onboarding && (
               <ProviderOnboarding onDismiss={() => updatePreference("dismissed_provider_onboarding", true)} />
+            )}
+            {activeTab === "overview" && primaryRole === "freelance" && !preferences.dismissed_freelance_onboarding && (
+              <FreelanceOnboarding onDismiss={() => updatePreference("dismissed_freelance_onboarding", true)} />
+            )}
+            {activeTab === "overview" && primaryRole === "employer" && !preferences.dismissed_employer_onboarding && (
+              <EmployerOnboarding onDismiss={() => updatePreference("dismissed_employer_onboarding", true)} />
+            )}
+            {activeTab === "overview" && primaryRole === "driver" && !preferences.dismissed_driver_onboarding && (
+              <DriverOnboarding onDismiss={() => updatePreference("dismissed_driver_onboarding", true)} />
             )}
 
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>

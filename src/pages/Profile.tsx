@@ -94,7 +94,7 @@ const Profile = () => {
     if (!user) return;
     setSaving(true);
     const { error } = await supabase.from("profiles").upsert({
-      user_id: user.id, full_name: profile.full_name,
+      user_id: user.id, full_name: profile.full_name, username: (profile as any).username,
       phone: profile.phone, location: profile.location, bio: profile.bio,
     });
     toast(error ? { title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" }
@@ -262,17 +262,24 @@ const Profile = () => {
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
+                        <Label htmlFor="username" className="text-xs">Pseudonyme (public)</Label>
+                        <Input id="username" placeholder="mon_pseudo" value={(profile as any).username || ""} onChange={e => setProfile({...profile, username: e.target.value} as any)} />
+                        <p className="text-[10px] text-muted-foreground">Affiché publiquement à la place de votre nom</p>
+                      </div>
+                      <div className="space-y-1.5">
                         <Label htmlFor="fullName" className="text-xs">Nom complet</Label>
                         <Input id="fullName" placeholder="Votre nom" value={profile.full_name || ""} onChange={e => setProfile({...profile, full_name: e.target.value})} />
                       </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label htmlFor="phone" className="text-xs">Téléphone</Label>
                         <Input id="phone" placeholder="+228 XX XX XX XX" value={profile.phone || ""} onChange={e => setProfile({...profile, phone: e.target.value})} />
                       </div>
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="location" className="text-xs">Localisation</Label>
-                      <Input id="location" placeholder="Lomé, Togo" value={profile.location || ""} onChange={e => setProfile({...profile, location: e.target.value})} />
+                      <div className="space-y-1.5">
+                        <Label htmlFor="location" className="text-xs">Localisation</Label>
+                        <Input id="location" placeholder="Lomé, Togo" value={profile.location || ""} onChange={e => setProfile({...profile, location: e.target.value})} />
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="bio" className="text-xs">Bio</Label>

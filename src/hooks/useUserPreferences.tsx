@@ -5,12 +5,20 @@ import { useAuth } from "@/hooks/useAuth";
 interface UserPreferences {
   dismissed_seller_onboarding: boolean;
   dismissed_provider_onboarding: boolean;
+  dismissed_buyer_onboarding: boolean;
+  dismissed_freelance_onboarding: boolean;
+  dismissed_employer_onboarding: boolean;
+  dismissed_driver_onboarding: boolean;
   theme: string;
 }
 
 const defaults: UserPreferences = {
   dismissed_seller_onboarding: false,
   dismissed_provider_onboarding: false,
+  dismissed_buyer_onboarding: false,
+  dismissed_freelance_onboarding: false,
+  dismissed_employer_onboarding: false,
+  dismissed_driver_onboarding: false,
   theme: "system",
 };
 
@@ -26,7 +34,7 @@ export function useUserPreferences() {
 
   const fetchPreferences = async () => {
     if (!user) return;
-    const { data } = await (supabase as any)
+    const { data } = await supabase
       .from("user_preferences")
       .select("*")
       .eq("user_id", user.id)
@@ -35,6 +43,10 @@ export function useUserPreferences() {
       setPreferences({
         dismissed_seller_onboarding: data.dismissed_seller_onboarding,
         dismissed_provider_onboarding: data.dismissed_provider_onboarding,
+        dismissed_buyer_onboarding: (data as any).dismissed_buyer_onboarding ?? false,
+        dismissed_freelance_onboarding: (data as any).dismissed_freelance_onboarding ?? false,
+        dismissed_employer_onboarding: (data as any).dismissed_employer_onboarding ?? false,
+        dismissed_driver_onboarding: (data as any).dismissed_driver_onboarding ?? false,
         theme: data.theme || "system",
       });
     }
@@ -44,8 +56,8 @@ export function useUserPreferences() {
   const updatePreference = useCallback(async (key: keyof UserPreferences, value: any) => {
     if (!user) return;
     setPreferences((prev) => ({ ...prev, [key]: value }));
-    await (supabase as any).from("user_preferences").upsert(
-      { user_id: user.id, [key]: value, updated_at: new Date().toISOString() },
+    await supabase.from("user_preferences").upsert(
+      { user_id: user.id, [key]: value, updated_at: new Date().toISOString() } as any,
       { onConflict: "user_id" }
     );
   }, [user]);

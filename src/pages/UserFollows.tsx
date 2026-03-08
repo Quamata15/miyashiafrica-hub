@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 interface FollowUser {
   user_id: string;
   full_name: string | null;
+  username: string | null;
   avatar_url: string | null;
   is_verified: boolean | null;
 }
@@ -54,10 +55,10 @@ const UserFollows = () => {
 
     const [followerProfiles, followingProfiles] = await Promise.all([
       followerIds.length > 0
-        ? supabase.from("profiles_public").select("user_id, full_name, avatar_url, is_verified").in("user_id", followerIds)
+        ? supabase.from("profiles_public").select("user_id, full_name, username, avatar_url, is_verified").in("user_id", followerIds)
         : { data: [] },
       followingIds.length > 0
-        ? supabase.from("profiles_public").select("user_id, full_name, avatar_url, is_verified").in("user_id", followingIds)
+        ? supabase.from("profiles_public").select("user_id, full_name, username, avatar_url, is_verified").in("user_id", followingIds)
         : { data: [] },
     ]);
 
@@ -73,13 +74,13 @@ const UserFollows = () => {
           <Avatar className="h-12 w-12 border-2 border-primary/10">
             <AvatarImage src={user.avatar_url || ""} />
             <AvatarFallback className="bg-gradient-hero text-primary-foreground font-bold">
-              {user.full_name?.charAt(0)?.toUpperCase() || "U"}
+              {(user.username || user.full_name)?.charAt(0)?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
         </Link>
         <div className="flex-1 min-w-0">
           <Link to={`/user/${user.user_id}`} className="hover:underline">
-            <p className="font-medium text-sm truncate">{user.full_name || "Utilisateur"}</p>
+            <p className="font-medium text-sm truncate">{user.username || user.full_name || "Utilisateur"}</p>
           </Link>
           {user.is_verified && (
             <Badge variant="outline" className="text-[10px] mt-0.5">Vérifié</Badge>

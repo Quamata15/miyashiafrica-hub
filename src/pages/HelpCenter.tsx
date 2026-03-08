@@ -13,14 +13,14 @@ const HelpCenter = () => {
   const navigate = useNavigate();
 
   const guides = [
-    { icon: ShoppingBag, title: "Acheter sur MIYASHI", desc: "Parcourir, commander et payer en toute sécurité", articles: 8 },
-    { icon: Truck, title: "Livraisons", desc: "Suivi, tarifs et choix du livreur", articles: 6 },
-    { icon: CreditCard, title: "Paiements", desc: "Mobile Money, cartes, escrow et remboursements", articles: 5 },
-    { icon: UserCheck, title: "Vendre des produits", desc: "Publier, gérer et promouvoir vos articles", articles: 7 },
-    { icon: Briefcase, title: "Services & Prestataires", desc: "Offrir vos services et gérer les abonnements", articles: 5 },
-    { icon: Users, title: "Freelance & Emplois", desc: "Postuler, recruter et gérer les missions", articles: 4 },
-    { icon: Shield, title: "Sécurité & Vérification", desc: "KYC, protection du compte et confidentialité", articles: 6 },
-    { icon: Star, title: "Boostage & Promotions", desc: "Mettre en avant vos produits et services", articles: 3 },
+    { icon: ShoppingBag, title: "Acheter sur MIYASHI", desc: "Parcourir, commander et payer en toute sécurité", articles: 8, slug: "acheter-sur-miyashi" },
+    { icon: Truck, title: "Livraisons", desc: "Suivi, tarifs et choix du livreur", articles: 6, slug: "livraisons" },
+    { icon: CreditCard, title: "Paiements", desc: "Mobile Money, cartes, escrow et remboursements", articles: 5, slug: "paiements" },
+    { icon: UserCheck, title: "Vendre des produits", desc: "Publier, gérer et promouvoir vos articles", articles: 7, slug: "vendre-des-produits" },
+    { icon: Briefcase, title: "Services & Prestataires", desc: "Offrir vos services et gérer les abonnements", articles: 5, slug: "services-prestataires" },
+    { icon: Users, title: "Freelance & Emplois", desc: "Postuler, recruter et gérer les missions", articles: 4, slug: "freelance-emplois" },
+    { icon: Shield, title: "Sécurité & Vérification", desc: "KYC, protection du compte et confidentialité", articles: 6, slug: "securite-verification" },
+    { icon: Star, title: "Boostage & Promotions", desc: "Mettre en avant vos produits et services", articles: 3, slug: "boostage-promotions" },
   ];
 
   return (
@@ -38,7 +38,10 @@ const HelpCenter = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {guides.map((g, i) => (
               <motion.div key={g.title} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <Card className="border-0 shadow-card hover:shadow-elevated transition-all cursor-pointer group">
+                <Card
+                  className="border-0 shadow-card hover:shadow-elevated transition-all cursor-pointer group"
+                  onClick={() => navigate(`/help/${g.slug}`)}
+                >
                   <CardContent className="p-5 flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <g.icon className="w-6 h-6 text-primary" />

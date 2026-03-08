@@ -81,7 +81,7 @@ const PublicProfile = () => {
         .eq("reviewed_user_id", userId)
         .order("created_at", { ascending: false })
         .limit(20),
-      (supabase as any)
+      supabase
         .from("follows")
         .select("id", { count: "exact", head: true })
         .eq("followed_id", userId),
@@ -171,8 +171,8 @@ const PublicProfile = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead
-        title={`${profile?.full_name || "Utilisateur"} — MIYASHI`}
-        description={`Profil de ${profile?.full_name || "utilisateur"} sur MIYASHI. ${profile?.bio || ""}`}
+        title={`${profile?.username || profile?.full_name || "Utilisateur"} — MIYASHI`}
+        description={`Profil de ${profile?.username || profile?.full_name || "utilisateur"} sur MIYASHI. ${profile?.bio || ""}`}
         canonical={`/user/${userId}`}
       />
       <Header />
@@ -193,7 +193,7 @@ const PublicProfile = () => {
               </Avatar>
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <h1 className="text-xl font-display font-bold">{profile?.full_name || "Utilisateur"}</h1>
+                  <h1 className="text-xl font-display font-bold">{profile?.username || profile?.full_name || "Utilisateur"}</h1>
                   {profile?.is_verified && (
                     <Badge className="bg-accent text-accent-foreground text-xs">
                       <CheckCircle className="h-3 w-3 mr-0.5" /> Vérifié
@@ -207,6 +207,11 @@ const PublicProfile = () => {
                   {roles.map((r) => (
                     <Badge key={r} variant="outline" className="text-xs">{r}</Badge>
                   ))}
+                  {profile?.location && (
+                    <span className="flex items-center gap-1">
+                      📍 {profile.location}
+                    </span>
+                  )}
                   {profile?.created_at && (
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />

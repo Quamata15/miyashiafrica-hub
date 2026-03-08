@@ -85,7 +85,7 @@ const Feed = () => {
     const { data: profiles } = ownerIds.size > 0
       ? await supabase
           .from("profiles_public")
-          .select("user_id, full_name, avatar_url")
+          .select("user_id, full_name, username, avatar_url")
           .in("user_id", Array.from(ownerIds))
       : { data: [] };
 
@@ -107,7 +107,7 @@ const Feed = () => {
           location: p.location,
           created_at: p.created_at,
           owner_id: p.seller_id,
-          owner_name: profile?.full_name || null,
+          owner_name: profile?.username || profile?.full_name || null,
           owner_avatar: profile?.avatar_url || null,
         };
       }),
@@ -122,7 +122,7 @@ const Feed = () => {
           images: s.images,
           created_at: s.created_at,
           owner_id: s.provider_id,
-          owner_name: profile?.full_name || null,
+          owner_name: profile?.username || profile?.full_name || null,
           owner_avatar: profile?.avatar_url || null,
         };
       }),

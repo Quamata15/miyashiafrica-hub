@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut, 
   MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck, Wallet,
-  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star
+  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star, Rss
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -222,9 +222,12 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     <DropdownMenuSeparator />
 
                     {/* Main */}
-                    <DropdownMenuGroup>
+                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" /> Tableau de bord
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/feed")} className="cursor-pointer">
+                        <Rss className="mr-2 h-4 w-4" /> Fil d'actualité
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" /> Mon Profil
@@ -404,7 +407,8 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   {/* Mon compte */}
                   <div className="pt-3 border-t border-border mt-3">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Mon Compte</p>
-                    <MobileMenuItem icon={LayoutDashboard} label="Tableau de bord" onClick={() => go("/dashboard")} badge={unreadNotifications} />
+                     <MobileMenuItem icon={LayoutDashboard} label="Tableau de bord" onClick={() => go("/dashboard")} badge={unreadNotifications} />
+                    <MobileMenuItem icon={Rss} label="Fil d'actualité" onClick={() => go("/feed")} />
                     <MobileMenuItem icon={User} label="Mon Profil" onClick={() => go("/profile")} />
                     <MobileMenuItem icon={Wallet} label="Portefeuille" onClick={() => go("/wallet")} />
                     <MobileMenuItem icon={Heart} label="Favoris" onClick={() => go("/favorites")} />
