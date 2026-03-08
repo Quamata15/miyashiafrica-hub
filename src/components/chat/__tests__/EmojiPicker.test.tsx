@@ -19,8 +19,9 @@ describe("EmojiPicker", () => {
     fireEvent.click(trigger);
     
     // Find and click an emoji
-    const emojiButton = await screen.findByText("😀");
-    fireEvent.click(emojiButton);
+    const emojiButtons = await screen.findAllByText("😀");
+    // Click the one in the grid (last one), not the category tab
+    fireEvent.click(emojiButtons[emojiButtons.length - 1]);
     
     expect(onSelect).toHaveBeenCalledWith("😀");
   });
