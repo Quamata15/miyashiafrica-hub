@@ -34,7 +34,7 @@ const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const { unreadCount: unreadNotifications } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
