@@ -159,12 +159,15 @@ const Dashboard = () => {
               <EmailVerificationBanner email={user.email} />
             )}
 
+            {/* Low stock alert for sellers */}
+            {activeTab === "overview" && (primaryRole === "seller") && <LowStockAlert />}
+
             {/* Onboarding tutorials */}
-            {activeTab === "overview" && primaryRole === "seller" && showSellerOnboarding && (
-              <SellerOnboarding onDismiss={() => setShowSellerOnboarding(false)} />
+            {activeTab === "overview" && primaryRole === "seller" && !preferences.dismissed_seller_onboarding && (
+              <SellerOnboarding onDismiss={() => updatePreference("dismissed_seller_onboarding", true)} />
             )}
-            {activeTab === "overview" && primaryRole === "provider" && showProviderOnboarding && (
-              <ProviderOnboarding onDismiss={() => setShowProviderOnboarding(false)} />
+            {activeTab === "overview" && primaryRole === "provider" && !preferences.dismissed_provider_onboarding && (
+              <ProviderOnboarding onDismiss={() => updatePreference("dismissed_provider_onboarding", true)} />
             )}
 
             <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
