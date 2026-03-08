@@ -250,9 +250,7 @@ const Messages = () => {
                           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                           className="flex-1"
                         />
-                        <Button variant="ghost" size="icon" className="shrink-0">
-                          <Smile className="h-5 w-5" />
-                        </Button>
+                        <EmojiPicker onEmojiSelect={(emoji) => setNewMessage(prev => prev + emoji)} />
                         <Button
                           onClick={handleSend}
                           disabled={!newMessage.trim() || sending}
