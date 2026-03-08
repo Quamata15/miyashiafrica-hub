@@ -125,7 +125,7 @@ const Checkout = () => {
       let lastTotal = 0;
 
       for (const orderItem of orderItems) {
-        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order" as any, {
+        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order", {
           p_product_id: orderItem.productId || null,
           p_service_id: orderItem.serviceId || null,
           p_quantity: orderItem.quantity,
