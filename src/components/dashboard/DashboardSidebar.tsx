@@ -59,7 +59,7 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
     { label: "Portefeuille", icon: Wallet, action: () => navigate("/wallet") },
   ];
 
-  const allItems = [...mainItems, ...sellerItems, ...providerItems, ...deliveryItems];
+  const allItems = [...mainItems, ...sellerItems, ...providerItems, ...marketingItems, ...deliveryItems];
 
   return (
     <aside className={cn(
