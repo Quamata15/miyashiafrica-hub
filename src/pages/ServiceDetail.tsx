@@ -343,6 +343,11 @@ const ServiceDetail = () => {
                 </Card>
               </motion.div>
 
+              {/* Report */}
+              <div className="flex justify-end">
+                <ReportDialog targetType="service" targetId={service.id} />
+              </div>
+
               {/* Reviews Section */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -350,7 +355,7 @@ const ServiceDetail = () => {
                 transition={{ delay: 0.4 }}
               >
                 <h2 className="text-2xl font-display font-bold mb-6">Avis clients</h2>
-                <ReviewsList serviceId={service.id} />
+                <ReviewsList serviceId={service.id} sellerId={service.provider_id} />
                 {user && (
                   <div className="mt-6">
                     <ReviewForm serviceId={service.id} onSuccess={() => {}} />

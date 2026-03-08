@@ -20,7 +20,7 @@ import {
 import {
   Loader2, User, Briefcase, Settings, ShoppingBag, Package,
   MessageSquare, Star, LayoutDashboard, Bell, Camera, MapPin,
-  Phone, Mail, CheckCircle, TrendingUp, LogOut, Shield, Lock, Upload
+  Phone, Mail, CheckCircle, TrendingUp, LogOut, Shield, Lock, Upload, Trash2
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
