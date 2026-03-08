@@ -23,6 +23,7 @@ import {
   Truck, MapPin, Bike, Car, Shield, Star, 
   CheckCircle, ArrowRight, Loader2, DollarSign 
 } from "lucide-react";
+import DriverContract from "@/components/driver/DriverContract";
 
 const DriverRegistration = () => {
   const { user } = useAuth();
