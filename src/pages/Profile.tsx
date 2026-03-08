@@ -470,6 +470,9 @@ const Profile = () => {
                       </Button>
                     </CardContent>
                   </Card>
+
+                  {/* Referral */}
+                  <ReferralCard />
                 </div>
               </TabsContent>
             </Tabs>
