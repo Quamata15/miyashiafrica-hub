@@ -26,7 +26,7 @@ export function useUserPreferences() {
 
   const fetchPreferences = async () => {
     if (!user) return;
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("user_preferences")
       .select("*")
       .eq("user_id", user.id)
@@ -44,7 +44,7 @@ export function useUserPreferences() {
   const updatePreference = useCallback(async (key: keyof UserPreferences, value: any) => {
     if (!user) return;
     setPreferences((prev) => ({ ...prev, [key]: value }));
-    await supabase.from("user_preferences").upsert(
+    await (supabase as any).from("user_preferences").upsert(
       { user_id: user.id, [key]: value, updated_at: new Date().toISOString() },
       { onConflict: "user_id" }
     );
