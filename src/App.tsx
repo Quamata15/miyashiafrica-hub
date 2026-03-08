@@ -43,6 +43,7 @@ const Disputes = lazy(() => import("./pages/Disputes"));
 const Install = lazy(() => import("./pages/Install"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
+const UserFollows = lazy(() => import("./pages/UserFollows"));
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => (
                     <Route path="/install" element={<Install />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/user/:userId" element={<PublicProfile />} />
+                    <Route path="/user/:userId/follows" element={<UserFollows />} />
                     <Route path="/driver-registration" element={<DriverRegistration />} />
 
                     {/* Protected routes */}
