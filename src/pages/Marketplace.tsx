@@ -319,7 +319,6 @@ const Marketplace = () => {
                 />
               </div>
             </div>
-            </div>
           </motion.div>
 
           {/* Active Filter Pills */}
