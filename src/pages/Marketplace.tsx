@@ -319,13 +319,11 @@ const Marketplace = () => {
                 />
               </div>
             </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
             </div>
           </motion.div>
+
+          {/* Active Filter Pills */}
+          <ActiveFilterPills filters={filters} categories={categories} onFiltersChange={updateFilters} />
 
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
