@@ -42,6 +42,7 @@ const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Disputes = lazy(() => import("./pages/Disputes"));
 const Install = lazy(() => import("./pages/Install"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 
 const queryClient = new QueryClient();
 
