@@ -45,6 +45,7 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
   const marketingItems: SidebarItem[] = (userRoles.includes("seller") || userRoles.includes("provider")) ? [
     { label: "Promotions", icon: Megaphone, value: "promotions" },
     { label: "Boosts", icon: Zap, value: "boosts" },
+    { label: "Documents", icon: FileText, value: "exports" },
   ] : [];
 
   const deliveryItems: SidebarItem[] = userRoles.includes("driver") ? [
