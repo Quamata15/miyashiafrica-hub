@@ -145,7 +145,7 @@ const Boost = () => {
 
     setUploadingCreative(true);
     const ext = file.name.split(".").pop();
-    const path = `boosts/${user.id}/${Date.now()}.${ext}`;
+    const path = `${user.id}/boosts-${Date.now()}.${ext}`;
 
     const { error } = await supabase.storage.from("product-media").upload(path, file);
     if (error) {
