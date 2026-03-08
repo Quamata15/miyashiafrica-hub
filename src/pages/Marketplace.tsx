@@ -39,14 +39,25 @@ const Marketplace = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [verifiedSellers, setVerifiedSellers] = useState<Set<string>>(new Set());
   const [promotions, setPromotions] = useState<Map<string, { discount_type: string; discount_value: number }>>(new Map());
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState<SearchFilters>({
+    searchTerm: searchParams.get("q") || "",
+    selectedCategory: null,
+    priceRange: [0, 10000000],
+    location: "",
+    minRating: 0,
+    sortBy: "newest",
+  });
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [sortBy, setSortBy] = useState("newest");
-  const [priceRange, setPriceRange] = useState([0, 10000000]);
+  const [productRatings, setProductRatings] = useState<Map<string, number>>(new Map());
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 24;
+
+  const updateFilters = (partial: Partial<SearchFilters>) =>
+    setFilters((prev) => ({ ...prev, ...partial }));
+
+  const resetFilters = () =>
+    setFilters({ searchTerm: "", selectedCategory: null, priceRange: [0, 10000000], location: "", minRating: 0, sortBy: "newest" });
 
   useEffect(() => {
     fetchProducts();
