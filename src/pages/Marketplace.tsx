@@ -403,9 +403,17 @@ const Marketplace = () => {
                             ))}
                             <span className="text-xs text-muted-foreground ml-1">(0)</span>
                           </div>
-                          <h3 className="font-semibold text-foreground line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-                            {product.title}
-                          </h3>
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                              {product.title}
+                            </h3>
+                            {verifiedSellers.has(product.seller_id) && (
+                              <Badge variant="secondary" className="shrink-0 gap-0.5 text-[10px] px-1.5 py-0 h-5">
+                                <CheckCircle className="h-3 w-3 text-primary" />
+                                Vérifié
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                             {product.description}
                           </p>
