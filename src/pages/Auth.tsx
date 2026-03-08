@@ -383,6 +383,7 @@ const Auth = () => {
                       {referralCode && (
                         <p className="text-[10px] text-accent">🎁 Bonus de 500 FCFA à l'inscription !</p>
                       )}
+                    </div>
                     <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
                       {isLoading ? (
                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Inscription...</>
