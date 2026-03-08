@@ -69,6 +69,18 @@ const Marketplace = () => {
 
     if (!error && data) {
       setProducts(data);
+      // Fetch verified status for all sellers
+      const sellerIds = [...new Set(data.map(p => p.seller_id))];
+      if (sellerIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles_public")
+          .select("user_id, is_verified")
+          .in("user_id", sellerIds)
+          .eq("is_verified", true);
+        if (profiles) {
+          setVerifiedSellers(new Set(profiles.map(p => p.user_id!)));
+        }
+      }
     }
     setLoading(false);
   };
