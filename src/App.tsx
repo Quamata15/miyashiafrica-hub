@@ -46,6 +46,7 @@ const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const UserFollows = lazy(() => import("./pages/UserFollows"));
 const Feed = lazy(() => import("./pages/Feed"));
 const HelpGuide = lazy(() => import("./pages/HelpGuide"));
+const Campaigns = lazy(() => import("./pages/Campaigns"));
 
 const queryClient = new QueryClient();
 
