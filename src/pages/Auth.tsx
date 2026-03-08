@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Loader2, Truck } from "lucide-react";
+import { Loader2, Truck, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Auth = () => {
