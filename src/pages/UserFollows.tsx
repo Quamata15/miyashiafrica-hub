@@ -55,10 +55,10 @@ const UserFollows = () => {
 
     const [followerProfiles, followingProfiles] = await Promise.all([
       followerIds.length > 0
-        ? supabase.from("profiles_public").select("user_id, full_name, avatar_url, is_verified").in("user_id", followerIds)
+        ? supabase.from("profiles_public").select("user_id, full_name, username, avatar_url, is_verified").in("user_id", followerIds)
         : { data: [] },
       followingIds.length > 0
-        ? supabase.from("profiles_public").select("user_id, full_name, avatar_url, is_verified").in("user_id", followingIds)
+        ? supabase.from("profiles_public").select("user_id, full_name, username, avatar_url, is_verified").in("user_id", followingIds)
         : { data: [] },
     ]);
 
