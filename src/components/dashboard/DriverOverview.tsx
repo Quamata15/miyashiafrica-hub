@@ -23,6 +23,10 @@ const DriverOverview = () => {
   const [isAvailable, setIsAvailable] = useState(true);
   const [loading, setLoading] = useState(true);
 
+  // Auto-broadcast GPS when driver has active deliveries
+  const activeDeliveryId = activeDeliveries.length > 0 ? activeDeliveries[0].id : null;
+  const { currentPosition: gpsPosition } = useDriverBroadcast(activeDeliveryId, isAvailable && activeDeliveries.length > 0);
+
   useEffect(() => {
     if (user) {
       fetchData();
