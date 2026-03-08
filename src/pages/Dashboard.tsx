@@ -108,6 +108,8 @@ const Dashboard = () => {
         );
       case "notifications":
         return <NotificationsList />;
+      case "exports":
+        return <ExportCenter />;
       default:
         return <BuyerOverview />;
     }
