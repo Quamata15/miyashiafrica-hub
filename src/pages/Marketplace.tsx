@@ -259,7 +259,7 @@ const Marketplace = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
-                  placeholder="Rechercher un produit..."
+                  placeholder="Rechercher un produit ou vendeur..."
                   value={filters.searchTerm}
                   onChange={(e) => updateFilters({ searchTerm: e.target.value })}
                   className="pl-12 h-12 rounded-xl border-muted"
