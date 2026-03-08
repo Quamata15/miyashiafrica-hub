@@ -369,6 +369,20 @@ const Auth = () => {
                         className="h-12"
                       />
                     </div>
+                    {/* Referral code */}
+                    <div className="space-y-2">
+                      <Label htmlFor="referral-code">Code de parrainage (optionnel)</Label>
+                      <Input
+                        id="referral-code"
+                        type="text"
+                        placeholder="MYS-XXXXXX"
+                        value={referralCode}
+                        onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                        className="h-12 font-mono tracking-wider"
+                      />
+                      {referralCode && (
+                        <p className="text-[10px] text-accent">🎁 Bonus de 500 FCFA à l'inscription !</p>
+                      )}
                     <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
                       {isLoading ? (
                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Inscription...</>
