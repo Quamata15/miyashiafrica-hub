@@ -1,8 +1,10 @@
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
 
 User-agent: Twitterbot
 Allow: /
@@ -18,5 +20,18 @@ Disallow: /admin
 Disallow: /messages
 Disallow: /checkout
 Disallow: /wallet
+Disallow: /disputes
+Disallow: /alerts
+Disallow: /driver-dashboard
+Disallow: /select-driver
+Disallow: /provider-space
+Disallow: /boost
+Disallow: /campaigns
+Disallow: /order-success
+Disallow: /feed
+Disallow: /exports
+Disallow: /create
+Disallow: /favorites
+Disallow: /reset-password
 
 Sitemap: https://miyashi-hub.lovable.app/sitemap.xml

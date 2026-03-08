@@ -66,12 +66,25 @@ export const useNotifications = () => {
           // Trigger browser notification if permitted
           if (typeof Notification !== "undefined" && Notification.permission === "granted") {
             try {
-              new window.Notification(newNotif.title, {
-                body: newNotif.message || undefined,
-                icon: "/pwa-icon-192.png",
-                badge: "/pwa-icon-192.png",
-                tag: `miyashi-${newNotif.id}`,
-              });
+              // Try service worker notification first (works in background)
+              if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.ready.then((reg) => {
+                  reg.showNotification(newNotif.title, {
+                    body: newNotif.message || undefined,
+                    icon: "/pwa-icon-192.png",
+                    badge: "/pwa-icon-192.png",
+                    tag: `miyashi-${newNotif.id}`,
+                    data: { url: "/dashboard", notifId: newNotif.id },
+                  } as NotificationOptions);
+                });
+              } else {
+                new window.Notification(newNotif.title, {
+                  body: newNotif.message || undefined,
+                  icon: "/pwa-icon-192.png",
+                  badge: "/pwa-icon-192.png",
+                  tag: `miyashi-${newNotif.id}`,
+                });
+              }
             } catch {
               // Not available in this context
             }

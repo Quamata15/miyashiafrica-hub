@@ -1,3 +1,4 @@
+import PageTransition from "@/components/layout/PageTransition";
 import SEOHead from "@/components/SEOHead";
 import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
@@ -21,21 +22,23 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <SEOHead canonical="/" />
-      <Header />
-      <main>
-        <HeroSection />
-        <StatsSection />
-        <CategoriesSection />
-        <FeaturedSection />
-        <HowItWorksSection />
-        <TestimonialsSection />
-        <CTASection />
-        <TrustSection />
-      </main>
-      <Footer />
-    </div>
+    <PageTransition>
+      <div className="min-h-screen bg-background">
+        <SEOHead canonical="/" />
+        <Header />
+        <main>
+          <HeroSection />
+          <StatsSection />
+          <CategoriesSection />
+          <FeaturedSection />
+          <HowItWorksSection />
+          <TestimonialsSection />
+          <CTASection />
+          <TrustSection />
+        </main>
+        <Footer />
+      </div>
+    </PageTransition>
   );
 };
 
