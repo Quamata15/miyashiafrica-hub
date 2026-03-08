@@ -33,7 +33,7 @@ export const useAnalytics = () => {
   const track = useCallback(
     async (event: AnalyticsEvent, options: TrackOptions = {}) => {
       try {
-        await supabase.from("analytics_events").insert({
+        await (supabase as any).from("analytics_events").insert({
           user_id: user?.id || null,
           event_name: event,
           event_category: options.category || null,
