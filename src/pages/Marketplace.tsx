@@ -82,7 +82,10 @@ const Marketplace = () => {
     }
   };
 
-  const filteredProducts = products
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedCategory, sortBy, priceRange]);
+
+  const filteredProducts = useMemo(() => products
     .filter((product) => {
       const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -101,7 +104,13 @@ const Marketplace = () => {
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-    });
+    }), [products, searchTerm, selectedCategory, sortBy, priceRange]);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const container = {
     hidden: { opacity: 0 },
