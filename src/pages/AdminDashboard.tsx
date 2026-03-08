@@ -16,6 +16,7 @@ import {
   CheckCircle, XCircle, Eye, FileText, BarChart3, Loader2
 } from "lucide-react";
 import { motion } from "framer-motion";
+import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -323,18 +324,8 @@ const AdminDashboard = () => {
                 </Card>
               </TabsContent>
 
-              {/* Stats Tab */}
               <TabsContent value="stats">
-                <Card className="border-0 shadow-card">
-                  <CardHeader><CardTitle>Statistiques globales</CardTitle></CardHeader>
-                  <CardContent className="p-8 text-center">
-                    <BarChart3 className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-lg font-medium mb-2">Tableau de bord analytique</p>
-                    <p className="text-muted-foreground">
-                      {stats.users} utilisateurs • {stats.orders} commandes • {stats.revenue.toLocaleString()}F de revenus
-                    </p>
-                  </CardContent>
-                </Card>
+                <AdminAnalytics />
               </TabsContent>
             </Tabs>
           </motion.div>

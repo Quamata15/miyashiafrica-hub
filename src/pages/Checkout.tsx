@@ -13,8 +13,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CreditCard, Smartphone, Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
+import { paymentsByCountry } from "@/utils/paymentMethods";
 
 interface OrderItem {
   productId?: string;
@@ -39,7 +41,8 @@ const Checkout = () => {
   const directSellerId = searchParams.get("seller");
   const directQty = parseInt(searchParams.get("qty") || "1");
 
-  const [paymentMethod, setPaymentMethod] = useState("orange_money");
+  const [country, setCountry] = useState("togo");
+  const [paymentMethod, setPaymentMethod] = useState("tmoney");
   const [phone, setPhone] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
   const [notes, setNotes] = useState("");
@@ -49,16 +52,8 @@ const Checkout = () => {
   const checkoutAmount = isDirectOrder ? directAmount : totalPrice;
   const hasItems = isDirectOrder || items.length > 0;
 
-  useEffect(() => {
-    if (!user) navigate("/auth");
-  }, [user, navigate]);
-
-  const methods = [
-    { id: "orange_money", label: "Orange Money", icon: "🟠", desc: "Paiement par Orange Money" },
-    { id: "wave", label: "Wave", icon: "🔵", desc: "Paiement par Wave" },
-    { id: "tmoney", label: "TMoney", icon: "🟢", desc: "Paiement par TMoney (Togocel)" },
-    { id: "card", label: "Carte bancaire", icon: "💳", desc: "Visa, Mastercard" },
-  ];
+  const countryData = paymentsByCountry[country];
+  const methods = countryData?.methods || [];
 
   const handlePayment = async () => {
     if (!user) return;
