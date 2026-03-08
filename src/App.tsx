@@ -73,6 +73,7 @@ const App = () => (
                     <Route path="/support" element={<Support />} />
                     <Route path="/install" element={<Install />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/user/:userId" element={<PublicProfile />} />
                     <Route path="/driver-registration" element={<DriverRegistration />} />
 
                     {/* Protected routes */}
