@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
 import { useEffect } from "react";
 import { Home, ArrowLeft, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";

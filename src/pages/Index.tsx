@@ -22,6 +22,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead canonical="/" />
       <Header />
       <main>
         <HeroSection />
