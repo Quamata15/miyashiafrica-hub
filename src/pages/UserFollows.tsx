@@ -74,7 +74,7 @@ const UserFollows = () => {
           <Avatar className="h-12 w-12 border-2 border-primary/10">
             <AvatarImage src={user.avatar_url || ""} />
             <AvatarFallback className="bg-gradient-hero text-primary-foreground font-bold">
-              {user.full_name?.charAt(0)?.toUpperCase() || "U"}
+              {(user.username || user.full_name)?.charAt(0)?.toUpperCase() || "U"}
             </AvatarFallback>
           </Avatar>
         </Link>
