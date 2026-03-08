@@ -122,6 +122,11 @@ const Auth = () => {
           user_id: newUser.id,
           role: signupRole,
         });
+
+        // Apply referral code if provided
+        if (referralCode.trim()) {
+          await supabase.rpc("apply_referral" as any, { p_referral_code: referralCode.trim() });
+        }
       }
       toast({
         title: "Inscription réussie",
