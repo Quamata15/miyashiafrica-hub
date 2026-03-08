@@ -363,7 +363,7 @@ const Marketplace = () => {
               <p className="text-muted-foreground mb-6">
                 Essayez de modifier vos critères de recherche
               </p>
-              <Button onClick={() => { setSearchTerm(""); setSelectedCategory(null); }}>
+              <Button onClick={resetFilters}>
                 Réinitialiser les filtres
               </Button>
             </motion.div>
