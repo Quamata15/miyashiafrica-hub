@@ -44,6 +44,7 @@ const Install = lazy(() => import("./pages/Install"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const UserFollows = lazy(() => import("./pages/UserFollows"));
+const Feed = lazy(() => import("./pages/Feed"));
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,7 @@ const App = () => (
                     <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                     <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
+                    <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />

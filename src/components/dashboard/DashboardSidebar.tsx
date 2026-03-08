@@ -63,6 +63,7 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
   ] : [];
 
   const quickActions = [
+    { label: "Fil d'actualité", icon: Home, action: () => navigate("/feed") },
     { label: "Créer", icon: Plus, action: () => navigate("/create") },
     { label: "Messages", icon: MessageSquare, action: () => navigate("/messages") },
     { label: "Favoris", icon: Heart, action: () => navigate("/favorites") },
