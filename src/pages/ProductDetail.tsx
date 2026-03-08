@@ -432,6 +432,9 @@ const ProductDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Platform Protection */}
+              <PlatformProtectionBanner />
             </motion.div>
           </div>
 
