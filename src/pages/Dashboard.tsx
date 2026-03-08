@@ -101,11 +101,13 @@ const Dashboard = () => {
             <CardContent className="p-0">
               <DeliveryMap
                 orderId="live"
+                deliveryRequestId={null}
                 origin={{ lat: 6.1319, lng: 1.2228 }}
                 destination={{ lat: 6.1725, lng: 1.2314 }}
                 deliveryStatus="in_transit"
                 estimatedTime="25 min"
                 trackingNumber="MYS-LIVE"
+                enableRealtime={true}
               />
             </CardContent>
           </Card>

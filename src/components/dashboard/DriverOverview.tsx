@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
   Truck, MapPin, Star, DollarSign, Package, Clock,
-  CheckCircle, Award, Navigation
+  CheckCircle, Award, Navigation, Wifi
 } from "lucide-react";
 import { toast } from "sonner";
 import QuickStatsGrid from "./QuickStatsGrid";
+import { useDriverBroadcast } from "@/hooks/useDriverLocation";
 
 const DriverOverview = () => {
   const { user } = useAuth();
@@ -21,6 +22,10 @@ const DriverOverview = () => {
   const [activeDeliveries, setActiveDeliveries] = useState<any[]>([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [loading, setLoading] = useState(true);
+
+  // Auto-broadcast GPS when driver has active deliveries
+  const activeDeliveryId = activeDeliveries.length > 0 ? activeDeliveries[0].id : null;
+  const { currentPosition: gpsPosition } = useDriverBroadcast(activeDeliveryId, isAvailable && activeDeliveries.length > 0);
 
   useEffect(() => {
     if (user) {
@@ -117,6 +122,11 @@ const DriverOverview = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {gpsPosition && (
+                <Badge variant="outline" className="text-xs text-accent border-accent/30">
+                  <Wifi className="w-3 h-3 mr-1" /> GPS actif
+                </Badge>
+              )}
               <span className="text-sm">{isAvailable ? "En ligne" : "Hors ligne"}</span>
               <Switch checked={isAvailable} onCheckedChange={toggleAvailability} />
             </div>
