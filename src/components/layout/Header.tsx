@@ -3,7 +3,8 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut, 
-  MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck, Wallet, Shield
+  MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck, Wallet,
+  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -16,6 +17,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
   DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +33,7 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
   const { unreadCount: unreadNotifications } = useNotifications();
   const navigate = useNavigate();
@@ -40,10 +46,14 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    if (user) fetchUnreadMessages();
+    if (user) {
+      fetchUnreadMessages();
+      checkAdminRole();
+    } else {
+      setIsAdmin(false);
+    }
   }, [user]);
 
-  // Real-time message count
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -61,8 +71,15 @@ const Header = () => {
     setUnreadMessages(count || 0);
   };
 
-  const navLinks = [
-    { label: "Accueil", href: user ? "/dashboard" : "/", icon: Home },
+  const checkAdminRole = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin");
+    setIsAdmin(!!(data && data.length > 0));
+  };
+
+  // Public nav — always visible
+  const publicLinks = [
+    { label: "Accueil", href: "/", icon: Home },
     { label: "Produits", href: "/marketplace", icon: ShoppingBag },
     { label: "Services", href: "/services", icon: Briefcase },
     { label: "Freelance", href: "/freelance", icon: Users },
@@ -84,6 +101,13 @@ const Header = () => {
       navigate(`/marketplace?q=${encodeURIComponent(searchQuery)}`);
     }
   };
+
+  const go = (path: string) => {
+    navigate(path);
+    setIsMenuOpen(false);
+  };
+
+  const totalBadge = unreadMessages + unreadNotifications;
 
   return (
     <motion.header
@@ -113,7 +137,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {publicLinks.map((link) => (
               <Link
                 key={link.label}
                 to={link.href}
@@ -154,10 +178,6 @@ const Header = () => {
 
                 <CartDrawer />
 
-                <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => navigate("/alerts")}>
-                  <BellRing className="w-5 h-5" />
-                </Button>
-
                 <Button variant="ghost" size="icon" className="relative rounded-xl" onClick={() => navigate("/dashboard")}>
                   <Bell className="w-5 h-5" />
                   {unreadNotifications > 0 && (
@@ -180,6 +200,7 @@ const Header = () => {
                   + Créer
                 </Button>
 
+                {/* Profile dropdown — only when logged in */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all ml-1">
@@ -191,12 +212,14 @@ const Header = () => {
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56 p-2" align="end">
+                  <DropdownMenuContent className="w-60 p-2" align="end">
                     <DropdownMenuLabel className="font-normal">
                       <p className="text-sm font-medium">Mon Compte</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+
+                    {/* Main */}
                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" /> Tableau de bord
@@ -204,20 +227,88 @@ const Header = () => {
                       <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" /> Mon Profil
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/driver-dashboard")} className="cursor-pointer">
-                        <Truck className="mr-2 h-4 w-4" /> Espace Livreur
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/provider-space")} className="cursor-pointer">
-                        <Briefcase className="mr-2 h-4 w-4" /> Espace Prestataire
-                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/wallet")} className="cursor-pointer">
                         <Wallet className="mr-2 h-4 w-4" /> Mon Portefeuille
                       </DropdownMenuItem>
+                    </DropdownMenuGroup>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Espaces pro */}
+                    <DropdownMenuGroup>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger className="cursor-pointer">
+                          <Briefcase className="mr-2 h-4 w-4" /> Mes Espaces
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            <DropdownMenuItem onClick={() => navigate("/provider-space")} className="cursor-pointer">
+                              <Briefcase className="mr-2 h-4 w-4" /> Prestataire
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/driver-dashboard")} className="cursor-pointer">
+                              <Truck className="mr-2 h-4 w-4" /> Livreur
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/boost")} className="cursor-pointer">
+                              <Star className="mr-2 h-4 w-4" /> Booster
+                            </DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                    </DropdownMenuGroup>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Communication */}
+                    <DropdownMenuGroup>
                       <DropdownMenuItem onClick={() => navigate("/messages")} className="cursor-pointer">
                         <MessageSquare className="mr-2 h-4 w-4" /> Messages
                         {unreadMessages > 0 && <Badge className="ml-auto bg-secondary text-xs">{unreadMessages}</Badge>}
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/alerts")} className="cursor-pointer">
+                        <BellRing className="mr-2 h-4 w-4" /> Alertes recherche
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/disputes")} className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" /> Litiges
+                      </DropdownMenuItem>
                     </DropdownMenuGroup>
+
+                    {/* Admin — only for admin role */}
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => navigate("/admin")} className="cursor-pointer text-primary">
+                          <Shield className="mr-2 h-4 w-4" /> Administration
+                        </DropdownMenuItem>
+                      </>
+                    )}
+
+                    <DropdownMenuSeparator />
+
+                    {/* Help */}
+                    <DropdownMenuGroup>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger className="cursor-pointer">
+                          <HelpCircle className="mr-2 h-4 w-4" /> Aide
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            <DropdownMenuItem onClick={() => navigate("/help")} className="cursor-pointer">
+                              <HelpCircle className="mr-2 h-4 w-4" /> Centre d'aide
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/faq")} className="cursor-pointer">
+                              <FileText className="mr-2 h-4 w-4" /> FAQ
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/contact")} className="cursor-pointer">
+                              <Phone className="mr-2 h-4 w-4" /> Contact
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/support")} className="cursor-pointer">
+                              <MessageSquare className="mr-2 h-4 w-4" /> Support
+                            </DropdownMenuItem>
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                    </DropdownMenuGroup>
+
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
                       <LogOut className="mr-2 h-4 w-4" /> Se déconnecter
@@ -238,22 +329,30 @@ const Header = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 rounded-xl hover:bg-muted transition-colors"
-          >
-            <AnimatePresence mode="wait">
-              {isMenuOpen ? (
-                <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-                  <X className="w-6 h-6" />
-                </motion.div>
-              ) : (
-                <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-                  <Menu className="w-6 h-6" />
-                </motion.div>
+          <div className="flex items-center gap-2 lg:hidden">
+            {user && <CartDrawer />}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-xl hover:bg-muted transition-colors relative"
+            >
+              {totalBadge > 0 && user && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-secondary text-secondary-foreground text-[10px] flex items-center justify-center font-bold">
+                  {totalBadge > 9 ? "9+" : totalBadge}
+                </span>
               )}
-            </AnimatePresence>
-          </button>
+              <AnimatePresence mode="wait">
+                {isMenuOpen ? (
+                  <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+                    <X className="w-6 h-6" />
+                  </motion.div>
+                ) : (
+                  <motion.div key="menu" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+                    <Menu className="w-6 h-6" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Search */}
@@ -280,53 +379,95 @@ const Header = () => {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden bg-card border-t border-border overflow-hidden"
           >
-            <div className="container py-4 space-y-2">
-              {navLinks.map((link, index) => (
-                <motion.div key={link.label} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }}>
-                  <Link
-                    to={link.href}
+            <div className="container py-4 space-y-1 max-h-[70vh] overflow-y-auto">
+              {/* Navigation publique */}
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Explorer</p>
+              {publicLinks.map((link, index) => (
+                <motion.div key={link.label} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}>
+                  <button
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
+                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left",
                       isActive(link.href) ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted"
                     )}
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => go(link.href)}
                   >
                     <link.icon className="w-5 h-5" />
                     <span className="font-medium">{link.label}</span>
-                  </Link>
+                  </button>
                 </motion.div>
               ))}
-              
-              <div className="pt-4 border-t border-border space-y-2">
-                {user ? (
-                  <>
-                    <Button variant="outline" className="w-full rounded-xl justify-start" onClick={() => { navigate("/dashboard"); setIsMenuOpen(false); }}>
-                      <LayoutDashboard className="mr-2 h-4 w-4" /> Tableau de bord
+
+              {user ? (
+                <>
+                  {/* Mon compte */}
+                  <div className="pt-3 border-t border-border mt-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Mon Compte</p>
+                    <MobileMenuItem icon={LayoutDashboard} label="Tableau de bord" onClick={() => go("/dashboard")} badge={unreadNotifications} />
+                    <MobileMenuItem icon={User} label="Mon Profil" onClick={() => go("/profile")} />
+                    <MobileMenuItem icon={Wallet} label="Portefeuille" onClick={() => go("/wallet")} />
+                    <MobileMenuItem icon={Heart} label="Favoris" onClick={() => go("/favorites")} />
+                    <MobileMenuItem icon={MessageSquare} label="Messages" onClick={() => go("/messages")} badge={unreadMessages} />
+                    <MobileMenuItem icon={BellRing} label="Alertes recherche" onClick={() => go("/alerts")} />
+                    <MobileMenuItem icon={Shield} label="Litiges" onClick={() => go("/disputes")} />
+                  </div>
+
+                  {/* Espaces pro */}
+                  <div className="pt-3 border-t border-border mt-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Espaces Pro</p>
+                    <MobileMenuItem icon={Briefcase} label="Espace Prestataire" onClick={() => go("/provider-space")} />
+                    <MobileMenuItem icon={Truck} label="Espace Livreur" onClick={() => go("/driver-dashboard")} />
+                    <MobileMenuItem icon={Star} label="Booster" onClick={() => go("/boost")} />
+                    <Button variant="default" size="sm" onClick={() => go("/create")} className="w-full rounded-xl shadow-md bg-gradient-hero mt-2">
+                      + Créer une annonce
                     </Button>
-                    <Button variant="outline" className="w-full rounded-xl justify-start" onClick={() => { navigate("/driver-dashboard"); setIsMenuOpen(false); }}>
-                      <Truck className="mr-2 h-4 w-4" /> Espace Livreur
-                    </Button>
-                    <Button variant="outline" className="w-full rounded-xl justify-start" onClick={() => { navigate("/profile"); setIsMenuOpen(false); }}>
-                      <User className="mr-2 h-4 w-4" /> Mon Profil
-                    </Button>
-                    <Button variant="ghost" className="w-full rounded-xl justify-start text-destructive" onClick={() => { handleSignOut(); setIsMenuOpen(false); }}>
-                      <LogOut className="mr-2 h-4 w-4" /> Se déconnecter
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button variant="outline" className="w-full rounded-xl" onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}>
-                      Se connecter
-                    </Button>
-                    <Button className="w-full rounded-xl bg-gradient-hero" onClick={() => { navigate("/auth"); setIsMenuOpen(false); }}>
-                      S'inscrire
-                    </Button>
-                    <Button variant="outline" className="w-full rounded-xl justify-start" onClick={() => { navigate("/driver-registration"); setIsMenuOpen(false); }}>
-                      <Truck className="mr-2 h-4 w-4" /> Devenir livreur
-                    </Button>
-                  </>
-                )}
-              </div>
+                  </div>
+
+                  {/* Admin */}
+                  {isAdmin && (
+                    <div className="pt-3 border-t border-border mt-3">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Administration</p>
+                      <MobileMenuItem icon={Shield} label="Panneau Admin" onClick={() => go("/admin")} className="text-primary" />
+                    </div>
+                  )}
+
+                  {/* Aide */}
+                  <div className="pt-3 border-t border-border mt-3">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Aide</p>
+                    <MobileMenuItem icon={HelpCircle} label="Centre d'aide" onClick={() => go("/help")} />
+                    <MobileMenuItem icon={FileText} label="FAQ" onClick={() => go("/faq")} />
+                    <MobileMenuItem icon={Phone} label="Contact" onClick={() => go("/contact")} />
+                  </div>
+
+                  {/* Déconnexion */}
+                  <div className="pt-3 border-t border-border mt-3">
+                    <button
+                      className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left text-destructive hover:bg-destructive/10"
+                      onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Se déconnecter</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="pt-4 border-t border-border space-y-2 mt-3">
+                  <Button variant="outline" className="w-full rounded-xl" onClick={() => go("/auth")}>
+                    Se connecter
+                  </Button>
+                  <Button className="w-full rounded-xl bg-gradient-hero" onClick={() => go("/auth")}>
+                    S'inscrire
+                  </Button>
+                  <Button variant="outline" className="w-full rounded-xl justify-start" onClick={() => go("/driver-registration")}>
+                    <Truck className="mr-2 h-4 w-4" /> Devenir livreur
+                  </Button>
+                  <div className="pt-3 border-t border-border mt-2">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Aide</p>
+                    <MobileMenuItem icon={HelpCircle} label="Centre d'aide" onClick={() => go("/help")} />
+                    <MobileMenuItem icon={FileText} label="FAQ" onClick={() => go("/faq")} />
+                    <MobileMenuItem icon={Phone} label="Contact" onClick={() => go("/contact")} />
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -334,5 +475,25 @@ const Header = () => {
     </motion.header>
   );
 };
+
+// Reusable mobile menu item
+const MobileMenuItem = ({ icon: Icon, label, onClick, badge, className }: {
+  icon: React.ElementType;
+  label: string;
+  onClick: () => void;
+  badge?: number;
+  className?: string;
+}) => (
+  <button
+    className={cn("flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left hover:bg-muted", className)}
+    onClick={onClick}
+  >
+    <Icon className="w-5 h-5" />
+    <span className="font-medium flex-1">{label}</span>
+    {!!badge && badge > 0 && (
+      <Badge className="bg-secondary text-secondary-foreground text-xs">{badge}</Badge>
+    )}
+  </button>
+);
 
 export default Header;
