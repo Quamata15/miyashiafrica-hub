@@ -725,29 +725,41 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_name: string | null
+          attachment_url: string | null
           content: string
           conversation_id: string
           created_at: string
           id: string
           is_read: boolean | null
+          location_data: Json | null
+          message_type: string
           receiver_id: string
           sender_id: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           content: string
           conversation_id: string
           created_at?: string
           id?: string
           is_read?: boolean | null
+          location_data?: Json | null
+          message_type?: string
           receiver_id: string
           sender_id: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
           id?: string
           is_read?: boolean | null
+          location_data?: Json | null
+          message_type?: string
           receiver_id?: string
           sender_id?: string
         }
