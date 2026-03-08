@@ -67,9 +67,10 @@ export const useChat = () => {
     const lastMsgMap = new Map<string, string>();
     for (const msg of lastMsgsRes.data || []) {
       if (!lastMsgMap.has(msg.conversation_id)) {
-        const preview = (msg as any).message_type === 'image' ? '📷 Photo' :
-                       (msg as any).message_type === 'file' ? '📎 Fichier' :
-                       (msg as any).message_type === 'location' ? '📍 Position' :
+        const msgType = (msg as { message_type?: string }).message_type;
+        const preview = msgType === 'image' ? '📷 Photo' :
+                       msgType === 'file' ? '📎 Fichier' :
+                       msgType === 'location' ? '📍 Position' :
                        msg.content;
         lastMsgMap.set(msg.conversation_id, preview);
       }
