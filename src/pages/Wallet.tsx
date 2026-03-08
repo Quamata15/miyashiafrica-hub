@@ -172,51 +172,53 @@ const WalletPage = () => {
                   <DialogTrigger asChild>
                     <Button className="flex-1 bg-gradient-hero"><ArrowUpCircle className="w-4 h-4 mr-2" /> Retirer</Button>
                   </DialogTrigger>
-                  <DialogContent>
+                   <DialogContent>
                     <DialogHeader><DialogTitle>Retirer des fonds</DialogTitle></DialogHeader>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label>Pays</Label>
-                        <Select value={selectedCountry} onValueChange={(v) => { setSelectedCountry(v); setSelectedMethod(""); }}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(paymentsByCountry).map(([k, v]) => (
-                              <SelectItem key={k} value={k}>{v.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Moyen de paiement</Label>
-                        <div className="grid grid-cols-1 gap-2">
-                          {currentMethods.map(m => (
-                            <div
-                              key={m.id}
-                              onClick={() => setSelectedMethod(m.id)}
-                              className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === m.id ? "border-primary bg-primary/5" : "border-border"}`}
-                            >
-                              <span className="text-xl">{m.icon}</span>
-                              <span className="font-medium">{m.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      {selectedMethod && selectedMethod !== "card" && (
+                    <VerificationGate requiredFor="withdraw">
+                      <div className="space-y-4">
                         <div className="space-y-2">
-                          <Label>Numéro de téléphone</Label>
-                          <Input placeholder="XX XX XX XX" value={withdrawPhone} onChange={e => setWithdrawPhone(e.target.value)} />
+                          <Label>Pays</Label>
+                          <Select value={selectedCountry} onValueChange={(v) => { setSelectedCountry(v); setSelectedMethod(""); }}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(paymentsByCountry).map(([k, v]) => (
+                                <SelectItem key={k} value={k}>{v.label}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
-                      )}
-                      <div className="space-y-2">
-                        <Label>Montant (FCFA)</Label>
-                        <Input type="number" placeholder="5000" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
-                        <p className="text-xs text-muted-foreground">Solde: {(wallet?.balance || 0).toLocaleString()}F • Min: 500F</p>
+                        <div className="space-y-2">
+                          <Label>Moyen de paiement</Label>
+                          <div className="grid grid-cols-1 gap-2">
+                            {currentMethods.map(m => (
+                              <div
+                                key={m.id}
+                                onClick={() => setSelectedMethod(m.id)}
+                                className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedMethod === m.id ? "border-primary bg-primary/5" : "border-border"}`}
+                              >
+                                <span className="text-xl">{m.icon}</span>
+                                <span className="font-medium">{m.label}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {selectedMethod && selectedMethod !== "card" && (
+                          <div className="space-y-2">
+                            <Label>Numéro de téléphone</Label>
+                            <Input placeholder="XX XX XX XX" value={withdrawPhone} onChange={e => setWithdrawPhone(e.target.value)} />
+                          </div>
+                        )}
+                        <div className="space-y-2">
+                          <Label>Montant (FCFA)</Label>
+                          <Input type="number" placeholder="5000" value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} />
+                          <p className="text-xs text-muted-foreground">Solde: {(wallet?.balance || 0).toLocaleString()}F • Min: 500F</p>
+                        </div>
+                        <Button onClick={handleWithdraw} disabled={withdrawing} className="w-full bg-gradient-hero">
+                          {withdrawing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowUpCircle className="w-4 h-4 mr-2" />}
+                          Confirmer le retrait
+                        </Button>
                       </div>
-                      <Button onClick={handleWithdraw} disabled={withdrawing} className="w-full bg-gradient-hero">
-                        {withdrawing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowUpCircle className="w-4 h-4 mr-2" />}
-                        Confirmer le retrait
-                      </Button>
-                    </div>
+                    </VerificationGate>
                   </DialogContent>
                 </Dialog>
                 <Button variant="outline" className="flex-1" onClick={() => navigate("/dashboard")}>
