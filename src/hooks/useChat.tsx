@@ -9,6 +9,10 @@ interface Message {
   sender_id: string;
   receiver_id: string;
   content: string;
+  message_type: string;
+  attachment_url: string | null;
+  attachment_name: string | null;
+  location_data: any | null;
   is_read: boolean;
   created_at: string;
 }
@@ -39,7 +43,6 @@ export const useChat = () => {
   const fetchConversations = useCallback(async () => {
     if (!user) return;
 
-    // Fetch conversations
     const { data: convs } = await supabase
       .from("conversations")
       .select("*")
@@ -48,30 +51,30 @@ export const useChat = () => {
 
     if (!convs || convs.length === 0) return;
 
-    // Batch: collect all other user IDs
     const otherUserIds = convs.map((c) =>
       c.participant_1 === user.id ? c.participant_2 : c.participant_1
     );
     const convIds = convs.map((c) => c.id);
 
-    // Parallel batch queries instead of N+1
     const [profilesRes, lastMsgsRes, unreadRes] = await Promise.all([
       supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", otherUserIds),
-      supabase.from("messages").select("conversation_id, content, created_at").in("conversation_id", convIds).order("created_at", { ascending: false }),
+      supabase.from("messages").select("conversation_id, content, message_type, created_at").in("conversation_id", convIds).order("created_at", { ascending: false }),
       supabase.from("messages").select("conversation_id", { count: "exact" }).in("conversation_id", convIds).eq("receiver_id", user.id).eq("is_read", false),
     ]);
 
     const profileMap = new Map((profilesRes.data || []).map((p) => [p.user_id, p]));
     
-    // Get last message per conversation
     const lastMsgMap = new Map<string, string>();
     for (const msg of lastMsgsRes.data || []) {
       if (!lastMsgMap.has(msg.conversation_id)) {
-        lastMsgMap.set(msg.conversation_id, msg.content);
+        const preview = (msg as any).message_type === 'image' ? '📷 Photo' :
+                       (msg as any).message_type === 'file' ? '📎 Fichier' :
+                       (msg as any).message_type === 'location' ? '📍 Position' :
+                       msg.content;
+        lastMsgMap.set(msg.conversation_id, preview);
       }
     }
 
-    // Count unread per conversation (approximation from grouped data)
     const unreadMap = new Map<string, number>();
     for (const msg of (unreadRes as any).data || []) {
       unreadMap.set(msg.conversation_id, (unreadMap.get(msg.conversation_id) || 0) + 1);
@@ -101,8 +104,7 @@ export const useChat = () => {
       .order("created_at", { ascending: true });
 
     if (data) {
-      setMessages(data);
-      // Mark as read
+      setMessages(data as unknown as Message[]);
       if (user) {
         await supabase
           .from("messages")
@@ -113,25 +115,45 @@ export const useChat = () => {
     }
   }, [user]);
 
-  const sendMessage = useCallback(async (content: string): Promise<boolean | string> => {
-    if (!content.trim() || !selectedConversation || !user) return false;
+  const sendMessage = useCallback(async (
+    content: string,
+    options?: {
+      message_type?: string;
+      attachment_url?: string;
+      attachment_name?: string;
+      location_data?: { lat: number; lng: number; label?: string };
+    }
+  ): Promise<boolean | string> => {
+    if (!selectedConversation || !user) return false;
 
-    // Firewall: block contact sharing
-    const filterResult = filterMessage(content.trim());
-    if (filterResult.blocked) {
-      return filterResult.reason || "Message bloqué";
+    const messageType = options?.message_type || 'text';
+    
+    // Only filter text messages
+    if (messageType === 'text') {
+      if (!content.trim()) return false;
+      const filterResult = filterMessage(content.trim());
+      if (filterResult.blocked) {
+        return filterResult.reason || "Message bloqué";
+      }
     }
 
     const otherUserId = selectedConversation.participant_1 === user.id
       ? selectedConversation.participant_2
       : selectedConversation.participant_1;
 
-    const { error } = await supabase.from("messages").insert({
+    const insertData: any = {
       conversation_id: selectedConversation.id,
       sender_id: user.id,
       receiver_id: otherUserId,
-      content: content.trim(),
-    });
+      content: content.trim() || (messageType === 'image' ? '📷 Photo' : messageType === 'file' ? '📎 Fichier' : '📍 Position'),
+      message_type: messageType,
+    };
+
+    if (options?.attachment_url) insertData.attachment_url = options.attachment_url;
+    if (options?.attachment_name) insertData.attachment_name = options.attachment_name;
+    if (options?.location_data) insertData.location_data = options.location_data;
+
+    const { error } = await supabase.from("messages").insert(insertData);
 
     if (!error) {
       await supabase
@@ -143,10 +165,36 @@ export const useChat = () => {
     return false;
   }, [selectedConversation, user]);
 
+  const uploadAttachment = useCallback(async (file: File): Promise<{ url: string; name: string } | null> => {
+    if (!user || !selectedConversation) return null;
+
+    const ext = file.name.split('.').pop();
+    const filePath = `${user.id}/${selectedConversation.id}/${Date.now()}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("chat-attachments")
+      .upload(filePath, file);
+
+    if (error) return null;
+
+    const { data: urlData } = supabase.storage
+      .from("chat-attachments")
+      .getPublicUrl(filePath);
+
+    // Since bucket is private, use createSignedUrl
+    const { data: signedData } = await supabase.storage
+      .from("chat-attachments")
+      .createSignedUrl(filePath, 60 * 60 * 24 * 365); // 1 year
+
+    return {
+      url: signedData?.signedUrl || urlData.publicUrl,
+      name: file.name,
+    };
+  }, [user, selectedConversation]);
+
   const startConversation = useCallback(async (otherUserId: string) => {
     if (!user) return null;
 
-    // Check existing
     const { data: existing } = await supabase
       .from("conversations")
       .select("*")
@@ -232,6 +280,7 @@ export const useChat = () => {
     fetchConversations,
     fetchMessages,
     sendMessage,
+    uploadAttachment,
     startConversation,
     sendTypingIndicator,
   };

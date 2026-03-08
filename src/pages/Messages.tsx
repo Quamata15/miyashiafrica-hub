@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useChat } from "@/hooks/useChat";
 import Header from "@/components/layout/Header";
@@ -11,12 +11,15 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
+import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
 import {
   MessageSquare, Search, Send, MoreVertical, Phone, Video,
-  Paperclip, Smile, Check, CheckCheck, ArrowLeft
+  Smile, ArrowLeft
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { toast } from "sonner";
 
 const Messages = () => {
   const { user, loading: authLoading } = useAuth();
@@ -24,11 +27,12 @@ const Messages = () => {
   const {
     conversations, messages, selectedConversation,
     otherUserTyping, setSelectedConversation,
-    fetchConversations, fetchMessages, sendMessage, sendTypingIndicator,
+    fetchConversations, fetchMessages, sendMessage, uploadAttachment, sendTypingIndicator,
   } = useChat();
   const [newMessage, setNewMessage] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [sending, setSending] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [isMobileViewingChat, setIsMobileViewingChat] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -55,11 +59,35 @@ const Messages = () => {
     if (result === true) {
       setNewMessage("");
     } else if (typeof result === "string") {
-      // Message was blocked by firewall
-      const { toast } = await import("sonner");
       toast.error(result);
     }
     setSending(false);
+  };
+
+  const handleSendImage = async (file: File) => {
+    setUploading(true);
+    const result = await uploadAttachment(file);
+    if (result) {
+      await sendMessage("", { message_type: "image", attachment_url: result.url, attachment_name: result.name });
+    } else {
+      toast.error("Erreur lors de l'envoi de l'image");
+    }
+    setUploading(false);
+  };
+
+  const handleSendFile = async (file: File) => {
+    setUploading(true);
+    const result = await uploadAttachment(file);
+    if (result) {
+      await sendMessage("", { message_type: "file", attachment_url: result.url, attachment_name: result.name });
+    } else {
+      toast.error("Erreur lors de l'envoi du fichier");
+    }
+    setUploading(false);
+  };
+
+  const handleSendLocation = async (lat: number, lng: number, label?: string) => {
+    await sendMessage("", { message_type: "location", location_data: { lat, lng, label } });
   };
 
   const handleSelectConversation = (conv: any) => {
@@ -183,30 +211,11 @@ const Messages = () => {
                     <ScrollArea className="flex-1 p-4">
                       <div className="space-y-4">
                         {messages.map((message) => (
-                          <motion.div
+                          <ChatMessageBubble
                             key={message.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className={`flex ${message.sender_id === user?.id ? "justify-end" : "justify-start"}`}
-                          >
-                            <div
-                              className={`max-w-[70%] rounded-2xl px-4 py-2.5 ${
-                                message.sender_id === user?.id
-                                  ? "bg-gradient-hero text-primary-foreground rounded-br-sm"
-                                  : "bg-muted rounded-bl-sm"
-                              }`}
-                            >
-                              <p className="text-sm">{message.content}</p>
-                              <div className={`flex items-center justify-end gap-1 mt-1 ${
-                                message.sender_id === user?.id ? "text-primary-foreground/70" : "text-muted-foreground"
-                              }`}>
-                                <span className="text-xs">{format(new Date(message.created_at), "HH:mm")}</span>
-                                {message.sender_id === user?.id && (
-                                  message.is_read ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />
-                                )}
-                              </div>
-                            </div>
-                          </motion.div>
+                            message={message}
+                            isOwn={message.sender_id === user?.id}
+                          />
                         ))}
                         {otherUserTyping && (
                           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
@@ -226,9 +235,12 @@ const Messages = () => {
                     {/* Message Input */}
                     <div className="p-4 border-t border-border bg-card">
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" className="shrink-0">
-                          <Paperclip className="h-5 w-5" />
-                        </Button>
+                        <ChatAttachmentMenu
+                          onSendImage={handleSendImage}
+                          onSendFile={handleSendFile}
+                          onSendLocation={handleSendLocation}
+                          uploading={uploading}
+                        />
                         <Input
                           placeholder="Écrivez votre message..."
                           value={newMessage}

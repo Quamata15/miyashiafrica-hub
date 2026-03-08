@@ -725,29 +725,41 @@ export type Database = {
       }
       messages: {
         Row: {
+          attachment_name: string | null
+          attachment_url: string | null
           content: string
           conversation_id: string
           created_at: string
           id: string
           is_read: boolean | null
+          location_data: Json | null
+          message_type: string
           receiver_id: string
           sender_id: string
         }
         Insert: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           content: string
           conversation_id: string
           created_at?: string
           id?: string
           is_read?: boolean | null
+          location_data?: Json | null
+          message_type?: string
           receiver_id: string
           sender_id: string
         }
         Update: {
+          attachment_name?: string | null
+          attachment_url?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
           id?: string
           is_read?: boolean | null
+          location_data?: Json | null
+          message_type?: string
           receiver_id?: string
           sender_id?: string
         }
@@ -1811,6 +1823,57 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      search_products: {
+        Args: {
+          p_category_id?: string
+          p_location?: string
+          p_max_price?: number
+          p_min_price?: number
+          p_page?: number
+          p_per_page?: number
+          p_query?: string
+          p_sort_by?: string
+        }
+        Returns: {
+          category_id: string
+          created_at: string
+          description: string
+          id: string
+          images: string[]
+          is_active: boolean
+          location: string
+          price: number
+          rank: number
+          seller_id: string
+          stock: number
+          title: string
+        }[]
+      }
+      search_services: {
+        Args: {
+          p_category_id?: string
+          p_max_price?: number
+          p_min_price?: number
+          p_page?: number
+          p_per_page?: number
+          p_query?: string
+          p_sort_by?: string
+        }
+        Returns: {
+          category_id: string
+          created_at: string
+          delivery_days: number
+          description: string
+          id: string
+          images: string[]
+          is_active: boolean
+          price: number
+          price_type: string
+          provider_id: string
+          rank: number
+          title: string
+        }[]
       }
       send_notification: {
         Args: {
