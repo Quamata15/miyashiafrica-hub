@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, ArrowRight, Package, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 interface Product {
   id: string;
@@ -143,8 +144,10 @@ const FeaturedSection = () => {
                         <div className="aspect-square bg-muted relative overflow-hidden">
                           {product.images?.[0] ? (
                             <img
-                              src={product.images[0]}
+                              src={getOptimizedImageUrl(product.images[0], 400, 400)}
                               alt={product.title}
+                              width={400}
+                              height={400}
                               loading="lazy"
                               decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
@@ -232,8 +235,10 @@ const FeaturedSection = () => {
                         <div className="aspect-video bg-muted relative overflow-hidden">
                           {service.images?.[0] ? (
                             <img
-                              src={service.images[0]}
+                              src={getOptimizedImageUrl(service.images[0], 400, 225)}
                               alt={service.title}
+                              width={400}
+                              height={225}
                               loading="lazy"
                               decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
