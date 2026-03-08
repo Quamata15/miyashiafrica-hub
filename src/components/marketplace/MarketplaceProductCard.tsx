@@ -6,6 +6,7 @@ import { Heart, Eye, ShoppingCart, Star, MapPin, Package, CheckCircle } from "lu
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 type Product = Tables<"products">;
 
