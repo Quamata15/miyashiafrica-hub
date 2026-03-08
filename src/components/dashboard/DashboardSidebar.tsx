@@ -34,6 +34,8 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
 
   const sellerItems: SidebarItem[] = userRoles.includes("seller") ? [
     { label: "Mes Produits", icon: Package, value: "products" },
+    { label: "Promotions", icon: Megaphone, value: "promotions" },
+    { label: "Boosts", icon: Zap, value: "boosts" },
   ] : [];
 
   const providerItems: SidebarItem[] = userRoles.includes("provider") ? [
