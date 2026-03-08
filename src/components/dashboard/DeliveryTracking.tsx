@@ -26,6 +26,8 @@ interface Order {
   tracking_number: string | null;
   estimated_delivery: string | null;
   created_at: string;
+  seller_id: string;
+  buyer_id: string;
   product?: { title: string };
 }
 
