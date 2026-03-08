@@ -165,28 +165,32 @@ const Marketplace = () => {
   };
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedCategory, sortBy, priceRange]);
+  useEffect(() => { setCurrentPage(1); }, [filters]);
 
   const filteredProducts = useMemo(() => products
     .filter((product) => {
-      const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory = !selectedCategory || product.category_id === selectedCategory;
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-      return matchesSearch && matchesCategory && matchesPrice;
+      const matchesSearch = product.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        product.description?.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      const matchesCategory = !filters.selectedCategory || product.category_id === filters.selectedCategory;
+      const matchesPrice = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
+      const matchesLocation = !filters.location || product.location?.toLowerCase().includes(filters.location.toLowerCase());
+      const matchesRating = filters.minRating === 0 || (productRatings.get(product.id) || 0) >= filters.minRating;
+      return matchesSearch && matchesCategory && matchesPrice && matchesLocation && matchesRating;
     })
     .sort((a, b) => {
-      switch (sortBy) {
+      switch (filters.sortBy) {
         case "price-asc":
           return a.price - b.price;
         case "price-desc":
           return b.price - a.price;
+        case "rating-desc":
+          return (productRatings.get(b.id) || 0) - (productRatings.get(a.id) || 0);
         case "oldest":
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-    }), [products, searchTerm, selectedCategory, sortBy, priceRange]);
+    }), [products, filters, productRatings]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
