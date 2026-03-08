@@ -94,7 +94,7 @@ const Profile = () => {
     if (!user) return;
     setSaving(true);
     const { error } = await supabase.from("profiles").upsert({
-      user_id: user.id, full_name: profile.full_name,
+      user_id: user.id, full_name: profile.full_name, username: (profile as any).username,
       phone: profile.phone, location: profile.location, bio: profile.bio,
     });
     toast(error ? { title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" }

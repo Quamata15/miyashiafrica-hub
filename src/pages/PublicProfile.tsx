@@ -193,7 +193,7 @@ const PublicProfile = () => {
               </Avatar>
               <div className="flex-1 text-center sm:text-left">
                 <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-                  <h1 className="text-xl font-display font-bold">{profile?.full_name || "Utilisateur"}</h1>
+                  <h1 className="text-xl font-display font-bold">{profile?.username || profile?.full_name || "Utilisateur"}</h1>
                   {profile?.is_verified && (
                     <Badge className="bg-accent text-accent-foreground text-xs">
                       <CheckCircle className="h-3 w-3 mr-0.5" /> Vérifié
