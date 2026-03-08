@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -41,14 +41,17 @@ const Marketplace = () => {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
   const [priceRange, setPriceRange] = useState([0, 10000000]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 24;
 
   useEffect(() => {
     fetchProducts();
@@ -79,7 +82,10 @@ const Marketplace = () => {
     }
   };
 
-  const filteredProducts = products
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedCategory, sortBy, priceRange]);
+
+  const filteredProducts = useMemo(() => products
     .filter((product) => {
       const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -98,7 +104,13 @@ const Marketplace = () => {
         default:
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       }
-    });
+    }), [products, searchTerm, selectedCategory, sortBy, priceRange]);
+
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const container = {
     hidden: { opacity: 0 },
@@ -319,7 +331,7 @@ const Marketplace = () => {
               )}
             >
               <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <motion.div
                     key={product.id}
                     variants={item}
@@ -338,6 +350,7 @@ const Marketplace = () => {
                           <img
                             src={product.images[0]}
                             alt={product.title}
+                            loading="lazy"
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                         ) : (
@@ -405,6 +418,51 @@ const Marketplace = () => {
                 ))}
               </AnimatePresence>
             </motion.div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-10">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                Précédent
+              </Button>
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                let page: number;
+                if (totalPages <= 7) {
+                  page = i + 1;
+                } else if (currentPage <= 4) {
+                  page = i + 1;
+                } else if (currentPage >= totalPages - 3) {
+                  page = totalPages - 6 + i;
+                } else {
+                  page = currentPage - 3 + i;
+                }
+                return (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    className="w-9 h-9"
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                );
+              })}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => p + 1)}
+              >
+                Suivant
+              </Button>
+            </div>
           )}
         </div>
       </main>

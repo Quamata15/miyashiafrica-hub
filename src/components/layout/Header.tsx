@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -28,7 +28,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-const Header = () => {
+const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
@@ -474,7 +474,7 @@ const Header = () => {
       </AnimatePresence>
     </motion.header>
   );
-};
+});
 
 // Reusable mobile menu item
 const MobileMenuItem = ({ icon: Icon, label, onClick, badge, className }: {

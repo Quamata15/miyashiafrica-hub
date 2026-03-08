@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 import { 
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
@@ -10,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 
-const Footer = () => {
+const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   const { user } = useAuth();
 
   const exploreLinks = [
@@ -219,7 +220,7 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
+});
 
 const FooterColumn = ({ title, icon: Icon, links }: {
   title: string;
