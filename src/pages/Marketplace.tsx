@@ -432,9 +432,18 @@ const Marketplace = () => {
                         </div>
 
                         {/* Stock Badge */}
-                        {product.stock && product.stock <= 5 && (
+                        {product.stock && product.stock <= 5 && !promotions.has(product.seller_id) && (
                           <Badge className="absolute top-3 left-3 bg-secondary text-secondary-foreground">
                             Plus que {product.stock}
+                          </Badge>
+                        )}
+
+                        {/* Promo Badge */}
+                        {promotions.has(product.seller_id) && (
+                          <Badge className="absolute top-3 left-3 bg-destructive text-destructive-foreground font-bold">
+                            {promotions.get(product.seller_id)!.discount_type === "percentage"
+                              ? `-${promotions.get(product.seller_id)!.discount_value}%`
+                              : `-${promotions.get(product.seller_id)!.discount_value.toLocaleString()}F`}
                           </Badge>
                         )}
                       </div>
