@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import QuickStatsGrid from "./QuickStatsGrid";
 import DriverQRScanner from "@/components/shipping/DriverQRScanner";
+import DriverContract from "@/components/driver/DriverContract";
 import { useDriverBroadcast } from "@/hooks/useDriverLocation";
 
 const DriverOverview = () => {
