@@ -43,6 +43,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="Contact" description="Contactez l'équipe MIYASHI pour toute question ou assistance." canonical="/contact" />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-5xl">

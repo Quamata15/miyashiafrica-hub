@@ -37,6 +37,7 @@ const FAQ = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
+      <SEOHead title="FAQ" description="Questions fréquentes sur MIYASHI : paiements, livraisons, inscription, sécurité et plus." canonical="/faq" />
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-3xl">
