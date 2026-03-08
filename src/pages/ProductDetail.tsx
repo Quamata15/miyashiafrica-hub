@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { 
   Package, MapPin, Star, Heart, Share2, ShoppingCart, 
   Minus, Plus, MessageSquare, Shield, Truck, RotateCcw,
-  ChevronLeft, ChevronRight, User
+  ChevronLeft, ChevronRight, User, CheckCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
