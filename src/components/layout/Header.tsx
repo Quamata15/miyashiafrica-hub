@@ -474,7 +474,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
       </AnimatePresence>
     </motion.header>
   );
-};
+});
 
 // Reusable mobile menu item
 const MobileMenuItem = ({ icon: Icon, label, onClick, badge, className }: {

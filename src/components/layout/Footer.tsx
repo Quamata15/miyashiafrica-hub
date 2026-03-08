@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 
-const Footer = () => {
+const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   const { user } = useAuth();
 
   const exploreLinks = [
