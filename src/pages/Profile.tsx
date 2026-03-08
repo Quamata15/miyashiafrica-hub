@@ -389,10 +389,10 @@ const Profile = () => {
                           <Bell className="h-4 w-4 text-primary" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">Notifications</p>
-                          <p className="text-xs text-muted-foreground">Préférences de notification</p>
+                          <p className="text-sm font-medium">Notifications push</p>
+                          <p className="text-xs text-muted-foreground">Recevez des alertes pour vos commandes et messages</p>
                         </div>
-                        <Button variant="outline" size="sm">Configurer</Button>
+                        <PushNotificationToggle />
                       </div>
                       <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
