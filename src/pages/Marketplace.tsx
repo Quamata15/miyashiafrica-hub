@@ -127,6 +127,7 @@ const Marketplace = () => {
           }
           setPromotions(promoMap);
         }
+      }
       // Fetch product ratings
       const productIds = data.map(p => p.id);
       if (productIds.length > 0) {
