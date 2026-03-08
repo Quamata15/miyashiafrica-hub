@@ -19,6 +19,8 @@ import NotificationsList from "@/components/dashboard/NotificationsList";
 import PromotionsManager from "@/components/dashboard/PromotionsManager";
 import BoostAnalytics from "@/components/dashboard/BoostAnalytics";
 import DeliveryMap from "@/components/map/DeliveryMap";
+import SellerOnboarding from "@/components/dashboard/SellerOnboarding";
+import EmailVerificationBanner from "@/components/dashboard/EmailVerificationBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
