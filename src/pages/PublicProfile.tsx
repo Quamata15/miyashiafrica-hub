@@ -224,10 +224,10 @@ const PublicProfile = () => {
                     <p className="font-bold">{services.length}</p>
                     <p className="text-[10px] text-muted-foreground">Services</p>
                   </div>
-                  <div className="text-center">
+                  <Link to={`/user/${userId}/follows`} className="text-center hover:opacity-80 transition-opacity">
                     <p className="font-bold">{followersCount}</p>
                     <p className="text-[10px] text-muted-foreground">Abonnés</p>
-                  </div>
+                  </Link>
                   <div className="text-center">
                     <p className="font-bold">{reviews.length}</p>
                     <p className="text-[10px] text-muted-foreground">Avis</p>
