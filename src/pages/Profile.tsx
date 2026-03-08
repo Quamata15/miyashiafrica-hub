@@ -195,10 +195,11 @@ const Profile = () => {
 
           {/* Tabs - Contextual */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <Tabs defaultValue="personal" className="w-full">
-              <TabsList className={`grid w-full mb-6 ${showFreelance ? "grid-cols-4" : "grid-cols-3"}`}>
+            <Tabs defaultValue={searchParams.get("tab") === "verification" ? "verification" : "personal"} className="w-full">
+              <TabsList className={`grid w-full mb-6 ${showFreelance ? "grid-cols-5" : "grid-cols-4"}`}>
                 <TabsTrigger value="personal"><User className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Personnel</span></TabsTrigger>
                 {showFreelance && <TabsTrigger value="freelance"><Briefcase className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Freelance</span></TabsTrigger>}
+                <TabsTrigger value="verification"><Shield className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Vérification</span></TabsTrigger>
                 <TabsTrigger value="roles"><Star className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Rôles</span></TabsTrigger>
                 <TabsTrigger value="settings"><Settings className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Paramètres</span></TabsTrigger>
               </TabsList>
