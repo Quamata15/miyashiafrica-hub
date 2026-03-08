@@ -121,13 +121,6 @@ const Marketplace = () => {
           }
           setSellerNames(nm);
         }
-          supabase
-            .from("promotions")
-            .select("user_id, discount_type, discount_value, target_id")
-            .in("user_id", sellerIds)
-            .eq("is_active", true)
-            .gt("end_date", new Date().toISOString()),
-        ]);
         if (profilesRes.data) {
           setVerifiedSellers(new Set(profilesRes.data.map(p => p.user_id!)));
         }
