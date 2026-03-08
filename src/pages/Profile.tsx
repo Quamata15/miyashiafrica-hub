@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -20,10 +20,11 @@ import {
 import {
   Loader2, User, Briefcase, Settings, ShoppingBag, Package,
   MessageSquare, Star, LayoutDashboard, Bell, Camera, MapPin,
-  Phone, Mail, CheckCircle, TrendingUp, LogOut
+  Phone, Mail, CheckCircle, TrendingUp, LogOut, Shield
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
+import KYCVerification from "@/components/kyc/KYCVerification";
 
 type ProfileType = Tables<"profiles">;
 type FreelanceProfile = Tables<"freelance_profiles">;
@@ -41,6 +42,7 @@ const Profile = () => {
   const { user, loading: authLoading, signOut } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [saving, setSaving] = useState(false);
   const [profile, setProfile] = useState<Partial<ProfileType>>({});
   const [freelanceProfile, setFreelanceProfile] = useState<Partial<FreelanceProfile>>({});
@@ -194,10 +196,11 @@ const Profile = () => {
 
           {/* Tabs - Contextual */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-            <Tabs defaultValue="personal" className="w-full">
-              <TabsList className={`grid w-full mb-6 ${showFreelance ? "grid-cols-4" : "grid-cols-3"}`}>
+            <Tabs defaultValue={searchParams.get("tab") === "verification" ? "verification" : "personal"} className="w-full">
+              <TabsList className={`grid w-full mb-6 ${showFreelance ? "grid-cols-5" : "grid-cols-4"}`}>
                 <TabsTrigger value="personal"><User className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Personnel</span></TabsTrigger>
                 {showFreelance && <TabsTrigger value="freelance"><Briefcase className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Freelance</span></TabsTrigger>}
+                <TabsTrigger value="verification"><Shield className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Vérification</span></TabsTrigger>
                 <TabsTrigger value="roles"><Star className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Rôles</span></TabsTrigger>
                 <TabsTrigger value="settings"><Settings className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Paramètres</span></TabsTrigger>
               </TabsList>
@@ -278,6 +281,11 @@ const Profile = () => {
                   </Card>
                 </TabsContent>
               )}
+
+              {/* Verification Tab */}
+              <TabsContent value="verification">
+                <KYCVerification />
+              </TabsContent>
 
               {/* Roles Tab */}
               <TabsContent value="roles">

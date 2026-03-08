@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -237,45 +238,8 @@ const AdminDashboard = () => {
                 </Card>
               </TabsContent>
 
-              {/* KYC Tab */}
               <TabsContent value="kyc">
-                <Card className="border-0 shadow-card">
-                  <CardHeader><CardTitle>Documents KYC</CardTitle></CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {kycDocs.length === 0 ? (
-                        <p className="text-center text-muted-foreground py-8">Aucun document soumis</p>
-                      ) : kycDocs.map(doc => (
-                        <Card key={doc.id} className="border shadow-sm">
-                          <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <p className="font-medium">{doc.document_type}</p>
-                              <p className="text-sm text-muted-foreground">User: {doc.user_id.slice(0, 8)}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Soumis: {format(new Date(doc.submitted_at), "dd/MM/yy HH:mm", { locale: fr })}
-                              </p>
-                            </div>
-                            <Badge className={
-                              doc.status === "approved" ? "bg-accent text-accent-foreground" :
-                              doc.status === "rejected" ? "bg-destructive text-destructive-foreground" :
-                              "bg-secondary text-secondary-foreground"
-                            }>{doc.status}</Badge>
-                            {doc.status === "pending" && (
-                              <div className="flex gap-2">
-                                <Button size="sm" onClick={() => updateKycStatus(doc.id, "approved")} className="bg-accent text-accent-foreground">
-                                  <CheckCircle className="w-4 h-4 mr-1" /> Approuver
-                                </Button>
-                                <Button size="sm" variant="destructive" onClick={() => updateKycStatus(doc.id, "rejected", "Document non conforme")}>
-                                  <XCircle className="w-4 h-4 mr-1" /> Rejeter
-                                </Button>
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <AdminKYCPanel docs={kycDocs} onRefresh={fetchAllData} />
               </TabsContent>
 
               {/* Disputes Tab */}
