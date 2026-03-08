@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Loader2, Truck, ArrowLeft } from "lucide-react";
+import { Loader2, Truck, ArrowLeft, Apple } from "lucide-react";
+import { lovable } from "@/integrations/lovable/index";
 import { motion } from "framer-motion";
 
 const Auth = () => {
@@ -95,6 +96,21 @@ const Auth = () => {
       toast({
         title: "Inscription réussie",
         description: "Vérifiez votre email pour confirmer votre compte.",
+      });
+    }
+    setIsLoading(false);
+  };
+
+  const handleAppleSignIn = async () => {
+    setIsLoading(true);
+    const { error } = await lovable.auth.signInWithOAuth("apple", {
+      redirect_uri: window.location.origin,
+    });
+    if (error) {
+      toast({
+        title: "Erreur de connexion Apple",
+        description: error.message,
+        variant: "destructive",
       });
     }
     setIsLoading(false);
@@ -272,6 +288,29 @@ const Auth = () => {
                   </form>
                 </TabsContent>
               </Tabs>
+              )}
+
+              {/* Apple Sign In */}
+              {!showForgotPassword && (
+                <div className="mt-4">
+                  <div className="relative my-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-card px-2 text-muted-foreground">ou</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full h-12 text-base gap-2"
+                    onClick={handleAppleSignIn}
+                    disabled={isLoading}
+                  >
+                    <Apple className="w-5 h-5" />
+                    Continuer avec Apple
+                  </Button>
+                </div>
               )}
 
               {/* Driver CTA */}
