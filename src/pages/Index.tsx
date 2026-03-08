@@ -1,5 +1,5 @@
+import PageTransition from "@/components/layout/PageTransition";
 import SEOHead from "@/components/SEOHead";
-import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
