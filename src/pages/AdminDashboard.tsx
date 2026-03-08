@@ -9,15 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Shield, Users, Package, Truck, AlertTriangle, DollarSign,
-  CheckCircle, XCircle, Eye, FileText, BarChart3, Loader2
+  Shield, Users, Package, AlertTriangle, DollarSign,
+  FileText, BarChart3, Loader2, Flag, Eye
 } from "lucide-react";
 import { motion } from "framer-motion";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
+import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -28,12 +27,12 @@ const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checking, setChecking] = useState(true);
 
-  // Data states
   const [users, setUsers] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [disputes, setDisputes] = useState<any[]>([]);
   const [kycDocs, setKycDocs] = useState<any[]>([]);
-  const [stats, setStats] = useState({ users: 0, orders: 0, revenue: 0, disputes: 0 });
+  const [reports, setReports] = useState<any[]>([]);
+  const [stats, setStats] = useState({ users: 0, orders: 0, revenue: 0, disputes: 0, pendingKyc: 0, pendingReports: 0 });
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/auth");
@@ -45,9 +44,7 @@ const AdminDashboard = () => {
 
   const checkAdmin = async () => {
     if (!user) return;
-    // Server-side admin verification via SECURITY DEFINER RPC
     const { data, error } = await supabase.rpc("verify_admin_access" as any);
-    
     const admin = data === true && !error;
     setIsAdmin(admin);
     setChecking(false);
@@ -55,11 +52,12 @@ const AdminDashboard = () => {
   };
 
   const fetchAllData = async () => {
-    const [profilesRes, ordersRes, disputesRes, kycRes] = await Promise.all([
+    const [profilesRes, ordersRes, disputesRes, kycRes, reportsRes] = await Promise.all([
       supabase.from("profiles").select("*").limit(100),
       supabase.from("orders").select("*, product:products(title), service:services(title)").order("created_at", { ascending: false }).limit(100),
       (supabase.from("disputes") as any).select("*").order("created_at", { ascending: false }),
       supabase.from("kyc_documents").select("*").order("submitted_at", { ascending: false }),
+      (supabase.from("reports") as any).select("*").order("created_at", { ascending: false }),
     ]);
 
     if (profilesRes.data) setUsers(profilesRes.data);
@@ -72,17 +70,15 @@ const AdminDashboard = () => {
       setDisputes(disputesRes.data);
       setStats(prev => ({ ...prev, disputes: disputesRes.data.length }));
     }
-    if (kycRes.data) setKycDocs(kycRes.data);
+    if (kycRes.data) {
+      setKycDocs(kycRes.data);
+      setStats(prev => ({ ...prev, pendingKyc: kycRes.data.filter((d: any) => d.status === "pending").length }));
+    }
+    if (reportsRes.data) {
+      setReports(reportsRes.data);
+      setStats(prev => ({ ...prev, pendingReports: reportsRes.data.filter((r: any) => r.status === "pending").length }));
+    }
     setStats(prev => ({ ...prev, users: profilesRes.data?.length || 0 }));
-  };
-
-  const updateKycStatus = async (docId: string, status: string, reason?: string) => {
-    const updates: any = { status, reviewed_at: new Date().toISOString() };
-    if (reason) updates.rejection_reason = reason;
-    
-    await supabase.from("kyc_documents").update(updates).eq("id", docId);
-    toast({ title: `Document ${status === "approved" ? "approuvé" : "rejeté"}` });
-    fetchAllData();
   };
 
   const updateDisputeStatus = async (disputeId: string, status: string, resolution?: string) => {
@@ -121,6 +117,8 @@ const AdminDashboard = () => {
     { label: "Commandes", value: stats.orders, icon: Package, color: "text-secondary" },
     { label: "Revenus", value: `${stats.revenue.toLocaleString()}F`, icon: DollarSign, color: "text-accent" },
     { label: "Litiges", value: stats.disputes, icon: AlertTriangle, color: "text-destructive" },
+    { label: "KYC en attente", value: stats.pendingKyc, icon: FileText, color: "text-info" },
+    { label: "Signalements", value: stats.pendingReports, icon: Flag, color: "text-secondary" },
   ];
 
   return (
@@ -138,15 +136,15 @@ const AdminDashboard = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
               {statCards.map((s, i) => (
                 <motion.div key={s.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                   <Card className="border-0 shadow-card">
                     <CardContent className="p-4 flex items-center gap-3">
-                      <s.icon className={`w-8 h-8 ${s.color}`} />
+                      <s.icon className={`w-7 h-7 ${s.color}`} />
                       <div>
-                        <p className="text-2xl font-bold">{s.value}</p>
-                        <p className="text-xs text-muted-foreground">{s.label}</p>
+                        <p className="text-xl font-bold">{s.value}</p>
+                        <p className="text-[10px] text-muted-foreground">{s.label}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -154,16 +152,20 @@ const AdminDashboard = () => {
               ))}
             </div>
 
-            <Tabs defaultValue="users" className="space-y-6">
-              <TabsList className="grid grid-cols-2 md:grid-cols-5 h-auto p-1 bg-muted/50">
+            <Tabs defaultValue="stats" className="space-y-6">
+              <TabsList className="grid grid-cols-3 md:grid-cols-6 h-auto p-1 bg-muted/50">
+                <TabsTrigger value="stats"><BarChart3 className="w-4 h-4 mr-1" /> Stats</TabsTrigger>
                 <TabsTrigger value="users"><Users className="w-4 h-4 mr-1" /> Utilisateurs</TabsTrigger>
                 <TabsTrigger value="orders"><Package className="w-4 h-4 mr-1" /> Commandes</TabsTrigger>
-                <TabsTrigger value="kyc"><FileText className="w-4 h-4 mr-1" /> KYC</TabsTrigger>
+                <TabsTrigger value="kyc"><FileText className="w-4 h-4 mr-1" /> KYC{stats.pendingKyc > 0 && <Badge className="ml-1 text-[10px] px-1">{stats.pendingKyc}</Badge>}</TabsTrigger>
+                <TabsTrigger value="reports"><Flag className="w-4 h-4 mr-1" /> Signalements{stats.pendingReports > 0 && <Badge className="ml-1 text-[10px] px-1">{stats.pendingReports}</Badge>}</TabsTrigger>
                 <TabsTrigger value="disputes"><AlertTriangle className="w-4 h-4 mr-1" /> Litiges</TabsTrigger>
-                <TabsTrigger value="stats"><BarChart3 className="w-4 h-4 mr-1" /> Stats</TabsTrigger>
               </TabsList>
 
-              {/* Users Tab */}
+              <TabsContent value="stats">
+                <AdminAnalytics />
+              </TabsContent>
+
               <TabsContent value="users">
                 <Card className="border-0 shadow-card">
                   <CardHeader><CardTitle>Utilisateurs ({users.length})</CardTitle></CardHeader>
@@ -173,16 +175,19 @@ const AdminDashboard = () => {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Nom</TableHead>
+                            <TableHead>Pseudo</TableHead>
                             <TableHead>Téléphone</TableHead>
                             <TableHead>Localisation</TableHead>
                             <TableHead>Vérifié</TableHead>
                             <TableHead>Inscrit le</TableHead>
+                            <TableHead></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {users.map(u => (
                             <TableRow key={u.id}>
                               <TableCell className="font-medium">{u.full_name || "—"}</TableCell>
+                              <TableCell className="text-muted-foreground">{u.username || "—"}</TableCell>
                               <TableCell>{u.phone || "—"}</TableCell>
                               <TableCell>{u.location || "—"}</TableCell>
                               <TableCell>
@@ -191,6 +196,11 @@ const AdminDashboard = () => {
                                 </Badge>
                               </TableCell>
                               <TableCell>{format(new Date(u.created_at), "dd/MM/yy", { locale: fr })}</TableCell>
+                              <TableCell>
+                                <Button size="sm" variant="ghost" onClick={() => navigate(`/user/${u.user_id}`)}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
@@ -200,7 +210,6 @@ const AdminDashboard = () => {
                 </Card>
               </TabsContent>
 
-              {/* Orders Tab */}
               <TabsContent value="orders">
                 <Card className="border-0 shadow-card">
                   <CardHeader><CardTitle>Commandes récentes</CardTitle></CardHeader>
@@ -239,7 +248,10 @@ const AdminDashboard = () => {
                 <AdminKYCPanel docs={kycDocs} onRefresh={fetchAllData} />
               </TabsContent>
 
-              {/* Disputes Tab */}
+              <TabsContent value="reports">
+                <AdminReportsPanel reports={reports} onRefresh={fetchAllData} />
+              </TabsContent>
+
               <TabsContent value="disputes">
                 <Card className="border-0 shadow-card">
                   <CardHeader><CardTitle>Litiges & Réclamations</CardTitle></CardHeader>
@@ -273,7 +285,7 @@ const AdminDashboard = () => {
                                   Rejeter
                                 </Button>
                                 <Button size="sm" variant="outline" onClick={() => updateDisputeStatus(d.id, "resolved", "partial_refund")}>
-                                  Remboursement partiel
+                                  Remb. partiel
                                 </Button>
                               </div>
                             )}
@@ -283,10 +295,6 @@ const AdminDashboard = () => {
                     </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-
-              <TabsContent value="stats">
-                <AdminAnalytics />
               </TabsContent>
             </Tabs>
           </motion.div>
