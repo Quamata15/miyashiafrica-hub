@@ -13,9 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
+import EmojiPicker from "@/components/chat/EmojiPicker";
 import {
   MessageSquare, Search, Send, MoreVertical,
-  Smile, ArrowLeft
+  ArrowLeft
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
