@@ -22,6 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Tables } from "@/integrations/supabase/types";
 import ReportDialog from "@/components/reports/ReportDialog";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 type Service = Tables<"services">;
 
@@ -222,8 +223,10 @@ const ServiceDetail = () => {
                   >
                     {images[activeImage] ? (
                       <img
-                        src={images[activeImage]}
+                        src={getOptimizedImageUrl(images[activeImage]!, 800, 450)}
                         alt={service.title}
+                        width={800}
+                        height={450}
                         className="w-full h-full object-cover"
                       />
                     ) : (
