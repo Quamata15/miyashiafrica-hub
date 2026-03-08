@@ -27,6 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/cart/CartDrawer";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
