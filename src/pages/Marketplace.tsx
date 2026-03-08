@@ -97,12 +97,30 @@ const Marketplace = () => {
       // Fetch verified status and active promotions for all sellers
       const sellerIds = [...new Set(data.map(p => p.seller_id))];
       if (sellerIds.length > 0) {
-        const [profilesRes, promosRes] = await Promise.all([
+         const [profilesRes, promosRes, namesRes] = await Promise.all([
           supabase
             .from("profiles_public")
             .select("user_id, is_verified")
             .in("user_id", sellerIds)
             .eq("is_verified", true),
+          supabase
+            .from("promotions")
+            .select("user_id, discount_type, discount_value, target_id")
+            .in("user_id", sellerIds)
+            .eq("is_active", true)
+            .gt("end_date", new Date().toISOString()),
+          supabase
+            .from("profiles_public")
+            .select("user_id, full_name, username")
+            .in("user_id", sellerIds),
+        ]);
+        if (namesRes.data) {
+          const nm = new Map<string, string>();
+          for (const p of namesRes.data) {
+            if (p.user_id) nm.set(p.user_id, p.username || p.full_name || "");
+          }
+          setSellerNames(nm);
+        }
           supabase
             .from("promotions")
             .select("user_id, discount_type, discount_value, target_id")
