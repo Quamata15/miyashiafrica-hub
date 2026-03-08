@@ -271,12 +271,19 @@ export const useChat = () => {
     };
   }, [selectedConversation, user]);
 
-  const sendTypingIndicator = useCallback(() => {
-    if (!selectedConversation || !user) return;
+  const sendTypingIndicator = useCallback(async () => {
+    if (!selectedConversation || !user || !typingChannelRef.current) return;
     
-    setIsTyping(true);
+    // Push typing=true to presence
+    await typingChannelRef.current.track({ typing: true });
+
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 2000);
+    typingTimeoutRef.current = setTimeout(async () => {
+      // Push typing=false after 2s of inactivity
+      if (typingChannelRef.current) {
+        await typingChannelRef.current.track({ typing: false });
+      }
+    }, 2000);
   }, [selectedConversation, user]);
 
   return {
