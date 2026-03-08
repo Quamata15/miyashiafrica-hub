@@ -36,6 +36,15 @@ const Auth = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const getRedirectPath = async (userId: string): Promise<string> => {
+    const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    const roles = data?.map(r => r.role) || [];
+    if (roles.includes("driver")) return "/driver-dashboard";
+    if (roles.includes("provider")) return "/dashboard";
+    if (roles.includes("seller")) return "/dashboard";
+    return "/dashboard";
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -53,7 +62,9 @@ const Auth = () => {
         title: "Connexion réussie",
         description: "Bienvenue sur MIYASHI !",
       });
-      navigate("/dashboard");
+      const { data: { user: loggedUser } } = await supabase.auth.getUser();
+      const path = loggedUser ? await getRedirectPath(loggedUser.id) : "/dashboard";
+      navigate(path);
     }
     setIsLoading(false);
   };
