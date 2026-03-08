@@ -23,8 +23,10 @@ const PromotionsManager = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [promotions, setPromotions] = useState<any[]>([]);
+  const [promoCodes, setPromoCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [codeDialogOpen, setCodeDialogOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Form state
