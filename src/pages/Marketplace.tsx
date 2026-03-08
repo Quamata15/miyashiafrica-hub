@@ -331,7 +331,7 @@ const Marketplace = () => {
               )}
             >
               <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <motion.div
                     key={product.id}
                     variants={item}
