@@ -81,7 +81,7 @@ const PublicProfile = () => {
         .eq("reviewed_user_id", userId)
         .order("created_at", { ascending: false })
         .limit(20),
-      (supabase as any)
+      supabase
         .from("follows")
         .select("id", { count: "exact", head: true })
         .eq("followed_id", userId),
