@@ -14,7 +14,8 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
-import { Plus, Percent, Tag, Calendar, Trash2, Megaphone, Gift } from "lucide-react";
+import { Plus, Percent, Tag, Calendar, Trash2, Megaphone, Gift, Copy, TicketPercent } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
