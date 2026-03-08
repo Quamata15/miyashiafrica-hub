@@ -1634,6 +1634,69 @@ export type Database = {
           },
         ]
       }
+      shipping_labels: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          delivery_address: string | null
+          delivery_instructions: string | null
+          delivery_request_id: string | null
+          id: string
+          label_status: string
+          order_id: string
+          pickup_address: string | null
+          pickup_instructions: string | null
+          qr_token: string
+          scanned_at: string | null
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          delivery_address?: string | null
+          delivery_instructions?: string | null
+          delivery_request_id?: string | null
+          id?: string
+          label_status?: string
+          order_id: string
+          pickup_address?: string | null
+          pickup_instructions?: string | null
+          qr_token?: string
+          scanned_at?: string | null
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          delivery_address?: string | null
+          delivery_instructions?: string | null
+          delivery_request_id?: string | null
+          id?: string
+          label_status?: string
+          order_id?: string
+          pickup_address?: string | null
+          pickup_instructions?: string | null
+          qr_token?: string
+          scanned_at?: string | null
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipping_labels_delivery_request_id_fkey"
+            columns: ["delivery_request_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipping_labels_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_plans: {
         Row: {
           annual_price: number
@@ -1800,6 +1863,59 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_violations: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string | null
+          evidence_url: string | null
+          id: string
+          order_id: string | null
+          penalty_applied: string | null
+          reported_by: string
+          reviewed_at: string | null
+          seller_id: string
+          status: string
+          violation_type: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          order_id?: string | null
+          penalty_applied?: string | null
+          reported_by: string
+          reviewed_at?: string | null
+          seller_id: string
+          status?: string
+          violation_type?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_url?: string | null
+          id?: string
+          order_id?: string | null
+          penalty_applied?: string | null
+          reported_by?: string
+          reviewed_at?: string | null
+          seller_id?: string
+          status?: string
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_violations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -2067,6 +2183,7 @@ export type Database = {
         Args: { p_boost_id: string; p_metric?: string }
         Returns: undefined
       }
+      scan_shipping_label: { Args: { p_qr_token: string }; Returns: Json }
       search_products: {
         Args: {
           p_category_id?: string

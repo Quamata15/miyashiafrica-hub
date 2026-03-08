@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { motion } from "framer-motion";
+import VendorViolationReport from "@/components/shipping/VendorViolationReport";
 
 interface Order {
   id: string;
@@ -25,6 +26,8 @@ interface Order {
   tracking_number: string | null;
   estimated_delivery: string | null;
   created_at: string;
+  seller_id: string;
+  buyer_id: string;
   product?: { title: string };
 }
 
@@ -177,6 +180,13 @@ const DeliveryTracking = () => {
                     {order.estimated_delivery && (
                       <div className="mt-1 text-xs text-muted-foreground">
                         Livraison: {format(new Date(order.estimated_delivery), "dd MMM", { locale: fr })}
+                      </div>
+                    )}
+
+                    {/* Violation report for delivered/shipped orders */}
+                    {(order.delivery_status === "shipped" || order.delivery_status === "delivered" || order.status === "completed") && user && user.id === order.buyer_id && (
+                      <div className="mt-2 pt-2 border-t border-border/50">
+                        <VendorViolationReport orderId={order.id} sellerId={order.seller_id} />
                       </div>
                     )}
                   </motion.div>
