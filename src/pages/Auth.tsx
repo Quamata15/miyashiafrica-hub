@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
+import { useSearchParams } from "react-router-dom";
 import { useNavigate, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,17 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [signupFullName, setSignupFullName] = useState("");
   const [signupRole, setSignupRole] = useState<"buyer" | "seller" | "provider">("buyer");
+  const [referralCode, setReferralCode] = useState("");
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Pre-fill referral code from URL
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setReferralCode(ref);
+  }, [searchParams]);
 
   // Redirect if already logged in
   if (user) {
@@ -113,6 +122,11 @@ const Auth = () => {
           user_id: newUser.id,
           role: signupRole,
         });
+
+        // Apply referral code if provided
+        if (referralCode.trim()) {
+          await supabase.rpc("apply_referral" as any, { p_referral_code: referralCode.trim() });
+        }
       }
       toast({
         title: "Inscription réussie",
@@ -354,6 +368,21 @@ const Auth = () => {
                         minLength={6}
                         className="h-12"
                       />
+                    </div>
+                    {/* Referral code */}
+                    <div className="space-y-2">
+                      <Label htmlFor="referral-code">Code de parrainage (optionnel)</Label>
+                      <Input
+                        id="referral-code"
+                        type="text"
+                        placeholder="MYS-XXXXXX"
+                        value={referralCode}
+                        onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                        className="h-12 font-mono tracking-wider"
+                      />
+                      {referralCode && (
+                        <p className="text-[10px] text-accent">🎁 Bonus de 500 FCFA à l'inscription !</p>
+                      )}
                     </div>
                     <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
                       {isLoading ? (
