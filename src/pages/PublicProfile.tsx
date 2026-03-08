@@ -171,8 +171,8 @@ const PublicProfile = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead
-        title={`${profile?.full_name || "Utilisateur"} — MIYASHI`}
-        description={`Profil de ${profile?.full_name || "utilisateur"} sur MIYASHI. ${profile?.bio || ""}`}
+        title={`${profile?.username || profile?.full_name || "Utilisateur"} — MIYASHI`}
+        description={`Profil de ${profile?.username || profile?.full_name || "utilisateur"} sur MIYASHI. ${profile?.bio || ""}`}
         canonical={`/user/${userId}`}
       />
       <Header />
