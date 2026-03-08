@@ -244,8 +244,8 @@ const Marketplace = () => {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input
                   placeholder="Rechercher un produit..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={filters.searchTerm}
+                  onChange={(e) => updateFilters({ searchTerm: e.target.value })}
                   className="pl-12 h-12 rounded-xl border-muted"
                 />
               </div>
@@ -253,9 +253,9 @@ const Marketplace = () => {
               {/* Category Pills */}
               <div className="flex flex-wrap gap-2 items-center">
                 <Button
-                  variant={selectedCategory === null ? "default" : "outline"}
+                  variant={filters.selectedCategory === null ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(null)}
+                  onClick={() => updateFilters({ selectedCategory: null })}
                   className="rounded-full"
                 >
                   Tous
@@ -263,9 +263,9 @@ const Marketplace = () => {
                 {categories.slice(0, 4).map((category) => (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    variant={filters.selectedCategory === category.id ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedCategory(category.id)}
+                    onClick={() => updateFilters({ selectedCategory: category.id })}
                     className="rounded-full"
                   >
                     {category.name}
@@ -275,7 +275,7 @@ const Marketplace = () => {
 
               {/* Sort & View Controls */}
               <div className="flex items-center gap-2">
-                <Select value={sortBy} onValueChange={setSortBy}>
+                <Select value={filters.sortBy} onValueChange={(v) => updateFilters({ sortBy: v })}>
                   <SelectTrigger className="w-40 h-10 rounded-xl">
                     <ArrowUpDown className="w-4 h-4 mr-2" />
                     <SelectValue placeholder="Trier par" />
@@ -285,6 +285,7 @@ const Marketplace = () => {
                     <SelectItem value="oldest">Plus anciens</SelectItem>
                     <SelectItem value="price-asc">Prix croissant</SelectItem>
                     <SelectItem value="price-desc">Prix décroissant</SelectItem>
+                    <SelectItem value="rating-desc">Meilleures notes</SelectItem>
                   </SelectContent>
                 </Select>
 
@@ -309,51 +310,15 @@ const Marketplace = () => {
                 </div>
 
                 {/* Advanced Filters */}
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl">
-                      <SlidersHorizontal className="h-4 w-4" />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent>
-                    <SheetHeader>
-                      <SheetTitle>Filtres avancés</SheetTitle>
-                      <SheetDescription>
-                        Affinez votre recherche avec des critères spécifiques
-                      </SheetDescription>
-                    </SheetHeader>
-                    <div className="mt-6 space-y-6">
-                      <div>
-                        <label className="text-sm font-medium mb-4 block">
-                          Fourchette de prix (FCFA)
-                        </label>
-                        <Slider
-                          value={priceRange}
-                          onValueChange={setPriceRange}
-                          max={10000000}
-                          step={10000}
-                          className="mb-2"
-                        />
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{priceRange[0].toLocaleString()}</span>
-                          <span>{priceRange[1].toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-3 block">Catégories</label>
-                        <div className="space-y-2">
-                          {categories.map((category) => (
-                            <Button
-                              key={category.id}
-                              variant={selectedCategory === category.id ? "default" : "outline"}
-                              size="sm"
-                              className="w-full justify-start"
-                              onClick={() => setSelectedCategory(category.id)}
-                            >
-                              {category.name}
-                            </Button>
-                          ))}
-                        </div>
+                <AdvancedSearchFilters
+                  filters={filters}
+                  onFiltersChange={updateFilters}
+                  onReset={resetFilters}
+                  categories={categories}
+                  type="product"
+                />
+              </div>
+            </div>
                       </div>
                     </div>
                   </SheetContent>
