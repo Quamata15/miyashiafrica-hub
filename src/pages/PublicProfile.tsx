@@ -194,7 +194,7 @@ const PublicProfile = () => {
               {/* Actions */}
               {!isOwnProfile && currentUser && (
                 <div className="flex flex-col gap-2">
-                  <FollowButton targetUserId={userId!} />
+                  <FollowButton userId={userId!} />
                   <Button variant="outline" size="sm" asChild>
                     <Link to={`/messages?to=${userId}`}>
                       <MessageSquare className="h-4 w-4 mr-1" /> Message
