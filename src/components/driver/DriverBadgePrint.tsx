@@ -149,17 +149,27 @@ const DriverBadgePrint = ({
 
                 <div style={{
                   marginTop: 16, padding: 12, background: "#f8f9fa",
-                  borderRadius: 8, fontSize: 11, color: "#555",
+                  borderRadius: 8, fontSize: 10, color: "#555",
                 }}>
-                  <h4 style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700 }}>
-                    Engagements signés :
+                  <h4 style={{ margin: "0 0 8px", fontSize: 11, fontWeight: 700 }}>
+                    Contrat signé — 15 articles acceptés :
                   </h4>
                   <ul style={{ margin: 0, paddingLeft: 16 }}>
                     <li>Serment de professionnalisme</li>
-                    <li>Pas de coordonnées sur les colis</li>
-                    <li>Loyauté envers la plateforme</li>
-                    <li>Honnêteté et intégrité</li>
-                    <li>Confidentialité des données</li>
+                    <li>Code de conduite</li>
+                    <li>Disponibilité et fiabilité</li>
+                    <li>Confidentialité des colis</li>
+                    <li>Protection des données personnelles</li>
+                    <li>Interdiction de contact hors plateforme</li>
+                    <li>Intégrité des colis</li>
+                    <li>Respect des délais</li>
+                    <li>Vérification QR code</li>
+                    <li>Loyauté plateforme</li>
+                    <li>Anti-collusion</li>
+                    <li>Protection en litige ✓</li>
+                    <li>Programme de fidélité ✓</li>
+                    <li>Droit de contestation ✓</li>
+                    <li>Conditions de résiliation ✓</li>
                   </ul>
                 </div>
               </div>
