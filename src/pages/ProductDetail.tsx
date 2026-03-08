@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { 
   Package, MapPin, Star, Heart, Share2, ShoppingCart, 
   Minus, Plus, MessageSquare, Shield, Truck, RotateCcw,
-  ChevronLeft, ChevronRight, User
+  ChevronLeft, ChevronRight, User, CheckCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +37,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [sellerProfile, setSellerProfile] = useState<{ full_name: string | null; avatar_url: string | null; is_verified: boolean | null } | null>(null);
 
   useEffect(() => {
     if (id) fetchProduct();
@@ -51,6 +52,13 @@ const ProductDetail = () => {
 
     if (!error && data) {
       setProduct(data);
+      // Fetch seller profile
+      const { data: profile } = await supabase
+        .from("profiles_public")
+        .select("full_name, avatar_url, is_verified")
+        .eq("user_id", data.seller_id)
+        .single();
+      if (profile) setSellerProfile(profile);
     }
     setLoading(false);
   };
@@ -389,13 +397,20 @@ const ProductDetail = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-14 w-14">
-                      <AvatarImage src="" />
+                      <AvatarImage src={sellerProfile?.avatar_url || ""} />
                       <AvatarFallback className="bg-gradient-hero text-primary-foreground">
-                        <User className="h-6 w-6" />
+                        {sellerProfile?.full_name?.charAt(0) || <User className="h-6 w-6" />}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <h4 className="font-semibold">Vendeur</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">{sellerProfile?.full_name || "Vendeur"}</h4>
+                        {sellerProfile?.is_verified && (
+                          <Badge className="bg-accent text-accent-foreground text-[10px] px-1.5 py-0">
+                            <CheckCircle className="h-3 w-3 mr-0.5" />Vérifié
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Star className="h-4 w-4 fill-primary text-primary" />
                         <span>5.0 (0 avis)</span>

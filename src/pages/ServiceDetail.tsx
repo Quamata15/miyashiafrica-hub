@@ -35,6 +35,7 @@ const ServiceDetail = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [ordering, setOrdering] = useState(false);
   const [orderNote, setOrderNote] = useState("");
+  const [providerProfile, setProviderProfile] = useState<{ full_name: string | null; avatar_url: string | null; is_verified: boolean | null } | null>(null);
 
   useEffect(() => {
     if (id) fetchService();
@@ -49,6 +50,12 @@ const ServiceDetail = () => {
 
     if (!error && data) {
       setService(data);
+      const { data: profile } = await supabase
+        .from("profiles_public")
+        .select("full_name, avatar_url, is_verified")
+        .eq("user_id", data.provider_id)
+        .single();
+      if (profile) setProviderProfile(profile);
     }
     setLoading(false);
   };
@@ -451,13 +458,20 @@ const ServiceDetail = () => {
                   <CardContent className="p-6">
                     <div className="flex items-center gap-4 mb-4">
                       <Avatar className="h-16 w-16">
-                        <AvatarImage src="" />
+                        <AvatarImage src={providerProfile?.avatar_url || ""} />
                         <AvatarFallback className="bg-gradient-hero text-primary-foreground text-xl">
-                          <User className="h-8 w-8" />
+                          {providerProfile?.full_name?.charAt(0) || <User className="h-8 w-8" />}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <h4 className="font-semibold text-lg">Prestataire</h4>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold text-lg">{providerProfile?.full_name || "Prestataire"}</h4>
+                          {providerProfile?.is_verified && (
+                            <Badge className="bg-accent text-accent-foreground text-[10px] px-1.5 py-0">
+                              <CheckCircle className="h-3 w-3 mr-0.5" />Vérifié
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Star className="h-4 w-4 fill-primary text-primary" />
                           <span>5.0 (0 avis)</span>
@@ -466,10 +480,12 @@ const ServiceDetail = () => {
                     </div>
                     
                     <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-accent" />
-                        <span>Identité vérifiée</span>
-                      </div>
+                      {providerProfile?.is_verified && (
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-accent" />
+                          <span>Identité vérifiée</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         <span>Répond en 24h</span>
