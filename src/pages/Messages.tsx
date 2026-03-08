@@ -13,9 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
+import EmojiPicker from "@/components/chat/EmojiPicker";
 import {
   MessageSquare, Search, Send, MoreVertical,
-  Smile, ArrowLeft
+  ArrowLeft
 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -249,9 +250,7 @@ const Messages = () => {
                           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
                           className="flex-1"
                         />
-                        <Button variant="ghost" size="icon" className="shrink-0">
-                          <Smile className="h-5 w-5" />
-                        </Button>
+                        <EmojiPicker onEmojiSelect={(emoji) => setNewMessage(prev => prev + emoji)} />
                         <Button
                           onClick={handleSend}
                           disabled={!newMessage.trim() || sending}
