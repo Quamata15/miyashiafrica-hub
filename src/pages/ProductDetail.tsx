@@ -397,13 +397,20 @@ const ProductDetail = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-14 w-14">
-                      <AvatarImage src="" />
+                      <AvatarImage src={sellerProfile?.avatar_url || ""} />
                       <AvatarFallback className="bg-gradient-hero text-primary-foreground">
-                        <User className="h-6 w-6" />
+                        {sellerProfile?.full_name?.charAt(0) || <User className="h-6 w-6" />}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                      <h4 className="font-semibold">Vendeur</h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold">{sellerProfile?.full_name || "Vendeur"}</h4>
+                        {sellerProfile?.is_verified && (
+                          <Badge className="bg-accent text-accent-foreground text-[10px] px-1.5 py-0">
+                            <CheckCircle className="h-3 w-3 mr-0.5" />Vérifié
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Star className="h-4 w-4 fill-primary text-primary" />
                         <span>5.0 (0 avis)</span>
