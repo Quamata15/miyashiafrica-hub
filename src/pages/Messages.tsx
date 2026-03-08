@@ -14,7 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
 import {
-  MessageSquare, Search, Send, MoreVertical, Phone, Video,
+  MessageSquare, Search, Send, MoreVertical,
   Smile, ArrowLeft
 } from "lucide-react";
 import { format } from "date-fns";
@@ -201,8 +201,6 @@ const Messages = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon"><Phone className="h-5 w-5" /></Button>
-                        <Button variant="ghost" size="icon"><Video className="h-5 w-5" /></Button>
                         <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
                       </div>
                     </div>
