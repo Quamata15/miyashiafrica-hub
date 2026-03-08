@@ -10,6 +10,7 @@ import { FavoritesProvider } from "@/hooks/useFavorites";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import SkipToContent from "@/components/layout/SkipToContent";
 
 // Lazy-loaded pages
 const Index = lazy(() => import("./pages/Index"));
