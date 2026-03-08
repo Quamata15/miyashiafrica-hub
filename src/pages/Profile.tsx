@@ -282,6 +282,11 @@ const Profile = () => {
                 </TabsContent>
               )}
 
+              {/* Verification Tab */}
+              <TabsContent value="verification">
+                <KYCVerification />
+              </TabsContent>
+
               {/* Roles Tab */}
               <TabsContent value="roles">
                 <Card className="border-0 shadow-card">
