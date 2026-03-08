@@ -220,7 +220,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
       </div>
     </footer>
   );
-};
+});
 
 const FooterColumn = ({ title, icon: Icon, links }: {
   title: string;
