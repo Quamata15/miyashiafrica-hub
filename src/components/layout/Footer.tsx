@@ -222,11 +222,13 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   );
 });
 
-const FooterColumn = ({ title, icon: Icon, links }: {
+const FooterColumn = forwardRef<HTMLDivElement, {
   title: string;
   icon: React.ElementType;
   links: { label: string; href: string; icon?: React.ElementType }[];
-}) => (
+}>(function FooterColumn({ title, icon: Icon, links }, ref) {
+  return (
+    <div ref={ref}>
   <div>
     <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
       <Icon className="w-4 h-4 text-primary" />
