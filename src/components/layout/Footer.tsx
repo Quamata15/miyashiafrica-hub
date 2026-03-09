@@ -229,25 +229,25 @@ const FooterColumn = forwardRef<HTMLDivElement, {
 }>(function FooterColumn({ title, icon: Icon, links }, ref) {
   return (
     <div ref={ref}>
-  <div>
-    <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
-      <Icon className="w-4 h-4 text-primary" />
-      {title}
-    </h4>
-    <ul className="space-y-3">
-      {links.map((link) => (
-        <li key={link.label}>
-          <Link
-            to={link.href}
-            className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
-          >
-            {link.label}
-            <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-          </Link>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+      <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+        <Icon className="w-4 h-4 text-primary" />
+        {title}
+      </h4>
+      <ul className="space-y-3">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link
+              to={link.href}
+              className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
+            >
+              {link.label}
+              <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+});
 
 export default Footer;
