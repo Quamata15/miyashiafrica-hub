@@ -41,7 +41,7 @@ const Boost = lazy(() => import("./pages/Boost"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Disputes = lazy(() => import("./pages/Disputes"));
-const Install = lazy(() => import("./pages/Install"));
+
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const UserFollows = lazy(() => import("./pages/UserFollows"));
@@ -80,7 +80,7 @@ const App = () => (
                     <Route path="/help" element={<HelpCenter />} />
                     <Route path="/help/:slug" element={<HelpGuide />} />
                     <Route path="/support" element={<Support />} />
-                    <Route path="/install" element={<Install />} />
+                    
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/user/:userId" element={<PublicProfile />} />
                     <Route path="/user/:userId/follows" element={<UserFollows />} />
