@@ -118,7 +118,7 @@ const Profile = () => {
 
   const handleAddRole = async (role: UserRole) => {
     if (!user || userRoles.includes(role)) return;
-    const { error } = await supabase.from("user_roles").insert({ user_id: user.id, role });
+    const { error } = await supabase.rpc("assign_own_role" as any, { p_role: role });
     if (!error) {
       setUserRoles([...userRoles, role]);
       toast({ title: "Rôle ajouté", description: `Vous êtes maintenant ${ROLE_CONFIG[role]?.label}` });
