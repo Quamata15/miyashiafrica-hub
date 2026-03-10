@@ -43,7 +43,6 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
     { label: "Nous contacter", href: "/contact", icon: Phone },
     { label: "Support", href: "/support", icon: MessageSquare },
     { label: "Conditions d'utilisation", href: "/terms", icon: FileText },
-    { label: "Installer l'app", href: "/install", icon: Download },
   ];
 
   const socialLinks = [
