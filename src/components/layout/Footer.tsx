@@ -4,7 +4,7 @@ import {
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
   Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUpRight,
   Truck, Wallet, Heart, LayoutDashboard, Shield, HelpCircle,
-  FileText, MessageSquare, Star, Download
+  FileText, MessageSquare, Star
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
