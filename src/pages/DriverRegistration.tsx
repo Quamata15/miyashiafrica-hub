@@ -48,10 +48,7 @@ const DriverRegistration = () => {
     setLoading(true);
     try {
       // Add driver role
-      await supabase.from("user_roles").insert({
-        user_id: user.id,
-        role: "driver" as any,
-      });
+      await supabase.rpc("assign_own_role" as any, { p_role: "driver" });
 
       // Create driver profile
       const { error } = await (supabase.from("driver_profiles") as any).insert({
