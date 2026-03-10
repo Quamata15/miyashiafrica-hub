@@ -2216,6 +2216,10 @@ export type Database = {
     }
     Functions: {
       apply_referral: { Args: { p_referral_code: string }; Returns: boolean }
+      assign_own_role: {
+        Args: { p_role: Database["public"]["Enums"]["app_role"] }
+        Returns: undefined
+      }
       award_loyalty_points: {
         Args: {
           p_description?: string
