@@ -4,7 +4,7 @@ import {
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
   Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUpRight,
   Truck, Wallet, Heart, LayoutDashboard, Shield, HelpCircle,
-  FileText, MessageSquare, Star, Download
+  FileText, MessageSquare, Star
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,6 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
     { label: "Nous contacter", href: "/contact", icon: Phone },
     { label: "Support", href: "/support", icon: MessageSquare },
     { label: "Conditions d'utilisation", href: "/terms", icon: FileText },
-    { label: "Installer l'app", href: "/install", icon: Download },
   ];
 
   const socialLinks = [
@@ -211,9 +210,6 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
             </Link>
             <Link to="/terms" className="text-sm text-background/50 hover:text-primary transition-colors">
               Mentions légales
-            </Link>
-            <Link to="/install" className="text-sm text-background/50 hover:text-primary transition-colors flex items-center gap-1">
-              <Download className="w-3 h-3" /> Installer l'app
             </Link>
           </div>
         </div>
