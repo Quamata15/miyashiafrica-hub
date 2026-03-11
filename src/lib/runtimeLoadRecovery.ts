@@ -7,8 +7,19 @@ const CHUNK_ERROR_PATTERNS = [
 
 const CLEANUP_FLAG = "miyashi_legacy_pwa_cleanup_v1";
 const RECOVERY_FLAG = "miyashi_chunk_recovery_once";
+const RECOVERY_QUERY_FLAG = "app_recovery_done";
 
-const canUseStorage = (storage: Storage) => {
+const getStorage = (type: "local" | "session"): Storage | null => {
+  try {
+    return type === "local" ? window.localStorage : window.sessionStorage;
+  } catch {
+    return null;
+  }
+};
+
+const canUseStorage = (storage: Storage | null) => {
+  if (!storage) return false;
+
   try {
     const key = "__storage_check__";
     storage.setItem(key, "1");
@@ -35,22 +46,30 @@ const clearLegacyPwaState = async () => {
     }
   };
 
-  if (!canUseStorage(localStorage)) {
+  const localStorageRef = getStorage("local");
+
+  if (!canUseStorage(localStorageRef)) {
     await cleanup();
     return;
   }
 
-  if (localStorage.getItem(CLEANUP_FLAG) === "done") return;
+  if (localStorageRef.getItem(CLEANUP_FLAG) === "done") return;
 
   await cleanup();
-  localStorage.setItem(CLEANUP_FLAG, "done");
+  localStorageRef.setItem(CLEANUP_FLAG, "done");
 };
 
 const recoverAppLoad = async (reason: string) => {
-  if (!canUseStorage(sessionStorage)) return;
-  if (sessionStorage.getItem(RECOVERY_FLAG) === "done") return;
+  const currentUrl = new URL(window.location.href);
 
-  sessionStorage.setItem(RECOVERY_FLAG, "done");
+  if (currentUrl.searchParams.get(RECOVERY_QUERY_FLAG) === "1") return;
+
+  const sessionStorageRef = getStorage("session");
+  if (canUseStorage(sessionStorageRef) && sessionStorageRef?.getItem(RECOVERY_FLAG) === "done") return;
+
+  if (canUseStorage(sessionStorageRef)) {
+    sessionStorageRef?.setItem(RECOVERY_FLAG, "done");
+  }
 
   try {
     await clearLegacyPwaState();
@@ -58,10 +77,10 @@ const recoverAppLoad = async (reason: string) => {
     // Ignore cleanup failures and still force a cache-busted reload.
   }
 
-  const url = new URL(window.location.href);
-  url.searchParams.set("recovery", Date.now().toString());
-  url.searchParams.set("reason", reason);
-  window.location.replace(url.toString());
+  currentUrl.searchParams.set("recovery", Date.now().toString());
+  currentUrl.searchParams.set("reason", reason);
+  currentUrl.searchParams.set(RECOVERY_QUERY_FLAG, "1");
+  window.location.replace(currentUrl.toString());
 };
 
 export const installRuntimeLoadRecovery = () => {
