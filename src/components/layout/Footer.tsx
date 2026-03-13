@@ -55,7 +55,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   ];
 
   return (
-    <footer ref={ref} className="bg-foreground text-background relative overflow-hidden">
+    <footer className="bg-foreground text-background relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />

@@ -24,10 +24,10 @@ const FreelanceProfiles = () => {
   }, []);
 
   const fetchFreelancers = async () => {
-    const { data: freelanceData, error: freelanceError } = await (supabase
-      .from("freelance_profiles_public" as any)
+    const { data: freelanceData, error: freelanceError } = await supabase
+      .from("freelance_profiles")
       .select("*")
-      .eq("availability", "available")) as any;
+      .eq("availability", "available");
 
     if (freelanceError || !freelanceData) {
       setLoading(false);

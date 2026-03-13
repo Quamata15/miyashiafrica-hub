@@ -73,44 +73,41 @@
   }
 
   .dark {
-    --background: 25 12% 7%;
-    --foreground: 38 20% 90%;
+    --background: 0 0% 6%;
+    --foreground: 33 40% 93%;
 
-    --card: 25 12% 11%;
-    --card-foreground: 38 20% 90%;
+    --card: 25 15% 12%;
+    --card-foreground: 33 40% 93%;
 
-    --popover: 25 12% 11%;
-    --popover-foreground: 38 20% 90%;
+    --popover: 25 15% 12%;
+    --popover-foreground: 33 40% 93%;
 
     --primary: 43 93% 49%;
     --primary-foreground: 0 0% 6%;
 
-    --secondary: 27 90% 42%;
+    --secondary: 27 100% 45%;
     --secondary-foreground: 38 45% 96%;
 
-    --muted: 25 12% 16%;
-    --muted-foreground: 33 15% 55%;
+    --muted: 25 15% 18%;
+    --muted-foreground: 33 20% 60%;
 
-    --accent: 152 60% 36%;
+    --accent: 152 70% 39%;
     --accent-foreground: 38 45% 96%;
 
     --destructive: 14 70% 45%;
     --destructive-foreground: 38 45% 96%;
 
-    --info: 210 50% 55%;
-    --info-foreground: 0 0% 100%;
-
-    --border: 25 10% 20%;
-    --input: 25 10% 20%;
+    --border: 25 15% 22%;
+    --input: 25 15% 22%;
     --ring: 43 93% 49%;
 
-    --sidebar-background: 25 12% 9%;
-    --sidebar-foreground: 38 20% 90%;
+    --sidebar-background: 25 15% 10%;
+    --sidebar-foreground: 33 40% 93%;
     --sidebar-primary: 43 93% 49%;
     --sidebar-primary-foreground: 0 0% 6%;
-    --sidebar-accent: 25 12% 16%;
-    --sidebar-accent-foreground: 38 20% 90%;
-    --sidebar-border: 25 10% 20%;
+    --sidebar-accent: 25 15% 18%;
+    --sidebar-accent-foreground: 33 40% 93%;
+    --sidebar-border: 25 15% 22%;
     --sidebar-ring: 43 93% 49%;
   }
 }
@@ -120,30 +117,14 @@
     @apply border-border;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', 'Open Sans', system-ui, sans-serif;
-    -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', 'Montserrat', system-ui, sans-serif;
     letter-spacing: -0.01em;
-  }
-
-  /* Improved focus states for accessibility */
-  :focus-visible {
-    @apply outline-2 outline-offset-2 outline-ring;
-  }
-
-  /* Better selection color */
-  ::selection {
-    background: hsl(var(--primary) / 0.2);
-    color: hsl(var(--foreground));
   }
 }
 
