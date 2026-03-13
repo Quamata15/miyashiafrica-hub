@@ -237,12 +237,16 @@ export const useChat = () => {
   }, [user, selectedConversation, fetchConversations]);
 
   // Typing indicator via presence
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
   useEffect(() => {
     if (!selectedConversation || !user) return;
 
     const channel = supabase.channel(`typing-${selectedConversation.id}`, {
       config: { presence: { key: user.id } },
     });
+
+    typingChannelRef.current = channel;
 
     channel
       .on("presence", { event: "sync" }, () => {
@@ -255,19 +259,31 @@ export const useChat = () => {
         );
         setOtherUserTyping(isOtherTyping);
       })
-      .subscribe();
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({ typing: false });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
+      typingChannelRef.current = null;
     };
   }, [selectedConversation, user]);
 
-  const sendTypingIndicator = useCallback(() => {
-    if (!selectedConversation || !user) return;
+  const sendTypingIndicator = useCallback(async () => {
+    if (!selectedConversation || !user || !typingChannelRef.current) return;
     
-    setIsTyping(true);
+    // Push typing=true to presence
+    await typingChannelRef.current.track({ typing: true });
+
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 2000);
+    typingTimeoutRef.current = setTimeout(async () => {
+      // Push typing=false after 2s of inactivity
+      if (typingChannelRef.current) {
+        await typingChannelRef.current.track({ typing: false });
+      }
+    }, 2000);
   }, [selectedConversation, user]);
 
   return {

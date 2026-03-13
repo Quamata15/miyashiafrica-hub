@@ -73,12 +73,16 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
   const allItems = [...mainItems, ...sellerItems, ...providerItems, ...marketingItems, ...deliveryItems];
 
   return (
-    <aside className={cn(
-      "bg-card border-r border-border flex flex-col h-full transition-all duration-300",
-      collapsed ? "w-16" : "w-64"
-    )}>
+    <aside
+      aria-label="Navigation du tableau de bord"
+      role="navigation"
+      className={cn(
+        "bg-card border-r border-border flex flex-col h-full transition-all duration-300",
+        collapsed ? "w-16" : "w-64"
+      )}
+    >
       {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav aria-label="Menu principal" className="flex-1 p-3 space-y-1 overflow-y-auto">
         <p className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-3", collapsed && "sr-only")}>
           Navigation
         </p>
@@ -115,9 +119,11 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
             <button
               key={action.label}
               onClick={action.action}
+              aria-label={collapsed ? action.label : undefined}
+              title={collapsed ? action.label : undefined}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
             >
-              <action.icon className="h-4 w-4 shrink-0" />
+              <action.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span>{action.label}</span>}
             </button>
           ))}
