@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, ArrowRight, Package, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 interface Product {
   id: string;
@@ -29,53 +28,34 @@ const FeaturedSection = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasLoaded, setHasLoaded] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    if (hasLoaded) return;
+    const fetchFeatured = async () => {
+      try {
+        const [productsRes, servicesRes] = await Promise.all([
+          supabase
+            .from("products")
+            .select("id, title, price, images, location")
+            .eq("is_active", true)
+            .limit(4),
+          supabase
+            .from("services")
+            .select("id, title, price, price_type, images")
+            .eq("is_active", true)
+            .limit(4),
+        ]);
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          fetchFeatured();
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "300px" }
-    );
+        setProducts(productsRes.data || []);
+        setServices(servicesRes.data || []);
+      } catch (error) {
+        console.error("Error fetching featured items:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasLoaded]);
-
-  const fetchFeatured = async () => {
-    try {
-      const [productsRes, servicesRes] = await Promise.all([
-        supabase
-          .from("products")
-          .select("id, title, price, images, location")
-          .eq("is_active", true)
-          .limit(4),
-        supabase
-          .from("services")
-          .select("id, title, price, price_type, images")
-          .eq("is_active", true)
-          .limit(4),
-      ]);
-
-      setProducts(productsRes.data || []);
-      setServices(servicesRes.data || []);
-    } catch (error) {
-      console.error("Error fetching featured items:", error);
-    } finally {
-      setLoading(false);
-      setHasLoaded(true);
-    }
-  };
+    fetchFeatured();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -91,7 +71,7 @@ const FeaturedSection = () => {
   };
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-background">
+    <section className="py-16 md:py-24 bg-background">
       <div className="container">
         {/* Featured Products */}
         <div className="mb-16">
@@ -144,12 +124,8 @@ const FeaturedSection = () => {
                         <div className="aspect-square bg-muted relative overflow-hidden">
                           {product.images?.[0] ? (
                             <img
-                              src={getOptimizedImageUrl(product.images[0], 400, 400)}
+                              src={product.images[0]}
                               alt={product.title}
-                              width={400}
-                              height={400}
-                              loading="lazy"
-                              decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (
@@ -235,12 +211,8 @@ const FeaturedSection = () => {
                         <div className="aspect-video bg-muted relative overflow-hidden">
                           {service.images?.[0] ? (
                             <img
-                              src={getOptimizedImageUrl(service.images[0], 400, 225)}
+                              src={service.images[0]}
                               alt={service.title}
-                              width={400}
-                              height={225}
-                              loading="lazy"
-                              decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                             />
                           ) : (

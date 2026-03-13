@@ -118,7 +118,10 @@ const Auth = () => {
       // Assign the selected role after signup
       const { data: { user: newUser } } = await supabase.auth.getUser();
       if (newUser) {
-        await supabase.rpc("assign_own_role" as any, { p_role: signupRole });
+        await supabase.from("user_roles").insert({
+          user_id: newUser.id,
+          role: signupRole,
+        });
 
         // Apply referral code if provided
         if (referralCode.trim()) {

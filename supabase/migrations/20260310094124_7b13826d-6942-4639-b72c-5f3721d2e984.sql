@@ -1,1 +1,0 @@
-DROP POLICY IF EXISTS "Driver profiles viewable by everyone" ON public.driver_profiles;

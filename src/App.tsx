@@ -10,7 +10,6 @@ import { FavoritesProvider } from "@/hooks/useFavorites";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import SkipToContent from "@/components/layout/SkipToContent";
 
 // Lazy-loaded pages
 const Index = lazy(() => import("./pages/Index"));
@@ -41,7 +40,7 @@ const Boost = lazy(() => import("./pages/Boost"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Disputes = lazy(() => import("./pages/Disputes"));
-
+const Install = lazy(() => import("./pages/Install"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile"));
 const UserFollows = lazy(() => import("./pages/UserFollows"));
@@ -62,9 +61,7 @@ const App = () => (
               <Toaster />
               <Sonner />
               <BrowserRouter>
-                <SkipToContent />
                 <Suspense fallback={<LoadingSpinner />}>
-                  <main id="main-content">
                   <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
@@ -80,7 +77,7 @@ const App = () => (
                     <Route path="/help" element={<HelpCenter />} />
                     <Route path="/help/:slug" element={<HelpGuide />} />
                     <Route path="/support" element={<Support />} />
-                    
+                    <Route path="/install" element={<Install />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/user/:userId" element={<PublicProfile />} />
                     <Route path="/user/:userId/follows" element={<UserFollows />} />
@@ -108,7 +105,6 @@ const App = () => (
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
-                  </main>
                 </Suspense>
               </BrowserRouter>
             </TooltipProvider>

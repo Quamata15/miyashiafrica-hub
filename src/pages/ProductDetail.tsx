@@ -25,7 +25,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Tables } from "@/integrations/supabase/types";
 import ReportDialog from "@/components/reports/ReportDialog";
 import PlatformProtectionBanner from "@/components/trust/PlatformProtectionBanner";
-import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 type Product = Tables<"products">;
 
@@ -203,10 +202,8 @@ const ProductDetail = () => {
                   >
                     {images[activeImage] ? (
                       <img
-                        src={getOptimizedImageUrl(images[activeImage]!, 800, 800)}
+                        src={images[activeImage]}
                         alt={product.title}
-                        width={800}
-                        height={800}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -266,7 +263,7 @@ const ProductDetail = () => {
                       }`}
                     >
                       {img ? (
-                        <img src={getOptimizedImageUrl(img, 80, 80)} alt="" width={80} height={80} className="w-full h-full object-cover" />
+                        <img src={img} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full bg-muted flex items-center justify-center">
                           <Package className="h-6 w-6 text-muted-foreground" />

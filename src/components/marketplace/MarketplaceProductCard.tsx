@@ -1,4 +1,3 @@
-import { forwardRef, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +6,6 @@ import { Heart, Eye, ShoppingCart, Star, MapPin, Package, CheckCircle } from "lu
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
-import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 type Product = Tables<"products">;
 
@@ -27,14 +25,14 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-const MarketplaceProductCard = memo(forwardRef<HTMLDivElement, MarketplaceProductCardProps>(({
+const MarketplaceProductCard = ({
   product, viewMode, isFavorite: fav, toggleFavorite, addToCart,
   rating, isVerified, promotion,
-}, ref) => {
+}: MarketplaceProductCardProps) => {
   const navigate = useNavigate();
 
   return (
-    <motion.div ref={ref} variants={item} layout onClick={() => navigate(`/product/${product.id}`)}>
+    <motion.div variants={item} layout onClick={() => navigate(`/product/${product.id}`)}>
       <Card className={cn(
         "overflow-hidden cursor-pointer group transition-all duration-300 hover:shadow-elevated border-0 shadow-card",
         viewMode === "list" && "flex flex-row"
@@ -44,8 +42,7 @@ const MarketplaceProductCard = memo(forwardRef<HTMLDivElement, MarketplaceProduc
           viewMode === "grid" ? "aspect-square" : "w-48 h-48"
         )}>
           {product.images && product.images[0] ? (
-            <img src={getOptimizedImageUrl(product.images[0], 400, 400)} alt={product.title} loading="lazy"
-              width={400} height={400}
+            <img src={product.images[0]} alt={product.title} loading="lazy"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -138,8 +135,6 @@ const MarketplaceProductCard = memo(forwardRef<HTMLDivElement, MarketplaceProduc
       </Card>
     </motion.div>
   );
-}));
-
-MarketplaceProductCard.displayName = "MarketplaceProductCard";
+};
 
 export default MarketplaceProductCard;

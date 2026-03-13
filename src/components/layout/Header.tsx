@@ -118,11 +118,10 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
       <div className="container mx-auto">
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
-          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group" aria-label="MIYASHI - Accueil">
+          <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
             <motion.div 
               whileHover={{ scale: 1.05, rotate: 5 }}
               className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg"
-              aria-hidden="true"
             >
               <span className="font-display font-bold text-xl text-primary-foreground">M</span>
             </motion.div>
@@ -132,7 +131,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1" aria-label="Navigation principale">
+          <nav className="hidden lg:flex items-center gap-1">
             {publicLinks.map((link) => (
               <Link
                 key={link.label}
@@ -322,7 +321,6 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
             {user && <CartDrawer />}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
               className="p-2 rounded-xl hover:bg-muted transition-colors relative"
             >
               {totalBadge > 0 && user && (
