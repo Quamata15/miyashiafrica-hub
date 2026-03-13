@@ -4,7 +4,7 @@ import {
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
   Facebook, Twitter, Instagram, Linkedin, Youtube, ArrowUpRight,
   Truck, Wallet, Heart, LayoutDashboard, Shield, HelpCircle,
-  FileText, MessageSquare, Star, Download
+  FileText, MessageSquare, Star
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,6 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
     { label: "Nous contacter", href: "/contact", icon: Phone },
     { label: "Support", href: "/support", icon: MessageSquare },
     { label: "Conditions d'utilisation", href: "/terms", icon: FileText },
-    { label: "Installer l'app", href: "/install", icon: Download },
   ];
 
   const socialLinks = [
@@ -212,9 +211,6 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
             <Link to="/terms" className="text-sm text-background/50 hover:text-primary transition-colors">
               Mentions légales
             </Link>
-            <Link to="/install" className="text-sm text-background/50 hover:text-primary transition-colors flex items-center gap-1">
-              <Download className="w-3 h-3" /> Installer l'app
-            </Link>
           </div>
         </div>
       </div>
@@ -222,30 +218,32 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   );
 });
 
-const FooterColumn = ({ title, icon: Icon, links }: {
+const FooterColumn = forwardRef<HTMLDivElement, {
   title: string;
   icon: React.ElementType;
   links: { label: string; href: string; icon?: React.ElementType }[];
-}) => (
-  <div>
-    <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
-      <Icon className="w-4 h-4 text-primary" />
-      {title}
-    </h4>
-    <ul className="space-y-3">
-      {links.map((link) => (
-        <li key={link.label}>
-          <Link
-            to={link.href}
-            className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
-          >
-            {link.label}
-            <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-          </Link>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+}>(function FooterColumn({ title, icon: Icon, links }, ref) {
+  return (
+    <div ref={ref}>
+      <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+        <Icon className="w-4 h-4 text-primary" />
+        {title}
+      </h4>
+      <ul className="space-y-3">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link
+              to={link.href}
+              className="text-sm text-background/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
+            >
+              {link.label}
+              <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+});
 
 export default Footer;

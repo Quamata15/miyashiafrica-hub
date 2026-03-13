@@ -26,7 +26,7 @@ import { motion } from "framer-motion";
 import type { Tables } from "@/integrations/supabase/types";
 import KYCVerification from "@/components/kyc/KYCVerification";
 import ThemeToggle from "@/components/theme/ThemeToggle";
-import PushNotificationToggle from "@/components/notifications/PushNotificationToggle";
+
 import ReferralCard from "@/components/referral/ReferralCard";
 
 type ProfileType = Tables<"profiles">;
@@ -118,7 +118,7 @@ const Profile = () => {
 
   const handleAddRole = async (role: UserRole) => {
     if (!user || userRoles.includes(role)) return;
-    const { error } = await supabase.from("user_roles").insert({ user_id: user.id, role });
+    const { error } = await supabase.rpc("assign_own_role" as any, { p_role: role });
     if (!error) {
       setUserRoles([...userRoles, role]);
       toast({ title: "Rôle ajouté", description: `Vous êtes maintenant ${ROLE_CONFIG[role]?.label}` });
@@ -391,16 +391,6 @@ const Profile = () => {
                           <p className="text-sm font-medium">Email</p>
                           <p className="text-xs text-muted-foreground">{user?.email}</p>
                         </div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Bell className="h-4 w-4 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">Notifications push</p>
-                          <p className="text-xs text-muted-foreground">Recevez des alertes pour vos commandes et messages</p>
-                        </div>
-                        <PushNotificationToggle />
                       </div>
                       <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
