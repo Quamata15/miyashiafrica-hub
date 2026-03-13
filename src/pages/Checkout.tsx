@@ -6,17 +6,18 @@ import { useCart } from "@/hooks/useCart";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag, Tag } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CreditCard, Smartphone, Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag, Tag, X } from "lucide-react";
 import { motion } from "framer-motion";
-import CheckoutOrderSummary from "@/components/checkout/CheckoutOrderSummary";
-import CheckoutPromoCode, { type AppliedPromo } from "@/components/checkout/CheckoutPromoCode";
-import CheckoutPaymentForm from "@/components/checkout/CheckoutPaymentForm";
+import { paymentsByCountry } from "@/utils/paymentMethods";
 
 interface OrderItem {
   productId?: string;
@@ -27,6 +28,14 @@ interface OrderItem {
   quantity: number;
 }
 
+interface AppliedPromo {
+  id: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  seller_id: string;
+}
+
 const Checkout = () => {
   const { user } = useAuth();
   const { items, totalPrice, clearCart } = useCart();
@@ -34,7 +43,9 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // Support direct order via query params OR cart
   const directAmount = parseInt(searchParams.get("amount") || "0");
+  const directOrderId = searchParams.get("order");
   const directProductId = searchParams.get("product");
   const directSellerId = searchParams.get("seller");
   const directQty = parseInt(searchParams.get("qty") || "1");
@@ -45,6 +56,8 @@ const Checkout = () => {
   const [shippingAddress, setShippingAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Promo code state
   const [promoInput, setPromoInput] = useState("");
   const [promoLoading, setPromoLoading] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<AppliedPromo | null>(null);
@@ -53,6 +66,7 @@ const Checkout = () => {
   const baseAmount = isDirectOrder ? directAmount : totalPrice;
   const hasItems = isDirectOrder || items.length > 0;
 
+  // Calculate discount
   const discount = appliedPromo
     ? appliedPromo.discount_type === "percentage"
       ? Math.round(baseAmount * appliedPromo.discount_value / 100)
@@ -60,7 +74,12 @@ const Checkout = () => {
     : 0;
   const checkoutAmount = baseAmount - discount;
 
-  useEffect(() => { if (!user) navigate("/auth"); }, [user, navigate]);
+  useEffect(() => {
+    if (!user) navigate("/auth");
+  }, [user, navigate]);
+
+  const countryData = paymentsByCountry[country];
+  const methods = countryData?.methods || [];
 
   const applyPromoCode = async () => {
     const code = promoInput.trim().toUpperCase();
@@ -68,8 +87,11 @@ const Checkout = () => {
     setPromoLoading(true);
 
     const { data, error } = await (supabase.from("promo_codes") as any)
-      .select("*").eq("code", code).eq("is_active", true)
-      .gt("expires_at", new Date().toISOString()).maybeSingle();
+      .select("*")
+      .eq("code", code)
+      .eq("is_active", true)
+      .gt("expires_at", new Date().toISOString())
+      .maybeSingle();
 
     setPromoLoading(false);
 
@@ -77,18 +99,34 @@ const Checkout = () => {
       toast({ title: "Code invalide", description: "Ce code promo n'existe pas ou a expiré", variant: "destructive" });
       return;
     }
+
     if (data.max_uses && data.used_count >= data.max_uses) {
       toast({ title: "Code expiré", description: "Ce code promo a atteint sa limite d'utilisation", variant: "destructive" });
       return;
     }
+
     if (data.min_order_amount && baseAmount < data.min_order_amount) {
-      toast({ title: "Montant minimum requis", description: `Commande minimum de ${Number(data.min_order_amount).toLocaleString()} FCFA`, variant: "destructive" });
+      toast({
+        title: "Montant minimum requis",
+        description: `Commande minimum de ${Number(data.min_order_amount).toLocaleString()} FCFA pour ce code`,
+        variant: "destructive"
+      });
       return;
     }
 
-    setAppliedPromo({ id: data.id, code: data.code, discount_type: data.discount_type, discount_value: data.discount_value, seller_id: data.seller_id });
+    setAppliedPromo({
+      id: data.id,
+      code: data.code,
+      discount_type: data.discount_type,
+      discount_value: data.discount_value,
+      seller_id: data.seller_id,
+    });
     setPromoInput("");
     toast({ title: "Code appliqué! 🎉", description: `Réduction de ${data.discount_type === "percentage" ? `${data.discount_value}%` : `${Number(data.discount_value).toLocaleString()}F`}` });
+  };
+
+  const removePromo = () => {
+    setAppliedPromo(null);
   };
 
   const handlePayment = async () => {
@@ -103,10 +141,19 @@ const Checkout = () => {
     }
 
     setLoading(true);
+
     try {
+      // Build order items
       let orderItems: OrderItem[] = [];
+
       if (isDirectOrder) {
-        orderItems = [{ productId: directProductId || undefined, sellerId: directSellerId!, title: "Commande directe", price: directAmount, quantity: directQty }];
+        orderItems = [{
+          productId: directProductId || undefined,
+          sellerId: directSellerId!,
+          title: "Commande directe",
+          price: directAmount,
+          quantity: directQty,
+        }];
       } else {
         orderItems = items.map(item => {
           const data = item.product || item.service;
@@ -121,31 +168,71 @@ const Checkout = () => {
         });
       }
 
-      let lastOrderId = "";
-      let lastTotal = 0;
-
+      // Create orders for each item/seller
       for (const orderItem of orderItems) {
-        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order" as any, {
-          p_product_id: orderItem.productId || null,
-          p_service_id: orderItem.serviceId || null,
-          p_quantity: orderItem.quantity,
-          p_shipping_address: shippingAddress,
-          p_notes: notes || null,
-          p_payment_method: paymentMethod,
-          p_phone: phone || null,
-          p_promo_code: appliedPromo?.code || null,
+        let totalItemPrice = orderItem.price * orderItem.quantity;
+
+        // Apply discount proportionally if promo code used
+        if (discount > 0 && baseAmount > 0) {
+          const ratio = totalItemPrice / baseAmount;
+          totalItemPrice = Math.round(totalItemPrice - (discount * ratio));
+        }
+
+        // 1. Create order
+        const { data: order, error: orderErr } = await supabase.from("orders").insert({
+          buyer_id: user.id,
+          seller_id: orderItem.sellerId,
+          product_id: orderItem.productId || null,
+          service_id: orderItem.serviceId || null,
+          quantity: orderItem.quantity,
+          total_price: totalItemPrice,
+          status: "pending",
+          payment_status: "paid",
+          shipping_address: shippingAddress,
+          notes: appliedPromo ? `${notes || ""} [Code promo: ${appliedPromo.code}]`.trim() : notes || null,
+        }).select("id").single();
+
+        if (orderErr || !order) throw orderErr;
+
+        // 2. Create payment record
+        await (supabase.from("payments") as any).insert({
+          order_id: order.id,
+          payer_id: user.id,
+          amount: totalItemPrice,
+          payment_method: paymentMethod,
+          status: "completed",
+          metadata: { phone, promo_code: appliedPromo?.code || null },
         });
-        if (rpcErr) throw new Error(rpcErr.message);
-        const res = result as any;
-        if (!res?.success) throw new Error(res?.error || "Erreur lors de la création de la commande");
-        lastOrderId = res.order_id;
-        lastTotal = res.total_price;
+
+        // 3. Create escrow (funds held until delivery confirmed)
+        await (supabase.from("escrow_transactions") as any).insert({
+          order_id: order.id,
+          payer_id: user.id,
+          total_amount: totalItemPrice,
+          seller_amount: totalItemPrice * 0.9,
+          platform_commission: totalItemPrice * 0.1,
+          status: "held",
+        });
       }
 
-      if (!isDirectOrder) await clearCart();
+      // Increment promo code used_count
+      if (appliedPromo) {
+        await (supabase.from("promo_codes") as any)
+          .update({ used_count: (await (supabase.from("promo_codes") as any).select("used_count").eq("id", appliedPromo.id).single()).data?.used_count + 1 })
+          .eq("id", appliedPromo.id);
+      }
+
+      // Clear cart if using cart checkout
+      if (!isDirectOrder) {
+        await clearCart();
+      }
+
       setLoading(false);
-      toast({ title: "Paiement réussi! ✅", description: "Vos fonds sont sécurisés." });
-      navigate(`/order-success?order=${lastOrderId}&total=${lastTotal}`);
+      toast({ title: "Paiement réussi! ✅", description: "Vos fonds sont sécurisés. Choisissez un livreur." });
+
+      // Navigate to driver selection for last order
+      navigate("/select-driver?order=latest");
+
     } catch (error: any) {
       setLoading(false);
       toast({ title: "Erreur de paiement", description: error?.message || "Une erreur est survenue", variant: "destructive" });
@@ -162,7 +249,9 @@ const Checkout = () => {
               <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
               <h2 className="text-2xl font-display font-bold mb-2">Panier vide</h2>
               <p className="text-muted-foreground mb-6">Ajoutez des articles avant de passer commande</p>
-              <Button onClick={() => navigate("/marketplace")} className="bg-gradient-hero">Voir les produits</Button>
+              <Button onClick={() => navigate("/marketplace")} className="bg-gradient-hero">
+                Voir les produits
+              </Button>
             </CardContent>
           </Card>
         </main>
@@ -185,39 +274,175 @@ const Checkout = () => {
               <p className="text-muted-foreground mt-2">Vos fonds sont protégés par notre système d'escrow</p>
             </div>
 
-            {!isDirectOrder && <CheckoutOrderSummary items={items} />}
+            {/* Order Summary */}
+            {!isDirectOrder && items.length > 0 && (
+              <Card className="border-0 shadow-card mb-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingBag className="w-5 h-5" /> Récapitulatif ({items.length} articles)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {items.map(item => {
+                    const data = item.product || item.service;
+                    if (!data) return null;
+                    return (
+                      <div key={item.id} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden">
+                            {data.images?.[0] ? (
+                              <img src={data.images[0]} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ShoppingBag className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium line-clamp-1">{data.title}</p>
+                            <p className="text-muted-foreground">x{item.quantity}</p>
+                          </div>
+                        </div>
+                        <span className="font-semibold">{((data.price || 0) * item.quantity).toLocaleString()} F</span>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
 
-            <CheckoutPromoCode
-              promoInput={promoInput} setPromoInput={setPromoInput}
-              promoLoading={promoLoading} appliedPromo={appliedPromo}
-              onApply={applyPromoCode} onRemove={() => setAppliedPromo(null)}
-            />
+            {/* Promo Code */}
+            <Card className="border-0 shadow-card mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Tag className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Code promo</span>
+                </div>
+                {appliedPromo ? (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-accent/10 border border-accent/20">
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-accent text-accent-foreground font-mono">
+                        {appliedPromo.code}
+                      </Badge>
+                      <span className="text-sm text-accent-foreground font-medium">
+                        -{appliedPromo.discount_type === "percentage"
+                          ? `${appliedPromo.discount_value}%`
+                          : `${Number(appliedPromo.discount_value).toLocaleString()}F`}
+                      </span>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={removePromo}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Entrez votre code promo"
+                      value={promoInput}
+                      onChange={e => setPromoInput(e.target.value.toUpperCase())}
+                      onKeyDown={e => e.key === "Enter" && applyPromoCode()}
+                      className="h-10 font-mono uppercase"
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={applyPromoCode}
+                      disabled={promoLoading || !promoInput.trim()}
+                      className="shrink-0"
+                    >
+                      {promoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Appliquer"}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Shipping Address */}
             <Card className="border-0 shadow-card mb-6">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <MapPin className="w-5 h-5" />
-                  <span className="font-semibold">Adresse de livraison</span>
-                </div>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="w-5 h-5" /> Adresse de livraison
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
                 <div className="space-y-2">
                   <Label>Adresse complète</Label>
-                  <Input placeholder="Quartier, rue, repère..." value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)} className="h-12" />
+                  <Input
+                    placeholder="Quartier, rue, repère..."
+                    value={shippingAddress}
+                    onChange={e => setShippingAddress(e.target.value)}
+                    className="h-12"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Notes (optionnel)</Label>
-                  <Textarea placeholder="Instructions spéciales pour la livraison..." value={notes}
-                    onChange={(e) => setNotes(e.target.value)} rows={2} />
+                  <Textarea
+                    placeholder="Instructions spéciales pour la livraison..."
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    rows={2}
+                  />
                 </div>
               </CardContent>
             </Card>
 
-            <CheckoutPaymentForm
-              country={country} setCountry={setCountry}
-              paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod}
-              phone={phone} setPhone={setPhone}
-            />
+            <Card className="border-0 shadow-elevated mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" /> Moyen de paiement
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Country selector */}
+                <div className="mb-4 space-y-2">
+                  <Label>Pays</Label>
+                  <Select value={country} onValueChange={(v) => { setCountry(v); setPaymentMethod(paymentsByCountry[v]?.methods[0]?.id || "card"); }}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(paymentsByCountry).map(([key, c]) => (
+                        <SelectItem key={key} value={key}>{c.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                  {methods.map(m => (
+                    <div key={m.id} className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all ${paymentMethod === m.id ? "border-primary bg-primary/5" : "border-border"}`}>
+                      <RadioGroupItem value={m.id} id={`checkout-${m.id}`} />
+                      <label htmlFor={`checkout-${m.id}`} className="flex items-center gap-3 cursor-pointer flex-1">
+                        <span className="text-2xl">{m.icon}</span>
+                        <p className="font-medium">{m.label}</p>
+                      </label>
+                    </div>
+                  ))}
+                </RadioGroup>
+
+                {paymentMethod !== "card" && (
+                  <div className="mt-4 space-y-2">
+                    <Label>Numéro de téléphone</Label>
+                    <div className="flex gap-2">
+                      <Input value={countryData?.prefix || "+228"} disabled className="w-20" />
+                      <Input placeholder="XX XX XX XX" value={phone} onChange={e => setPhone(e.target.value)} className="h-12" />
+                    </div>
+                  </div>
+                )}
+
+                {paymentMethod === "card" && (
+                  <div className="mt-4 space-y-3">
+                    <div className="space-y-2">
+                      <Label>Numéro de carte</Label>
+                      <Input placeholder="XXXX XXXX XXXX XXXX" className="h-12" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2"><Label>Expiration</Label><Input placeholder="MM/AA" /></div>
+                      <div className="space-y-2"><Label>CVV</Label><Input placeholder="XXX" type="password" /></div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Total */}
             <Card className="border-0 shadow-card mb-6">
@@ -243,7 +468,9 @@ const Checkout = () => {
                   <span className="font-bold text-lg">Total</span>
                   <div className="text-right">
                     {discount > 0 && (
-                      <span className="text-sm text-muted-foreground line-through block">{baseAmount.toLocaleString()} FCFA</span>
+                      <span className="text-sm text-muted-foreground line-through block">
+                        {baseAmount.toLocaleString()} FCFA
+                      </span>
                     )}
                     <span className="font-bold text-2xl text-primary">{checkoutAmount.toLocaleString()} FCFA</span>
                   </div>

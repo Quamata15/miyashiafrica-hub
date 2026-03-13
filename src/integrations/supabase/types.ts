@@ -2208,19 +2208,6 @@ export type Database = {
         Args: { p_order_id: string }
         Returns: undefined
       }
-      create_secure_order: {
-        Args: {
-          p_notes?: string
-          p_payment_method?: string
-          p_phone?: string
-          p_product_id?: string
-          p_promo_code?: string
-          p_quantity?: number
-          p_service_id?: string
-          p_shipping_address?: string
-        }
-        Returns: Json
-      }
       debit_wallet:
         | { Args: { p_amount: number }; Returns: undefined }
         | {
@@ -2309,10 +2296,6 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
-      }
-      validate_and_use_promo: {
-        Args: { p_code: string; p_order_amount: number }
-        Returns: Json
       }
       verify_admin_access: { Args: never; Returns: boolean }
     }
