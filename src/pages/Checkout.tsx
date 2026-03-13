@@ -67,7 +67,7 @@ const Checkout = () => {
     if (!code) return;
     setPromoLoading(true);
 
-    const { data, error } = await (supabase.from("promo_codes") as any)
+    const { data, error } = await supabase.from("promo_codes")
       .select("*").eq("code", code).eq("is_active", true)
       .gt("expires_at", new Date().toISOString()).maybeSingle();
 
@@ -113,7 +113,7 @@ const Checkout = () => {
           return {
             productId: item.product_id || undefined,
             serviceId: item.service_id || undefined,
-            sellerId: (item.product as any)?.seller_id || (item.service as any)?.provider_id || user.id,
+            sellerId: (item.product as unknown as { seller_id: string } | null)?.seller_id || (item.service as unknown as { provider_id: string } | null)?.provider_id || user.id,
             title: data?.title || "Article",
             price: data?.price || 0,
             quantity: item.quantity,
@@ -125,7 +125,7 @@ const Checkout = () => {
       let lastTotal = 0;
 
       for (const orderItem of orderItems) {
-        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order" as any, {
+        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order", {
           p_product_id: orderItem.productId || null,
           p_service_id: orderItem.serviceId || null,
           p_quantity: orderItem.quantity,
@@ -136,10 +136,10 @@ const Checkout = () => {
           p_promo_code: appliedPromo?.code || null,
         });
         if (rpcErr) throw new Error(rpcErr.message);
-        const res = result as any;
-        if (!res?.success) throw new Error(res?.error || "Erreur lors de la création de la commande");
-        lastOrderId = res.order_id;
-        lastTotal = res.total_price;
+        const res = result as Record<string, unknown> | null;
+        if (!res?.success) throw new Error((res?.error as string) || "Erreur lors de la création de la commande");
+        lastOrderId = res.order_id as string;
+        lastTotal = res.total_price as number;
       }
 
       if (!isDirectOrder) await clearCart();

@@ -6,6 +6,7 @@ import { Heart, Eye, ShoppingCart, Star, MapPin, Package, CheckCircle } from "lu
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { Tables } from "@/integrations/supabase/types";
+import { getOptimizedImageUrl } from "@/utils/imageOptimization";
 
 type Product = Tables<"products">;
 
@@ -42,7 +43,8 @@ const MarketplaceProductCard = ({
           viewMode === "grid" ? "aspect-square" : "w-48 h-48"
         )}>
           {product.images && product.images[0] ? (
-            <img src={product.images[0]} alt={product.title} loading="lazy"
+            <img src={getOptimizedImageUrl(product.images[0], 400, 400)} alt={product.title} loading="lazy"
+              width={400} height={400}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

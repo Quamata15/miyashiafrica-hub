@@ -321,6 +321,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
             {user && <CartDrawer />}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
               className="p-2 rounded-xl hover:bg-muted transition-colors relative"
             >
               {totalBadge > 0 && user && (
