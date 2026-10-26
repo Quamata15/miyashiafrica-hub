@@ -168,41 +168,22 @@ const Boost = () => {
     }
     setLoading(true);
 
-    const expiresAt = new Date();
     const p = periods.find(x => x.id === period)!;
-    expiresAt.setDate(expiresAt.getDate() + p.days);
-
-    const boostData: any = {
-      user_id: user.id,
-      boost_type: boostType,
-      target_id: targetId || user.id,
-      target_name: selectedItem?.title || "Mon profil",
-      zone_radius_km: radius[0],
-      period,
-      price_paid: p.price,
-      expires_at: expiresAt.toISOString(),
-      description: boostDescription || null,
-      creative_url: useCreative ? creativeUrl : null,
-      creative_type: useCreative ? creativeType : "none",
-    };
-    if (selectedCampaign) boostData.campaign_id = selectedCampaign;
-
-    const { error } = await (supabase.from("boosts") as any).insert(boostData).select().single();
-
-    if (!error && selectedCampaign) {
-      const camp = campaigns.find(c => c.id === selectedCampaign);
-      if (camp) {
-        await (supabase.from("campaigns") as any)
-          .update({
-            budget_spent: Number(camp.budget_spent) + p.price,
-            boosts_count: (camp.boosts_count || 0) + 1,
-          }).eq("id", selectedCampaign);
-      }
-    }
+    const { error } = await (supabase.rpc as any)("purchase_boost", {
+      p_boost_type: boostType,
+      p_target_id: targetId || user.id,
+      p_target_name: selectedItem?.title || "Mon profil",
+      p_zone_radius_km: radius[0],
+      p_period: period,
+      p_description: boostDescription || null,
+      p_creative_url: useCreative ? creativeUrl : null,
+      p_creative_type: useCreative ? creativeType : "none",
+      p_campaign_id: selectedCampaign || null,
+    });
 
     setLoading(false);
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de créer le boost", variant: "destructive" });
+      toast({ title: "Erreur", description: error.message?.includes("Insufficient") ? "Solde du portefeuille insuffisant" : "Impossible de créer le boost", variant: "destructive" });
     } else {
       toast({ title: "Boost activé! 🚀", description: `Votre ${boostTypes.find(t => t.id === boostType)?.label} est maintenant boosté pour ${p.label}` });
       navigate("/dashboard");
