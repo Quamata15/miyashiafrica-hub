@@ -18,6 +18,7 @@ import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
+import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -156,7 +157,7 @@ const AdminDashboard = () => {
             <Tabs defaultValue="stats" className="space-y-4 md:space-y-6">
               {/* Mobile-friendly scrollable tabs */}
               <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-                <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-6 h-auto p-1 bg-muted/50">
+                <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-7 h-auto p-1 bg-muted/50">
                   <TabsTrigger value="stats" className="whitespace-nowrap text-xs sm:text-sm">
                     <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" /> Stats
                   </TabsTrigger>
@@ -176,6 +177,9 @@ const AdminDashboard = () => {
                   </TabsTrigger>
                   <TabsTrigger value="disputes" className="whitespace-nowrap text-xs sm:text-sm">
                     <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" /> Litiges
+                  </TabsTrigger>
+                  <TabsTrigger value="security" className="whitespace-nowrap text-xs sm:text-sm">
+                    <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" /> Sécurité
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -226,6 +230,10 @@ const AdminDashboard = () => {
 
               <TabsContent value="kyc">
                 <AdminKYCPanel docs={kycDocs} onRefresh={fetchAllData} />
+              </TabsContent>
+
+              <TabsContent value="security">
+                <AdminSecurityPanel />
               </TabsContent>
 
               <TabsContent value="reports">
