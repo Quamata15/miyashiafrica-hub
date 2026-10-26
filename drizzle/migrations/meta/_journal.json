@@ -15,6 +15,13 @@
       "when": 1793008115358,
       "tag": "0001_paid_boosts_and_private_follows",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793008188685,
+      "tag": "0002_restrict_public_bucket_listing",
+      "breakpoints": true
     }
   ]
 }
