@@ -35,7 +35,7 @@ export function exportOrdersCSV(orders: OrderData[], filename: string = "command
     o.payment_status || "—",
   ]);
 
-  const csvContent = [headers, ...rows].map((row) => row.map((v) => `"${v}"`).join(",")).join("\n");
+  const csvContent = [headers, ...rows].map((row) => row.map((v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g, '""')}"`; }).join(",")).join("\n");
   const BOM = "\uFEFF";
   const blob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
   downloadBlob(blob, `${filename}_${format(new Date(), "yyyyMMdd")}.csv`);
