@@ -47,7 +47,9 @@ const GlobalSearch = ({ className }: { className?: string }) => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [query]);
 
-  const search = async (q: string) => {
+  const search = async (rawQ: string) => {
+    const q = rawQ.replace(/[,()*%\\:."]/g, " ").trim();
+    if (!q) return;
     setLoading(true);
     setOpen(true);
 
