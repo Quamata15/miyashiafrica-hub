@@ -2297,6 +2297,20 @@ export type Database = {
         Args: { p_boost_id: string; p_metric?: string }
         Returns: undefined
       }
+      purchase_boost: {
+        Args: {
+          p_boost_type: string
+          p_campaign_id?: string
+          p_creative_type?: string
+          p_creative_url?: string
+          p_description?: string
+          p_period: string
+          p_target_id: string
+          p_target_name: string
+          p_zone_radius_km: number
+        }
+        Returns: string
+      }
       scan_shipping_label: { Args: { p_qr_token: string }; Returns: Json }
       search_products: {
         Args: {
