@@ -8,6 +8,13 @@
       "when": 1793007519819,
       "tag": "0000_security_hardening_ratings_loyalty_media",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793008115358,
+      "tag": "0001_paid_boosts_and_private_follows",
+      "breakpoints": true
     }
   ]
 }
