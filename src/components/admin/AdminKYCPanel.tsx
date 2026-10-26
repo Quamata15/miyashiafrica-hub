@@ -71,7 +71,7 @@ const AdminKYCPanel = ({ docs, onRefresh }: AdminKYCPanelProps) => {
         updates.rejection_reason = rejectionReasons[docId] || "Document non conforme";
       }
 
-      await supabase.from("kyc_documents").update(updates).eq("id", docId);
+      await supabase.from("kyc_documents").update(updates as { status?: string; reviewed_at?: string; rejection_reason?: string }).eq("id", docId);
 
       // Send notification to user
       const docLabel = DOC_TYPE_LABELS[docs.find(d => d.id === docId)?.document_type || ""] || "Document";
