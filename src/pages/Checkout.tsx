@@ -135,7 +135,7 @@ const Checkout = () => {
           p_phone: phone || null,
           p_promo_code: appliedPromo?.code || null,
         });
-        if (rpcErr) throw new Error(rpcErr.message);
+        if (rpcErr) throw new Error(rpcErr.message.includes("Insufficient wallet") ? "Solde du portefeuille insuffisant pour payer cette commande" : rpcErr.message);
         const res = result as Record<string, unknown> | null;
         if (!res?.success) throw new Error((res?.error as string) || "Erreur lors de la création de la commande");
         lastOrderId = res.order_id as string;
