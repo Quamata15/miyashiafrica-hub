@@ -43,6 +43,13 @@
       "when": 1793008844944,
       "tag": "0005_reviews_plans_signed_in_only",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793011150327,
+      "tag": "0006_security_audit_log",
+      "breakpoints": true
     }
   ]
 }

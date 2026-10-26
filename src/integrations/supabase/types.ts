@@ -1630,6 +1630,39 @@ export type Database = {
           },
         ]
       }
+      security_audit_log: {
+        Row: {
+          action: string
+          admin_email: string | null
+          admin_id: string
+          created_at: string
+          finding_id: string
+          finding_title: string | null
+          id: string
+          notes: string | null
+        }
+        Insert: {
+          action: string
+          admin_email?: string | null
+          admin_id?: string
+          created_at?: string
+          finding_id: string
+          finding_title?: string | null
+          id?: string
+          notes?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string | null
+          admin_id?: string
+          created_at?: string
+          finding_id?: string
+          finding_title?: string | null
+          id?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
       service_milestones: {
         Row: {
           completed_at: string | null
