@@ -36,6 +36,13 @@
       "when": 1793008678346,
       "tag": "0004_orders_paid_from_wallet",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793008844944,
+      "tag": "0005_reviews_plans_signed_in_only",
+      "breakpoints": true
     }
   ]
 }
