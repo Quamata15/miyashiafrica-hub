@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ReactMarkdownLite from "./SimpleMarkdown";
+import SimpleMarkdown from "./SimpleMarkdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -85,7 +85,7 @@ const AdminSecurityPanel = () => {
           </Button>
           {analysis && (
             <div className="rounded-lg border bg-muted/30 p-4 text-sm">
-              <ReactMarkdownLite text={analysis} />
+              <SimpleMarkdown text={analysis} />
             </div>
           )}
         </CardContent>
