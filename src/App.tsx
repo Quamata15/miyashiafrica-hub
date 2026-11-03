@@ -48,6 +48,7 @@ const Feed = lazy(() => import("./pages/Feed"));
 const HelpGuide = lazy(() => import("./pages/HelpGuide"));
 const Campaigns = lazy(() => import("./pages/Campaigns"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/product/:id" element={<ProductDetail />} />
                     <Route path="/services" element={<Services />} />
