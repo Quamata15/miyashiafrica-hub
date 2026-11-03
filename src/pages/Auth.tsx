@@ -15,6 +15,7 @@ import Footer from "@/components/layout/Footer";
 import { Loader2, Truck, ArrowLeft, Apple, ShoppingBag, Store, Briefcase } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { lovable } from "@/integrations/lovable/index";
+import { oauthReturnPath } from "@/lib/oauth-return-path";
 import { motion } from "framer-motion";
 
 const Auth = () => {
@@ -33,6 +34,9 @@ const Auth = () => {
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const rawNext = searchParams.get("next");
+  const nextPath = rawNext ? oauthReturnPath(rawNext) : null;
+  const nextUrl = nextPath ? new URL(nextPath, window.location.origin).href : window.location.origin;
 
   // Pre-fill referral code from URL
   useEffect(() => {
@@ -42,7 +46,7 @@ const Auth = () => {
 
   // Redirect if already logged in
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={nextPath ?? "/dashboard"} replace />;
   }
 
   const getRedirectPath = async (userId: string): Promise<string> => {
@@ -72,7 +76,7 @@ const Auth = () => {
         description: "Bienvenue sur MIYASHI !",
       });
       const { data: { user: loggedUser } } = await supabase.auth.getUser();
-      const path = loggedUser ? await getRedirectPath(loggedUser.id) : "/dashboard";
+      const path = nextPath ? nextPath : loggedUser ? await getRedirectPath(loggedUser.id) : "/dashboard";
       navigate(path);
     }
     setIsLoading(false);
@@ -106,7 +110,7 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signUp(signupEmail, signupPassword, signupFullName);
+    const { error } = await signUp(signupEmail, signupPassword, signupFullName, nextPath ? nextUrl : undefined);
     
     if (error) {
       toast({
@@ -139,7 +143,7 @@ const Auth = () => {
   const handleAppleSignIn = async () => {
     setIsLoading(true);
     const { error } = await lovable.auth.signInWithOAuth("apple", {
-      redirect_uri: window.location.origin,
+      redirect_uri: nextUrl,
     });
     if (error) {
       toast({
@@ -154,7 +158,7 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: nextUrl,
     });
     if (error) {
       toast({
