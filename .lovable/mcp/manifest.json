@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "sdk_version": "3.4.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://mfwjecyhnpmekoqvrrau.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "miyashi-march-africaine",
+      "version": "0.1.0",
+      "title": "MIYASHI  Marché Africaine"
+    },
+    "tools": [
+      {
+        "name": "search_products",
+        "title": "Rechercher des produits",
+        "description": "Search active MIYASHI marketplace products by keyword and optional price range.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {
+            "query": {
+              "description": "Keywords to search for.",
+              "type": "string",
+              "maxLength": 200
+            },
+            "min_price": {
+              "description": "Minimum price in FCFA.",
+              "type": "number",
+              "minimum": 0
+            },
+            "max_price": {
+              "description": "Maximum price in FCFA.",
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_orders",
+        "title": "Mes commandes",
+        "description": "List the signed-in user's 50 most recent orders (as buyer or seller) with status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_wallet",
+        "title": "Mon portefeuille",
+        "description": "Get the signed-in user's wallet balance and their 20 latest wallet transactions.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_notifications",
+        "title": "Mes notifications",
+        "description": "List the signed-in user's 30 most recent notifications.",
+        "annotations": {
+          "readOnlyHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
