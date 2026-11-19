@@ -23,6 +23,9 @@ interface ProfileData {
 }
 
 // ======== CSV Export ========
+const esc = (v: unknown): string =>
+  String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" } as Record<string, string>)[c]);
+
 export function exportOrdersCSV(orders: OrderData[], filename: string = "commandes") {
   const headers = ["N° Commande", "Date", "Article", "Quantité", "Total (FCFA)", "Statut", "Paiement"];
   const rows = orders.map((o) => [
@@ -109,17 +112,17 @@ export function generateDocumentHTML(
       <h1>${title}</h1>
       <div class="num">N° ${docNumber}</div>
       <div class="num">Date: ${date}</div>
-      ${options?.period ? `<div class="num">Période: ${options.period}</div>` : ""}
+      ${options?.period ? `<div class="num">Période: ${esc(options.period)}</div>` : ""}
     </div>
   </div>
 
   <div class="parties">
     <div class="party">
       <h3>Émetteur</h3>
-      <p><strong>${options?.companyName || profile.full_name || "—"}</strong></p>
-      <p>${profile.location || "—"}</p>
-      <p>${profile.phone || ""}</p>
-      ${options?.nif ? `<p>NIF: ${options.nif}</p>` : ""}
+      <p><strong>${esc(options?.companyName || profile.full_name || "—")}</strong></p>
+      <p>${esc(profile.location || "—")}</p>
+      <p>${esc(profile.phone || "")}</p>
+      ${options?.nif ? `<p>NIF: ${esc(options.nif)}</p>` : ""}
     </div>
     <div class="party" style="text-align: right;">
       <h3>Client / Plateforme</h3>
@@ -143,8 +146,8 @@ export function generateDocumentHTML(
     <tbody>
       ${orders.map((o) => `
       <tr>
-        <td>#${o.id.slice(0, 8)}</td>
-        <td>${o.product?.title || o.service?.title || "Prestation"}</td>
+        <td>#${esc(o.id.slice(0, 8))}</td>
+        <td>${esc(o.product?.title || o.service?.title || "Prestation")}</td>
         <td>${o.quantity}</td>
         <td>${(o.total_price / o.quantity).toLocaleString("fr-FR")}</td>
         <td>${o.total_price.toLocaleString("fr-FR")}</td>

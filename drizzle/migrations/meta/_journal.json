@@ -50,6 +50,20 @@
       "when": 1793011150327,
       "tag": "0006_security_audit_log",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795078867631,
+      "tag": "0007_lock_wallet_order_driver_inserts",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795078881069,
+      "tag": "0008_driver_profile_badge_default",
+      "breakpoints": true
     }
   ]
 }
