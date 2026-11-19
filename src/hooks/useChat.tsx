@@ -218,7 +218,7 @@ export const useChat = () => {
     if (!user) return;
 
     const channel = supabase
-      .channel(`chat-${user.id}`)
+      .channel(`chat-${user.id}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages" },

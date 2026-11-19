@@ -33,7 +33,7 @@ const DriverOverview = () => {
     if (user) {
       fetchData();
       const channel = supabase
-        .channel("driver-live")
+        .channel(`driver-live-${crypto.randomUUID()}`)
         .on("postgres_changes", { event: "*", schema: "public", table: "delivery_requests" }, fetchData)
         .subscribe();
       return () => { supabase.removeChannel(channel); };

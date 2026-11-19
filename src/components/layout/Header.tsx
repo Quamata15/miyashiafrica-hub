@@ -58,7 +58,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel(`header-messages-${user.id}`)
+      .channel(`header-messages-${user.id}-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `receiver_id=eq.${user.id}` }, () => {
         fetchUnreadMessages();
       })

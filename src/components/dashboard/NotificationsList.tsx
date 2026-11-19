@@ -63,7 +63,7 @@ const NotificationsList = () => {
 
   const subscribeToNotifications = () => {
     const channel = supabase
-      .channel("notifications")
+      .channel(`notifications-list-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {

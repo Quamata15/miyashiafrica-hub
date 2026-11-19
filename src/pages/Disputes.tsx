@@ -73,7 +73,7 @@ const Disputes = () => {
   useEffect(() => {
     if (!selectedDispute) return;
     const channel = supabase
-      .channel(`dispute-events-${selectedDispute.id}`)
+      .channel(`dispute-events-${selectedDispute.id}-${crypto.randomUUID()}`)
       .on("postgres_changes", {
         event: "INSERT", schema: "public", table: "dispute_events",
         filter: `dispute_id=eq.${selectedDispute.id}`,
