@@ -64,6 +64,13 @@
       "when": 1795078881069,
       "tag": "0008_driver_profile_badge_default",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795078995118,
+      "tag": "0009_scope_reviews_plans_ratings",
+      "breakpoints": true
     }
   ]
 }
