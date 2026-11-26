@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight, Search, ShoppingBag, Wrench, Users, Truck, ShieldCheck, Zap, Lock, Bike, Star,
@@ -6,6 +6,8 @@ import {
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { PHOTOS, photoUrl, photoSrcSet } from "@/lib/photos";
+import { ImageSearchButton, VoiceSearchButton } from "@/components/search/SmartSearch";
+import { supabase } from "@/integrations/supabase/client";
 
 const TICKER = [
   "Pagne wax · Lomé", "Smartphone · Abidjan", "Igname · Kara", "Plombier · Dakar", "Logo & branding · Cotonou",
@@ -24,6 +26,12 @@ const PILLARS = [
 const HeroSection = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  // Editable from Admin → Contenu (#47); these defaults show until it loads.
+  const [hero, setHero] = useState({ eyebrow: "Le grand marché d'Afrique de l'Ouest, dans votre poche", title_1: "Tout s'achète.", title_2: "Tout se vend.",
+    subtitle: "Produits, services, talents et livraison au même endroit. Vous payez en mobile money, l'argent reste bloqué jusqu'à ce que vous ayez reçu votre commande.", quick_searches: QUICK });
+  useEffect(() => {
+    supabase.from("site_content").select("value").eq("key", "home_hero").maybeSingle().then(({ data }) => data?.value && setHero((h) => ({ ...h, ...(data.value as object) })));
+  }, []);
 
   const go = (q: string) => navigate(q.trim() ? `/marketplace?q=${encodeURIComponent(q.trim())}` : "/marketplace");
 
@@ -46,7 +54,7 @@ const HeroSection = () => {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              Le grand marché d'Afrique de l'Ouest, dans votre poche
+              {hero.eyebrow}
             </motion.div>
 
             <motion.h1
@@ -55,9 +63,9 @@ const HeroSection = () => {
               transition={{ delay: 0.08 }}
               className="font-display font-black leading-[0.95] tracking-tight text-[2.6rem] sm:text-6xl xl:text-7xl mb-6"
             >
-              Tout s'achète.
+              {hero.title_1}
               <br />
-              <span className="text-primary">Tout se vend.</span>
+              <span className="text-primary">{hero.title_2}</span>
             </motion.h1>
 
             <motion.p
@@ -66,8 +74,7 @@ const HeroSection = () => {
               transition={{ delay: 0.16 }}
               className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8"
             >
-              Produits, services, talents et livraison au même endroit. Vous payez en mobile money,
-              l'argent reste bloqué jusqu'à ce que vous ayez reçu votre commande.
+              {hero.subtitle}
             </motion.p>
 
             <motion.form
@@ -86,6 +93,8 @@ const HeroSection = () => {
                 aria-label="Rechercher sur MIYASHI"
                 className="flex-1 min-w-0 bg-transparent outline-none text-base placeholder:text-muted-foreground/80 py-3"
               />
+              <VoiceSearchButton onResult={(t) => { setQuery(t); go(t); }} />
+              <ImageSearchButton onResult={(t) => go(t)} />
               <Button type="submit" className="rounded-xl h-12 px-5 font-semibold">
                 <span className="hidden sm:inline">Chercher</span>
                 <ArrowRight className="w-5 h-5 sm:ml-1" />
@@ -98,7 +107,7 @@ const HeroSection = () => {
               transition={{ delay: 0.32 }}
               className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mt-4"
             >
-              {QUICK.map((q) => (
+              {(hero.quick_searches ?? QUICK).map((q: string) => (
                 <button
                   key={q}
                   type="button"

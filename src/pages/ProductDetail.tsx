@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
@@ -25,6 +25,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Tables } from "@/integrations/supabase/types";
 import ReportDialog from "@/components/reports/ReportDialog";
 import PlatformProtectionBanner from "@/components/trust/PlatformProtectionBanner";
+import {
+  VariantPicker, TierTable, MakeOfferDialog, GroupBuyCard, SavingsButton, StockAlertButton, CustomsEstimate,
+  ShareButtons, CompareToggle, VacationBanner, ShopLink, unitPrice, type Variant, type Tier,
+} from "@/components/commerce/ProductExtras";
+import { Recommendations, RecentlyViewed } from "@/components/commerce/ProductTiles";
+import { usePrefs, sessionId } from "@/lib/prefs";
+import { recentlyViewed } from "@/lib/local-lists";
+import { hasAnalyticsConsent } from "@/components/layout/CookieConsent";
 
 type Product = Tables<"products">;
 
@@ -40,27 +48,42 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [sellerProfile, setSellerProfile] = useState<{ full_name: string | null; avatar_url: string | null; is_verified: boolean | null } | null>(null);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [variant, setVariant] = useState<Variant | null>(null);
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [shop, setShop] = useState<{ slug: string; name: string; vacation_mode: boolean; vacation_message: string | null; vacation_until: string | null; accepts_cod: boolean } | null>(null);
+  const [rating, setRating] = useState<{ avg: number; count: number }>({ avg: 0, count: 0 });
+  const { money, equivalent, flag } = usePrefs();
 
   useEffect(() => {
     if (id) fetchProduct();
   }, [id]);
 
   const fetchProduct = async () => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single();
-
+    setLoading(true);
+    const { data, error } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
     if (!error && data) {
       setProduct(data);
-      // Fetch seller profile
-      const { data: profile } = await supabase
-        .from("profiles_public")
-        .select("full_name, avatar_url, is_verified")
-        .eq("user_id", data.seller_id)
-        .single();
+      recentlyViewed.add(data.id);
+      if (hasAnalyticsConsent()) supabase.rpc("track_product_view", { p_product_id: data.id, p_session: sessionId() });
+      const [{ data: profile }, { data: vs }, { data: ts }, { data: sh }, { data: rv }] = await Promise.all([
+        supabase.from("profiles_public").select("full_name, avatar_url, is_verified").eq("user_id", data.seller_id).maybeSingle(),
+        supabase.from("product_variants").select("id, label, options, price, stock, is_active").eq("product_id", data.id).eq("is_active", true).order("sort_order"),
+        supabase.from("product_price_tiers").select("min_qty, unit_price").eq("product_id", data.id),
+        supabase.from("shops").select("slug, name, vacation_mode, vacation_message, vacation_until, accepts_cod").eq("owner_id", data.seller_id).maybeSingle(),
+        supabase.from("reviews").select("rating").eq("product_id", data.id),
+      ]);
       if (profile) setSellerProfile(profile);
+      const vlist = (vs ?? []) as Variant[];
+      setVariants(vlist);
+      setVariant(vlist.find((v) => v.stock > 0) ?? null);
+      setTiers((ts ?? []) as Tier[]);
+      setShop(sh);
+      const ratings = (rv ?? []).map((r) => r.rating);
+      setRating({ avg: ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0, count: ratings.length });
+      setQuantity(Math.max(1, data.min_order_qty ?? 1));
+    } else {
+      setProduct(null);
     }
     setLoading(false);
   };
@@ -78,8 +101,11 @@ const ProductDetail = () => {
 
     if (!product) return;
 
-    const totalAmount = product.price * quantity;
-    navigate(`/checkout?amount=${totalAmount}&product=${product.id}&seller=${product.seller_id}&qty=${quantity}`);
+    if (variants.length && !variant) {
+      toast({ title: "Choisissez une variante", variant: "destructive" });
+      return;
+    }
+    navigate(`/checkout?product=${product.id}&qty=${quantity}${variant ? `&variant=${variant.id}` : ""}`);
   };
 
   const handleContactSeller = async () => {
@@ -154,6 +180,11 @@ const ProductDetail = () => {
   }
 
   const images = product.images?.length ? product.images : [null];
+  const isOwner = user?.id === product.seller_id;
+  const listPrice = variant?.price ?? product.price;
+  const minQty = Math.max(1, product.min_order_qty ?? 1);
+  const stock = variants.length ? (variant?.stock ?? 0) : (product.stock ?? 0);
+  const unit = unitPrice(product.price, variant, tiers, quantity);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
@@ -245,9 +276,7 @@ const ProductDetail = () => {
                   >
                     <Heart className={product && checkIsFavorite(product.id) ? "h-4 w-4 fill-destructive text-destructive" : "h-4 w-4"} />
                   </Button>
-                  <Button variant="secondary" size="icon" className="rounded-full">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
+
                 </div>
               </div>
 
@@ -283,115 +312,96 @@ const ProductDetail = () => {
             >
               {/* Title & Rating */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline">Nouveau</Badge>
-                  {product.stock && product.stock <= 5 && (
-                    <Badge variant="secondary">Plus que {product.stock} en stock</Badge>
-                  )}
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  {stock > 0 && stock <= 5 && <Badge variant="secondary">Plus que {stock} en stock</Badge>}
+                  {stock <= 0 && <Badge variant="destructive">Épuisé</Badge>}
+                  {shop?.accepts_cod !== false && flag("cash_on_delivery") && <Badge variant="outline">Paiement à la livraison possible</Badge>}
                 </div>
-                <h1 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-3">
-                  {product.title}
-                </h1>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    {[1,2,3,4,5].map((star) => (
-                      <Star key={star} className="h-5 w-5 fill-primary text-primary" />
-                    ))}
-                    <span className="text-muted-foreground ml-2">(0 avis)</span>
-                  </div>
-                  {product.location && (
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      {product.location}
+                <h1 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-3">{product.title}</h1>
+                <div className="flex items-center gap-4 flex-wrap">
+                  {rating.count > 0 ? (
+                    <div className="flex items-center gap-1" aria-label={`Note ${rating.avg.toFixed(1)} sur 5`}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className={`h-5 w-5 ${star <= Math.round(rating.avg) ? "fill-primary text-primary" : "text-muted-foreground"}`} />
+                      ))}
+                      <span className="text-muted-foreground ml-2">{rating.avg.toFixed(1)} ({rating.count} avis)</span>
                     </div>
+                  ) : <span className="text-sm text-muted-foreground">Pas encore d'avis</span>}
+                  {product.location && (
+                    <div className="flex items-center gap-1 text-muted-foreground"><MapPin className="h-4 w-4" />{product.location}</div>
                   )}
                 </div>
               </div>
 
+              <VacationBanner shop={shop} />
+
               {/* Price */}
               <div className="py-4 border-y">
-                <span className="text-4xl font-bold text-primary">
-                  {product.price.toLocaleString()}
-                </span>
-                <span className="text-xl text-muted-foreground ml-2">FCFA</span>
+                <span className="text-4xl font-bold text-primary">{money(unit, { withEquivalent: false })}</span>
+                {unit < listPrice && <span className="text-lg text-muted-foreground line-through ml-3">{money(listPrice, { withEquivalent: false })}</span>}
+                {equivalent(unit) && <span className="block text-sm text-muted-foreground mt-1">{equivalent(unit)}</span>}
+                {quantity > 1 && <span className="block text-sm text-muted-foreground mt-1">Total pour {quantity} : {money(unit * quantity)}</span>}
               </div>
+
+              <VariantPicker variants={variants} value={variant} onChange={(v) => { setVariant(v); setQuantity((q) => Math.min(q, Math.max(1, v.stock))); }} />
+              <TierTable tiers={tiers} minQty={minQty} />
 
               {/* Description */}
               <div>
                 <h3 className="font-semibold mb-2">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {product.description || "Aucune description disponible"}
-                </p>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-line">{product.description || "Aucune description disponible"}</p>
               </div>
 
               {/* Quantity & Actions */}
               <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <span className="font-medium">Quantité:</span>
-                  <div className="flex items-center border rounded-xl">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-l-xl"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      type="number"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-16 text-center border-0"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="rounded-r-xl"
-                      onClick={() => setQuantity(Math.min(product.stock || 99, quantity + 1))}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                {stock > 0 && (
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium">Quantité :</span>
+                    <div className="flex items-center border rounded-xl">
+                      <Button variant="ghost" size="icon" className="rounded-l-xl" aria-label="Moins" onClick={() => setQuantity(Math.max(minQty, quantity - 1))}><Minus className="h-4 w-4" /></Button>
+                      <Input type="number" value={quantity} aria-label="Quantité"
+                        onChange={(e) => setQuantity(Math.min(stock, Math.max(minQty, parseInt(e.target.value) || minQty)))} className="w-16 text-center border-0" />
+                      <Button variant="ghost" size="icon" className="rounded-r-xl" aria-label="Plus" onClick={() => setQuantity(Math.min(stock, quantity + 1))}><Plus className="h-4 w-4" /></Button>
+                    </div>
+                    <span className="text-muted-foreground">({stock} disponibles)</span>
                   </div>
-                  <span className="text-muted-foreground">({product.stock} disponibles)</span>
-                </div>
+                )}
 
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    variant="hero" 
-                    size="lg" 
-                    className="flex-1 rounded-xl"
-                    onClick={handleOrder}
-                  >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Commander maintenant
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="rounded-xl"
-                    onClick={() => product && addToCart(product.id)}
-                  >
-                    <ShoppingCart className="w-5 h-5 mr-2" />
-                    Ajouter au panier
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="lg" 
-                    className="flex-1 rounded-xl"
-                    onClick={handleContactSeller}
-                  >
-                    <MessageSquare className="w-5 h-5 mr-2" />
-                    Contacter le vendeur
-                  </Button>
+                {isOwner ? (
+                  <div className="rounded-xl border border-foreground/10 p-3 text-sm text-muted-foreground">C'est votre produit. Gérez variantes, prix de gros et achats groupés depuis <Link to="/shop/manage" className="text-primary underline">Ma boutique</Link>.</div>
+                ) : stock <= 0 ? (
+                  <StockAlertButton productId={product.id} variantId={variant?.id} />
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+                    <Button variant="hero" size="lg" className="flex-1 rounded-xl" onClick={handleOrder}>
+                      <ShoppingCart className="w-5 h-5 mr-2" />Commander maintenant
+                    </Button>
+                    <Button variant="outline" size="lg" className="rounded-xl" onClick={() => {
+                      if (variants.length && !variant) return toast({ title: "Choisissez une variante", variant: "destructive" });
+                      addToCart(product.id, undefined, quantity, variant?.id ?? null);
+                    }}>
+                      <ShoppingCart className="w-5 h-5 mr-2" />Ajouter au panier
+                    </Button>
+                    {flag("offers") && <MakeOfferDialog productId={product.id} listPrice={listPrice} variant={variant} quantity={quantity} />}
+                  </div>
+                )}
+                <div className="flex flex-wrap items-center gap-1">
+                  {!isOwner && stock > 0 && flag("savings") && <SavingsButton productId={product.id} variant={variant} quantity={quantity} />}
+                  <CompareToggle productId={product.id} />
+                  <Button variant="ghost" size="sm" onClick={handleContactSeller}><MessageSquare className="w-4 h-4 mr-1" />Contacter le vendeur</Button>
                 </div>
+                <ShareButtons title={product.title} url={`${window.location.origin}/product/${product.id}`} />
               </div>
+
+              {flag("group_buys") && <GroupBuyCard productId={product.id} listPrice={listPrice} isSeller={isOwner} />}
+              <CustomsEstimate from={product.country || "TG"} amount={unit * quantity} />
 
               {/* Trust Badges */}
               <div className="grid grid-cols-3 gap-4 py-4">
                 {[
                   { icon: Shield, label: "Paiement sécurisé" },
-                  { icon: Truck, label: "Livraison rapide" },
-                  { icon: RotateCcw, label: "Retour facile" },
+                  { icon: Truck, label: "Livraison suivie" },
+                  { icon: RotateCcw, label: "Litige possible" },
                 ].map((item) => (
                   <div key={item.label} className="flex flex-col items-center text-center gap-2">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -421,10 +431,7 @@ const ProductDetail = () => {
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Star className="h-4 w-4 fill-primary text-primary" />
-                        <span>5.0 (0 avis)</span>
-                      </div>
+                      <ShopLink shop={shop} />
                     </div>
                     <Button variant="outline" size="sm" onClick={handleContactSeller}>
                       Contacter
@@ -457,6 +464,8 @@ const ProductDetail = () => {
               </div>
             </div>
           </div>
+          <Recommendations title="Vous aimerez aussi" exclude={product.id} />
+          <RecentlyViewed exclude={product.id} />
         </div>
       </main>
       <Footer />

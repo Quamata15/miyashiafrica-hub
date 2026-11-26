@@ -17,7 +17,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Truck, CheckCircle, XCircle } from "lucide-react";
+import { MoreHorizontal, Truck, CheckCircle, XCircle, FileText, KeyRound, Banknote } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
@@ -33,6 +36,9 @@ interface Order {
   status: string;
   payment_status: string;
   delivery_status: string;
+  payment_mode?: string;
+  fulfillment_method?: string;
+  variant_label?: string | null;
   created_at: string;
   product?: { title: string };
   service?: { title: string };
@@ -40,18 +46,23 @@ interface Order {
 
 interface OrdersTableProps {
   limit?: number;
+  /** Show the orders of this seller (shop owner) — used by team members. */
+  sellerId?: string;
 }
 
-const OrdersTable = ({ limit }: OrdersTableProps) => {
+const OrdersTable = ({ limit, sellerId }: OrdersTableProps) => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [codes, setCodes] = useState<Record<string, string>>({});
+  const [handover, setHandover] = useState<Order | null>(null);
+  const [codeInput, setCodeInput] = useState("");
 
   useEffect(() => {
     if (user) {
       fetchOrders();
     }
-  }, [user]);
+  }, [user, sellerId]);
 
   const fetchOrders = async () => {
     if (!user) return;
@@ -63,7 +74,7 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
         product:products(title),
         service:services(title)
       `)
-      .or(`seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
+      .or(sellerId ? `seller_id.eq.${sellerId}` : `seller_id.eq.${user.id},buyer_id.eq.${user.id}`)
       .order("created_at", { ascending: false });
 
     if (limit) {
@@ -74,6 +85,8 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
 
     if (!error && data) {
       setOrders(data as Order[]);
+      const { data: c } = await supabase.from("order_codes").select("order_id, code, used_at").eq("buyer_id", user.id);
+      setCodes(Object.fromEntries((c ?? []).filter((x) => !x.used_at).map((x) => [x.order_id, x.code])));
     }
     setLoading(false);
   };
@@ -85,11 +98,23 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
       .eq("id", orderId);
 
     if (error) {
-      toast.error("Erreur lors de la mise à jour");
+      toast.error(error.message || "Erreur lors de la mise à jour");
     } else {
       toast.success("Statut mis à jour");
       fetchOrders();
     }
+  };
+
+  const submitHandover = async () => {
+    if (!handover) return;
+    const { data, error } = await supabase.rpc("confirm_handover", { p_order_id: handover.id, p_code: codeInput.trim() });
+    const res = data as { success: boolean; error?: string; attempts_left?: number } | null;
+    if (error || !res?.success) {
+      toast.error(error?.message ?? `${res?.error ?? "Code incorrect"}${res?.attempts_left != null ? ` (${res.attempts_left} essais restants)` : ""}`);
+      return;
+    }
+    toast.success(handover.payment_mode === "cod" ? "Paiement à la livraison encaissé, commande terminée" : "Remise confirmée");
+    setHandover(null); setCodeInput(""); fetchOrders();
   };
 
   // Buyer confirms reception → server-side escrow release via RPC
@@ -154,6 +179,11 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
               </TableCell>
               <TableCell>
                 {order.product?.title || order.service?.title || "N/A"}
+                {order.variant_label && <span className="block text-xs text-muted-foreground">{order.variant_label}</span>}
+                {order.payment_mode === "cod" && <Badge variant="outline" className="mt-1 text-[10px]">À payer à la livraison</Badge>}
+                {order.buyer_id === user?.id && codes[order.id] && !["completed", "cancelled"].includes(order.status) && (
+                  <span className="block text-xs mt-1">Code de remise : <strong className="font-mono tracking-widest text-primary">{codes[order.id]}</strong></span>
+                )}
               </TableCell>
               <TableCell>{order.quantity}</TableCell>
               <TableCell className="font-semibold">
@@ -171,12 +201,19 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Eye className="mr-2 h-4 w-4" />
-                      Voir détails
-                    </DropdownMenuItem>
-                    {order.seller_id === user?.id && (
+                    {order.payment_status === "paid" && (
+                      <DropdownMenuItem asChild>
+                        <Link to={`/invoice/${order.id}`}><FileText className="mr-2 h-4 w-4" />Facture PDF</Link>
+                      </DropdownMenuItem>
+                    )}
+                    {order.seller_id === (sellerId ?? user?.id) && !["completed", "cancelled"].includes(order.status) && (
                       <>
+                        {order.product_id && (
+                          <DropdownMenuItem onClick={() => setHandover(order)}>
+                            {order.payment_mode === "cod" ? <Banknote className="mr-2 h-4 w-4" /> : <KeyRound className="mr-2 h-4 w-4" />}
+                            {order.payment_mode === "cod" ? "Encaisser (code client)" : "Remise en main propre (code)"}
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "confirmed")}>
                           <CheckCircle className="mr-2 h-4 w-4" />
                           Confirmer
@@ -187,9 +224,15 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "cancelled")}>
                           <XCircle className="mr-2 h-4 w-4" />
-                          Annuler
+                          Annuler (client remboursé)
                         </DropdownMenuItem>
                       </>
+                    )}
+                    {order.buyer_id === user?.id && order.status === "pending" && (
+                      <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "cancelled")}>
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Annuler (remboursé)
+                      </DropdownMenuItem>
                     )}
                     {order.buyer_id === user?.id && order.status === "shipped" && (
                       <DropdownMenuItem onClick={() => confirmReception(order.id)}>
@@ -212,6 +255,16 @@ const OrdersTable = ({ limit }: OrdersTableProps) => {
           ))}
         </TableBody>
       </Table>
+      <Dialog open={!!handover} onOpenChange={(o) => !o && setHandover(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{handover?.payment_mode === "cod" ? "Encaisser le paiement à la livraison" : "Confirmer la remise"}</DialogTitle>
+            <DialogDescription>Demandez au client son code à 6 chiffres. {handover?.payment_mode === "cod" ? `Encaissez ${handover?.total_price.toLocaleString("fr-FR")} FCFA en espèces : la commission MIYASHI (10 %) sera retenue sur votre portefeuille.` : "Le client confirmera ensuite la réception pour libérer le paiement."}</DialogDescription>
+          </DialogHeader>
+          <Input inputMode="numeric" maxLength={6} value={codeInput} onChange={(e) => setCodeInput(e.target.value.replace(/\D/g, ""))} placeholder="123456" className="text-center text-2xl tracking-[0.5em] font-mono h-14" aria-label="Code de remise" />
+          <DialogFooter><Button onClick={submitHandover} disabled={codeInput.length !== 6}>Valider</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

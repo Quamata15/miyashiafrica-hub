@@ -4,8 +4,14 @@ export type Photo = { id: string; alt: string; author: string; profile: string }
 
 const base = (id: string) => `https://images.unsplash.com/${id}`;
 
-export const photoUrl = (p: Photo, w: number, h?: number) =>
-  `${base(p.id)}?auto=format&fit=crop&q=75&w=${w}${h ? `&h=${h}` : ""}`;
+// Data saver mode (#50) asks for smaller, more compressed images.
+const saver = () => typeof document !== "undefined" && document.documentElement.hasAttribute("data-saver");
+
+export const photoUrl = (p: Photo, w: number, h?: number) => {
+  const k = saver() ? 0.6 : 1;
+  const W = Math.round(w * k), H = h ? Math.round(h * k) : undefined;
+  return `${base(p.id)}?auto=format&fit=crop&q=${saver() ? 45 : 75}&w=${W}${H ? `&h=${H}` : ""}`;
+};
 
 export const photoSrcSet = (p: Photo, widths: number[], ratio?: number) =>
   widths.map((w) => `${photoUrl(p, w, ratio ? Math.round(w * ratio) : undefined)} ${w}w`).join(", ");

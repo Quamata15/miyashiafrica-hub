@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Search, Menu, X, ShoppingBag, Briefcase, Users, User, LogOut, 
   MessageSquare, LayoutDashboard, Bell, Home, Heart, BellRing, Truck, Wallet,
-  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star, Rss
+  Shield, HelpCircle, FileText, Phone, ChevronDown, Settings, Star, Rss, Store, Settings2, MapPin
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -218,6 +218,22 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                       <DropdownMenuItem onClick={() => navigate("/wallet")} className="cursor-pointer">
                         <Wallet className="mr-2 h-4 w-4" /> Mon Portefeuille
                       </DropdownMenuItem>
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger className="cursor-pointer"><ShoppingBag className="mr-2 h-4 w-4" /> Mes achats</DropdownMenuSubTrigger>
+                        <DropdownMenuPortal>
+                          <DropdownMenuSubContent>
+                            {[["/offers", "Offres et marchandage"], ["/savings", "Épargne"], ["/bookings", "Rendez-vous"], ["/quotes", "Devis"], ["/addresses", "Adresses"], ["/compare", "Comparateur"]].map(([href, label]) => (
+                              <DropdownMenuItem key={href} onClick={() => navigate(href)} className="cursor-pointer">{label}</DropdownMenuItem>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuPortal>
+                      </DropdownMenuSub>
+                      <DropdownMenuItem onClick={() => navigate("/shop/manage")} className="cursor-pointer">
+                        <Store className="mr-2 h-4 w-4" /> Ma boutique
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer">
+                        <Settings2 className="mr-2 h-4 w-4" /> Préférences
+                      </DropdownMenuItem>
                     </DropdownMenuGroup>
 
                     <DropdownMenuSeparator />
@@ -238,6 +254,9 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/boost")} className="cursor-pointer">
                               <Star className="mr-2 h-4 w-4" /> Booster
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => navigate("/pickup-partner")} className="cursor-pointer">
+                              <MapPin className="mr-2 h-4 w-4" /> Point relais
                             </DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
@@ -386,6 +405,11 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     <MobileMenuItem icon={Rss} label="Fil d'actualité" onClick={() => go("/feed")} />
                     <MobileMenuItem icon={User} label="Mon Profil" onClick={() => go("/profile")} />
                     <MobileMenuItem icon={Wallet} label="Portefeuille" onClick={() => go("/wallet")} />
+                    <MobileMenuItem icon={Store} label="Ma boutique" onClick={() => go("/shop/manage")} />
+                    <MobileMenuItem icon={ShoppingBag} label="Offres et marchandage" onClick={() => go("/offers")} />
+                    <MobileMenuItem icon={Wallet} label="Épargne" onClick={() => go("/savings")} />
+                    <MobileMenuItem icon={Briefcase} label="Rendez-vous et devis" onClick={() => go("/bookings")} />
+                    <MobileMenuItem icon={Settings2} label="Préférences" onClick={() => go("/settings")} />
                     <MobileMenuItem icon={Heart} label="Favoris" onClick={() => go("/favorites")} />
                     <MobileMenuItem icon={MessageSquare} label="Messages" onClick={() => go("/messages")} badge={unreadMessages} />
                     <MobileMenuItem icon={BellRing} label="Alertes recherche" onClick={() => go("/alerts")} />
@@ -396,6 +420,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   <div className="pt-3 border-t border-border mt-3">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Espaces Pro</p>
                     <MobileMenuItem icon={Briefcase} label="Espace Prestataire" onClick={() => go("/provider-space")} />
+                    <MobileMenuItem icon={MapPin} label="Point relais" onClick={() => go("/pickup-partner")} />
                     <MobileMenuItem icon={Truck} label="Espace Livreur" onClick={() => go("/driver-dashboard")} />
                     <MobileMenuItem icon={Star} label="Booster" onClick={() => go("/boost")} />
                     <Button variant="default" size="sm" onClick={() => go("/create")} className="w-full rounded-xl shadow-md bg-gradient-hero mt-2">

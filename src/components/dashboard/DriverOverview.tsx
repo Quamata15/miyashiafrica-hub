@@ -15,6 +15,7 @@ import QuickStatsGrid from "./QuickStatsGrid";
 import DriverQRScanner from "@/components/shipping/DriverQRScanner";
 import DriverContract from "@/components/driver/DriverContract";
 import { useDriverBroadcast } from "@/hooks/useDriverLocation";
+import { ProofOfDeliveryDialog, RoutePlanner } from "@/components/driver/DeliveryTools";
 
 const DriverOverview = () => {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ const DriverOverview = () => {
   const [activeDeliveries, setActiveDeliveries] = useState<any[]>([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [proofFor, setProofFor] = useState<any | null>(null);
 
   // Auto-broadcast GPS when driver has active deliveries
   const activeDeliveryId = activeDeliveries.length > 0 ? activeDeliveries[0].id : null;
@@ -145,6 +147,7 @@ const DriverOverview = () => {
             <CardTitle className="text-lg flex items-center gap-2">
               <Truck className="w-5 h-5 text-primary" />
               Livraisons en cours ({activeDeliveries.length})
+              <span className="ml-auto"><RoutePlanner deliveries={activeDeliveries} position={gpsPosition ? { lat: gpsPosition.lat, lng: gpsPosition.lng } : null} /></span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -185,7 +188,7 @@ const DriverOverview = () => {
                     </Button>
                   )}
                   {d.status === "picked_up" && (
-                    <Button size="sm" onClick={() => updateStatus(d.id, "delivered")} className="bg-accent text-accent-foreground">
+                    <Button size="sm" onClick={() => setProofFor(d)} className="bg-accent text-accent-foreground">
                       <CheckCircle className="w-4 h-4 mr-1" /> Livré
                     </Button>
                   )}
@@ -239,6 +242,7 @@ const DriverOverview = () => {
 
       {/* QR Scanner */}
       <DriverQRScanner />
+      {proofFor && <ProofOfDeliveryDialog delivery={proofFor} onClose={() => setProofFor(null)} onDone={() => { setProofFor(null); fetchData(); }} />}
     </div>
   );
 };

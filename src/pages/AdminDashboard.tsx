@@ -19,6 +19,7 @@ import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
+import { AdminContent, AdminDelivery, AdminFlagsAudit, AdminLegal, AdminModeration, AdminOps, AdminRevenue } from "@/components/admin/AdminPlatform";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -157,7 +158,7 @@ const AdminDashboard = () => {
             <Tabs defaultValue="stats" className="space-y-4 md:space-y-6">
               {/* Mobile-friendly scrollable tabs */}
               <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-                <TabsList className="inline-flex w-auto min-w-full sm:grid sm:grid-cols-7 h-auto p-1 bg-muted/50">
+                <TabsList className="inline-flex flex-wrap w-auto min-w-full h-auto p-1 bg-muted/50 gap-1">
                   <TabsTrigger value="stats" className="whitespace-nowrap text-xs sm:text-sm">
                     <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" /> Stats
                   </TabsTrigger>
@@ -181,6 +182,13 @@ const AdminDashboard = () => {
                   <TabsTrigger value="security" className="whitespace-nowrap text-xs sm:text-sm">
                     <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" /> Sécurité
                   </TabsTrigger>
+                  <TabsTrigger value="revenue" className="whitespace-nowrap text-xs sm:text-sm">Revenus</TabsTrigger>
+                  <TabsTrigger value="moderation" className="whitespace-nowrap text-xs sm:text-sm">Modération</TabsTrigger>
+                  <TabsTrigger value="delivery" className="whitespace-nowrap text-xs sm:text-sm">Livraison</TabsTrigger>
+                  <TabsTrigger value="content" className="whitespace-nowrap text-xs sm:text-sm">Contenu</TabsTrigger>
+                  <TabsTrigger value="flags" className="whitespace-nowrap text-xs sm:text-sm">Fonctions & audit</TabsTrigger>
+                  <TabsTrigger value="legal" className="whitespace-nowrap text-xs sm:text-sm">Juridique</TabsTrigger>
+                  <TabsTrigger value="ops" className="whitespace-nowrap text-xs sm:text-sm">Exploitation</TabsTrigger>
                 </TabsList>
               </div>
 
@@ -235,6 +243,13 @@ const AdminDashboard = () => {
               <TabsContent value="security">
                 <AdminSecurityPanel />
               </TabsContent>
+              <TabsContent value="revenue"><AdminRevenue /></TabsContent>
+              <TabsContent value="moderation"><AdminModeration /></TabsContent>
+              <TabsContent value="delivery"><AdminDelivery /></TabsContent>
+              <TabsContent value="content"><AdminContent /></TabsContent>
+              <TabsContent value="flags"><AdminFlagsAudit /></TabsContent>
+              <TabsContent value="legal"><AdminLegal /></TabsContent>
+              <TabsContent value="ops"><AdminOps /></TabsContent>
 
               <TabsContent value="reports">
                 <AdminReportsPanel reports={reports} onRefresh={fetchAllData} />

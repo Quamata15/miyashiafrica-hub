@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
+import { BookingPicker, PortfolioGrid } from "@/components/commerce/Services";
+import { usePrefs } from "@/lib/prefs";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -26,6 +28,7 @@ import ReportDialog from "@/components/reports/ReportDialog";
 type Service = Tables<"services">;
 
 const ServiceDetail = () => {
+  const { flag } = usePrefs();
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -363,6 +366,7 @@ const ServiceDetail = () => {
               >
                 <h2 className="text-2xl font-display font-bold mb-6">Avis clients</h2>
                 <ReviewsList serviceId={service.id} sellerId={service.provider_id} />
+                <div className="mt-10"><PortfolioGrid userId={service.provider_id} /></div>
                 {user && (
                   <div className="mt-6">
                     <ReviewForm serviceId={service.id} onSuccess={() => {}} />
@@ -415,6 +419,8 @@ const ServiceDetail = () => {
                         </span>
                       </div>
                     </div>
+
+                    {flag("bookings") && <BookingPicker serviceId={service.id} price={service.price} providerId={service.provider_id} />}
 
                     {/* Order Notes */}
                     <div>

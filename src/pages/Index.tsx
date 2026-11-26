@@ -10,6 +10,8 @@ import StatsSection from "@/components/home/StatsSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import CTASection from "@/components/home/CTASection";
 import TrustSection from "@/components/home/TrustSection";
+import { SiteBanners } from "@/components/home/SiteBanners";
+import { Recommendations, RecentlyViewed } from "@/components/commerce/ProductTiles";
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -25,9 +27,12 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
+        <SiteBanners placement="home_top" />
         <StatsSection />
         <CategoriesSection />
         <FeaturedSection />
+        <div className="container mx-auto px-4"><RecentlyViewed /><Recommendations title="Populaires en ce moment" /></div>
+        <SiteBanners placement="home_middle" />
         <HowItWorksSection />
         <CTASection />
         <TrustSection />

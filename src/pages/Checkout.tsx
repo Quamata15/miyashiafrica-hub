@@ -1,311 +1,321 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+// Checkout: wallet, direct mobile money (#3) or cash on delivery (#4); home delivery with the
+// address book (#11) and zone fees (#25), pickup point or store pickup (#26); accepted offers (#9).
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
-import { useToast } from "@/hooks/use-toast";
+import { usePrefs, fcfa } from "@/lib/prefs";
+import { errMsg } from "@/lib/ai";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Loader2, Lock, CheckCircle, MapPin, ShoppingBag, Tag } from "lucide-react";
-import { motion } from "framer-motion";
-import CheckoutOrderSummary from "@/components/checkout/CheckoutOrderSummary";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "sonner";
+import { Banknote, Lock, Loader2, MapPin, Package, Shield, ShoppingBag, Smartphone, Store, Tag, Truck, Wallet } from "lucide-react";
 import CheckoutPromoCode, { type AppliedPromo } from "@/components/checkout/CheckoutPromoCode";
-import CheckoutPaymentForm from "@/components/checkout/CheckoutPaymentForm";
-import TopUpDialog from "@/components/wallet/TopUpDialog";
+import { AddressBook, type Address } from "@/components/commerce/AddressBook";
 
-interface OrderItem {
-  productId?: string;
-  serviceId?: string;
-  sellerId: string;
-  title: string;
-  price: number;
-  quantity: number;
-}
+type Line = {
+  key: string; product_id?: string; service_id?: string; variant_id?: string | null; offer_id?: string;
+  quantity: number; title: string; unit: number; image?: string | null; seller_id: string; variant_label?: string | null;
+};
+type Zone = { id: string; base_fee: number; eta_hours: number; city: string };
+type Point = { id: string; name: string; address: string; city: string; opening_hours: string | null };
+type Shop = { owner_id: string; accepts_cod: boolean; store_pickup_address: string | null; name: string };
 
-const Checkout = () => {
+const COD_LIMIT = 150000;
+
+export default function Checkout() {
   const { user } = useAuth();
-  const { items, totalPrice, clearCart } = useCart();
-  const { toast } = useToast();
+  const { items, clearCart } = useCart();
+  const { money, flag } = usePrefs();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [params] = useSearchParams();
+  const productParam = params.get("product");
+  const offerParam = params.get("offer");
 
-  const directAmount = parseInt(searchParams.get("amount") || "0");
-  const directProductId = searchParams.get("product");
-  const directSellerId = searchParams.get("seller");
-  const directQty = parseInt(searchParams.get("qty") || "1");
-
-  const [country, setCountry] = useState("togo");
-  const [paymentMethod, setPaymentMethod] = useState("tmoney");
+  const [lines, setLines] = useState<Line[]>([]);
+  const [loadingLines, setLoadingLines] = useState(true);
+  const [shops, setShops] = useState<Shop[]>([]);
+  const [balance, setBalance] = useState(0);
+  const [fulfil, setFulfil] = useState<"delivery" | "pickup_point" | "store_pickup">("delivery");
+  const [address, setAddress] = useState<Address | null>(null);
+  const [zone, setZone] = useState<Zone | null>(null);
+  const [points, setPoints] = useState<Point[]>([]);
+  const [pointId, setPointId] = useState<string>("");
+  const [pay, setPay] = useState<"wallet" | "mobile" | "cod">("mobile");
   const [phone, setPhone] = useState("");
-  const [shippingAddress, setShippingAddress] = useState("");
   const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [promoLoading, setPromoLoading] = useState(false);
-  const [appliedPromo, setAppliedPromo] = useState<AppliedPromo | null>(null);
-  const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
+  const [promo, setPromo] = useState<AppliedPromo | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  // Keep the delivery details across the FedaPay redirect.
+  // Build the order lines.
   useEffect(() => {
-    try {
-      const saved = JSON.parse(sessionStorage.getItem("miyashi_checkout_draft") || "null");
-      if (saved) {
-        setShippingAddress(saved.shippingAddress || "");
-        setNotes(saved.notes || "");
-        setPhone(saved.phone || "");
+    (async () => {
+      setLoadingLines(true);
+      let out: Line[] = [];
+      if (offerParam) {
+        const { data: o } = await supabase.from("price_offers").select("id, product_id, variant_id, quantity, agreed_price, seller_id, status, product:products(title, images), variant:product_variants(label)")
+          .eq("id", offerParam).maybeSingle();
+        if (o && o.status === "accepted") {
+          out = [{ key: o.id, offer_id: o.id, product_id: o.product_id, variant_id: o.variant_id, quantity: o.quantity, unit: Number(o.agreed_price),
+            title: (o.product as any)?.title ?? "Article", image: (o.product as any)?.images?.[0], seller_id: o.seller_id, variant_label: (o.variant as any)?.label }];
+        }
+      } else if (productParam) {
+        const qty = Math.max(1, parseInt(params.get("qty") || "1"));
+        const variantId = params.get("variant");
+        const [{ data: p }, { data: v }, { data: unit }] = await Promise.all([
+          supabase.from("products").select("id, title, images, seller_id, price").eq("id", productParam).maybeSingle(),
+          variantId ? supabase.from("product_variants").select("label").eq("id", variantId).maybeSingle() : Promise.resolve({ data: null }),
+          supabase.rpc("quote_product_price", { p_product_id: productParam, p_variant_id: variantId ?? undefined, p_quantity: qty }),
+        ]);
+        if (p) out = [{ key: p.id, product_id: p.id, variant_id: variantId, quantity: qty, unit: Number(unit ?? p.price), title: p.title, image: p.images?.[0], seller_id: p.seller_id, variant_label: v?.label }];
+      } else {
+        out = await Promise.all(items.map(async (it) => {
+          const d = it.product ?? it.service;
+          let unit = Number(it.variant?.price ?? d?.price ?? 0);
+          if (it.product_id) {
+            const { data } = await supabase.rpc("quote_product_price", { p_product_id: it.product_id, p_variant_id: it.variant_id ?? undefined, p_quantity: it.quantity });
+            if (data != null) unit = Number(data);
+          }
+          return { key: it.id, product_id: it.product_id ?? undefined, service_id: it.service_id ?? undefined, variant_id: it.variant_id, quantity: it.quantity, unit,
+            title: d?.title ?? "Article", image: d?.images?.[0], variant_label: it.variant?.label,
+            seller_id: (it.product as any)?.seller_id ?? (it.service as any)?.provider_id ?? "" };
+        }));
+        // Cart rows don't carry the seller: fetch it.
+        const pids = out.filter((l) => l.product_id && !l.seller_id).map((l) => l.product_id!);
+        if (pids.length) {
+          const { data } = await supabase.from("products").select("id, seller_id").in("id", pids);
+          const m = new Map((data ?? []).map((x) => [x.id, x.seller_id]));
+          out = out.map((l) => (l.product_id && !l.seller_id ? { ...l, seller_id: m.get(l.product_id) ?? "" } : l));
+        }
+        const sids = out.filter((l) => l.service_id && !l.seller_id).map((l) => l.service_id!);
+        if (sids.length) {
+          const { data } = await supabase.from("services").select("id, provider_id").in("id", sids);
+          const m = new Map((data ?? []).map((x) => [x.id, x.provider_id]));
+          out = out.map((l) => (l.service_id && !l.seller_id ? { ...l, seller_id: m.get(l.service_id) ?? "" } : l));
+        }
       }
-    } catch { /* ignore */ }
-  }, []);
+      setLines(out);
+      setLoadingLines(false);
+      const sellerIds = [...new Set(out.map((l) => l.seller_id).filter(Boolean))];
+      if (sellerIds.length) {
+        const { data } = await supabase.from("shops").select("owner_id, accepts_cod, store_pickup_address, name").in("owner_id", sellerIds);
+        setShops((data ?? []) as Shop[]);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productParam, offerParam, items.length]);
 
-  const isDirectOrder = !!directAmount && !!directSellerId;
-  const baseAmount = isDirectOrder ? directAmount : totalPrice;
-  const hasItems = isDirectOrder || items.length > 0;
+  useEffect(() => {
+    if (!user) { navigate("/auth"); return; }
+    supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle().then(({ data }) => setBalance(Number(data?.balance ?? 0)));
+    supabase.from("profiles").select("phone").eq("user_id", user.id).maybeSingle().then(({ data }) => data?.phone && setPhone(data.phone));
+    supabase.from("pickup_points").select("id, name, address, city, opening_hours").eq("is_active", true).order("city").then(({ data }) => setPoints(data ?? []));
+  }, [user, navigate]);
 
-  const discount = appliedPromo
-    ? appliedPromo.discount_type === "percentage"
-      ? Math.round(baseAmount * appliedPromo.discount_value / 100)
-      : Math.min(appliedPromo.discount_value, baseAmount)
-    : 0;
-  const checkoutAmount = baseAmount - discount;
+  useEffect(() => {
+    if (!address) { setZone(null); return; }
+    supabase.rpc("find_delivery_zone", { p_country: address.country, p_city: address.city, p_district: address.district ?? undefined })
+      .then(({ data }) => setZone(data && (data as Zone).id ? (data as Zone) : null));
+  }, [address]);
 
-  useEffect(() => { if (!user) navigate("/auth"); }, [user, navigate]);
+  const subtotal = useMemo(() => lines.reduce((s, l) => s + l.unit * l.quantity, 0), [lines]);
+  const discount = promo ? (promo.discount_type === "percentage" ? Math.round(subtotal * promo.discount_value / 100) : Math.min(promo.discount_value, subtotal)) : 0;
+  const total = Math.max(0, subtotal - discount);
+  const allProducts = lines.length > 0 && lines.every((l) => l.product_id);
+  const sellerIds = [...new Set(lines.map((l) => l.seller_id))];
+  const singleShop = sellerIds.length === 1 ? shops.find((s) => s.owner_id === sellerIds[0]) : undefined;
+  const codAllowed = flag("cash_on_delivery") && allProducts && total <= COD_LIMIT && sellerIds.every((id) => shops.find((s) => s.owner_id === id)?.accepts_cod !== false);
+  const needsDelivery = lines.some((l) => l.product_id);
 
-  const applyPromoCode = async () => {
+  useEffect(() => { if (pay === "cod" && !codAllowed) setPay("mobile"); }, [codAllowed, pay]);
+
+  const applyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
     if (!code) return;
     setPromoLoading(true);
-
-    const { data, error } = await supabase.from("promo_codes")
-      .select("*").eq("code", code).eq("is_active", true)
-      .gt("expires_at", new Date().toISOString()).maybeSingle();
-
+    const { data } = await supabase.from("promo_codes").select("*").eq("code", code).eq("is_active", true).gt("expires_at", new Date().toISOString()).maybeSingle();
     setPromoLoading(false);
-
-    if (error || !data) {
-      toast({ title: "Code invalide", description: "Ce code promo n'existe pas ou a expiré", variant: "destructive" });
-      return;
-    }
-    if (data.max_uses && data.used_count >= data.max_uses) {
-      toast({ title: "Code expiré", description: "Ce code promo a atteint sa limite d'utilisation", variant: "destructive" });
-      return;
-    }
-    if (data.min_order_amount && baseAmount < data.min_order_amount) {
-      toast({ title: "Montant minimum requis", description: `Commande minimum de ${Number(data.min_order_amount).toLocaleString()} FCFA`, variant: "destructive" });
-      return;
-    }
-
-    setAppliedPromo({ id: data.id, code: data.code, discount_type: data.discount_type, discount_value: data.discount_value, seller_id: data.seller_id });
+    if (!data) return toast.error("Code invalide ou expiré");
+    if (data.max_uses && data.used_count >= data.max_uses) return toast.error("Ce code a atteint sa limite");
+    if (data.min_order_amount && subtotal < data.min_order_amount) return toast.error(`Commande minimum de ${fcfa(data.min_order_amount)}`);
+    setPromo({ id: data.id, code: data.code, discount_type: data.discount_type, discount_value: data.discount_value, seller_id: data.seller_id });
     setPromoInput("");
-    toast({ title: "Code appliqué! 🎉", description: `Réduction de ${data.discount_type === "percentage" ? `${data.discount_value}%` : `${Number(data.discount_value).toLocaleString()}F`}` });
+    toast.success("Code appliqué");
   };
 
-  const handlePayment = async () => {
-    if (!user) return;
-    if (!phone && paymentMethod !== "card") {
-      toast({ title: "Numéro requis", description: "Entrez votre numéro de téléphone", variant: "destructive" });
-      return;
-    }
-    if (!shippingAddress.trim()) {
-      toast({ title: "Adresse requise", description: "Entrez votre adresse de livraison", variant: "destructive" });
-      return;
-    }
+  const common = () => {
+    const point = points.find((p) => p.id === pointId);
+    return {
+      fulfillment_method: fulfil,
+      address_id: fulfil === "delivery" ? address?.id : undefined,
+      shipping_address: fulfil === "pickup_point" ? `Point relais : ${point?.name}, ${point?.address}, ${point?.city}`
+        : fulfil === "store_pickup" ? `Retrait en boutique : ${singleShop?.store_pickup_address}` : undefined,
+      pickup_point_id: fulfil === "pickup_point" ? pointId : undefined,
+      delivery_zone_id: fulfil === "delivery" ? zone?.id : undefined,
+      notes: notes || undefined,
+      promo_code: offerParam ? undefined : promo?.code,
+    };
+  };
+  const itemPayload = (l: Line) => (l.offer_id ? { offer_id: l.offer_id } : { product_id: l.product_id, service_id: l.service_id, variant_id: l.variant_id ?? undefined, quantity: l.quantity });
 
-    setLoading(true);
-
-    // Orders are paid from the wallet (funds then held in escrow). If the balance is
-    // too low, top up the missing amount with FedaPay first.
-    const { data: walletRow } = await supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle();
-    const balance = Number(walletRow?.balance ?? 0);
-    if (balance < checkoutAmount) {
-      setLoading(false);
-      try {
-        sessionStorage.setItem("miyashi_checkout_draft", JSON.stringify({ shippingAddress, notes, phone }));
-      } catch { /* ignore */ }
-      setTopUpAmount(Math.max(100, Math.ceil(checkoutAmount - balance)));
-      return;
-    }
-
+  const submit = async () => {
+    if (!user || !lines.length) return;
+    if (needsDelivery && fulfil === "delivery" && !address) return toast.error("Choisissez ou ajoutez une adresse de livraison");
+    if (fulfil === "pickup_point" && !pointId) return toast.error("Choisissez un point relais");
+    if (pay === "mobile" && phone.replace(/\D/g, "").length < 8) return toast.error("Entrez le numéro mobile money qui va payer");
+    setBusy(true);
     try {
-      let orderItems: OrderItem[] = [];
-      if (isDirectOrder) {
-        orderItems = [{ productId: directProductId || undefined, sellerId: directSellerId!, title: "Commande directe", price: directAmount, quantity: directQty }];
-      } else {
-        orderItems = items.map(item => {
-          const data = item.product || item.service;
-          return {
-            productId: item.product_id || undefined,
-            serviceId: item.service_id || undefined,
-            sellerId: (item.product as unknown as { seller_id: string } | null)?.seller_id || (item.service as unknown as { provider_id: string } | null)?.provider_id || user.id,
-            title: data?.title || "Article",
-            price: data?.price || 0,
-            quantity: item.quantity,
-          };
-        });
+      if (pay === "mobile") {
+        const { data: ck, error } = await supabase.rpc("create_pending_checkout", { p_items: lines.map(itemPayload), p_common: common() });
+        if (error) throw error;
+        const { data, error: fnErr } = await supabase.functions.invoke("fedapay-checkout", { body: { checkout_id: (ck as any).checkout_id, phone } });
+        if (fnErr || !data?.payment_url) throw new Error(data?.error ?? "Le paiement mobile money n'a pas pu démarrer. Réessayez ou payez avec le portefeuille.");
+        window.location.assign(data.payment_url);
+        return;
       }
-
-      let lastOrderId = "";
-      let lastTotal = 0;
-
-      for (const orderItem of orderItems) {
-        const { data: result, error: rpcErr } = await supabase.rpc("create_secure_order", {
-          p_product_id: orderItem.productId || null,
-          p_service_id: orderItem.serviceId || null,
-          p_quantity: orderItem.quantity,
-          p_shipping_address: shippingAddress,
-          p_notes: notes || null,
-          p_payment_method: paymentMethod,
-          p_phone: phone || null,
-          p_promo_code: appliedPromo?.code || null,
-        });
-        if (rpcErr) throw new Error(rpcErr.message.includes("Insufficient wallet") ? "Solde du portefeuille insuffisant pour payer cette commande" : rpcErr.message);
-        const res = result as Record<string, unknown> | null;
-        if (!res?.success) throw new Error((res?.error as string) || "Erreur lors de la création de la commande");
-        lastOrderId = res.order_id as string;
-        lastTotal = res.total_price as number;
+      if (pay === "wallet" && balance < total) throw new Error("Solde du portefeuille insuffisant : choisissez Mobile money");
+      const orders: string[] = [];
+      for (const [i, l] of lines.entries()) {
+        const p = { ...common(), ...itemPayload(l), payment_mode: pay === "cod" ? "cod" : "wallet" } as Record<string, unknown>;
+        if (i > 0) delete p.promo_code;
+        const { data, error } = await supabase.rpc("place_order", { p: p as any });
+        if (error) throw error;
+        orders.push((data as any).order_id);
       }
-
-      if (!isDirectOrder) await clearCart();
-      try { sessionStorage.removeItem("miyashi_checkout_draft"); } catch { /* ignore */ }
-      setLoading(false);
-      toast({ title: "Paiement réussi! ✅", description: "Vos fonds sont sécurisés." });
-      navigate(`/order-success?order=${lastOrderId}&total=${lastTotal}`);
-    } catch (error: any) {
-      setLoading(false);
-      toast({ title: "Erreur de paiement", description: error?.message || "Une erreur est survenue", variant: "destructive" });
+      if (!productParam && !offerParam) await clearCart();
+      toast.success(pay === "cod" ? "Commande confirmée : vous paierez à la livraison" : "Paiement réussi, fonds sécurisés en séquestre");
+      navigate(`/order-success?order=${orders[orders.length - 1]}&total=${total}`);
+    } catch (e) {
+      toast.error(errMsg(e));
+    } finally {
+      setBusy(false);
     }
   };
 
-  if (!hasItems) {
+  if (!loadingLines && !lines.length) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12 flex items-center justify-center">
-          <Card className="max-w-md border-0 shadow-elevated text-center">
-            <CardContent className="p-8">
-              <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-              <h2 className="text-2xl font-display font-bold mb-2">Panier vide</h2>
-              <p className="text-muted-foreground mb-6">Ajoutez des articles avant de passer commande</p>
-              <Button onClick={() => navigate("/marketplace")} className="bg-gradient-hero">Voir les produits</Button>
-            </CardContent>
-          </Card>
+        <main className="flex-1 pt-24 pb-12 flex items-center justify-center px-4">
+          <Card className="max-w-md text-center"><CardContent className="p-8">
+            <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+            <h1 className="text-2xl font-display font-bold mb-2">Rien à payer</h1>
+            <p className="text-muted-foreground mb-6">Votre panier est vide ou l'offre n'est plus valable.</p>
+            <Button onClick={() => navigate("/marketplace")}>Voir les produits</Button>
+          </CardContent></Card>
         </main>
         <Footer />
       </div>
     );
   }
 
+  const option = (value: string, icon: React.ReactNode, title: string, desc: string, disabled = false) => (
+    <label htmlFor={`opt-${value}`} className={`flex items-start gap-3 p-3 rounded-xl border-2 transition-all ${disabled ? "opacity-50" : "cursor-pointer"} ${(pay === value || fulfil === value) ? "border-primary bg-primary/5" : "border-border"}`}>
+      <RadioGroupItem value={value} id={`opt-${value}`} disabled={disabled} className="mt-1" />
+      <span className="text-primary mt-0.5">{icon}</span>
+      <span className="flex-1"><span className="font-medium block">{title}</span><span className="text-sm text-muted-foreground">{desc}</span></span>
+    </label>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
       <main className="flex-1 pt-24 pb-12">
-        <div className="container mx-auto px-4 max-w-2xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-hero flex items-center justify-center">
-                <Lock className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <h1 className="text-3xl font-display font-bold">Paiement Sécurisé</h1>
-              <p className="text-muted-foreground mt-2">Vos fonds sont protégés par notre système d'escrow</p>
-            </div>
+        <div className="container mx-auto px-4 max-w-2xl space-y-6">
+          <div className="text-center">
+            <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary/15 flex items-center justify-center"><Lock className="w-7 h-7 text-primary" /></div>
+            <h1 className="text-3xl font-display font-bold">Paiement sécurisé</h1>
+            <p className="text-muted-foreground mt-1">L'argent reste bloqué jusqu'à ce que vous confirmiez la réception.</p>
+          </div>
 
-            {!isDirectOrder && <CheckoutOrderSummary items={items} />}
-
-            <CheckoutPromoCode
-              promoInput={promoInput} setPromoInput={setPromoInput}
-              promoLoading={promoLoading} appliedPromo={appliedPromo}
-              onApply={applyPromoCode} onRemove={() => setAppliedPromo(null)}
-            />
-
-            {/* Shipping Address */}
-            <Card className="border-0 shadow-card mb-6">
-              <CardContent className="p-4 space-y-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <MapPin className="w-5 h-5" />
-                  <span className="font-semibold">Adresse de livraison</span>
-                </div>
-                <div className="space-y-2">
-                  <Label>Adresse complète</Label>
-                  <Input placeholder="Quartier, rue, repère..." value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)} className="h-12" />
-                </div>
-                <div className="space-y-2">
-                  <Label>Notes (optionnel)</Label>
-                  <Textarea placeholder="Instructions spéciales pour la livraison..." value={notes}
-                    onChange={(e) => setNotes(e.target.value)} rows={2} />
-                </div>
-              </CardContent>
-            </Card>
-
-            <CheckoutPaymentForm
-              country={country} setCountry={setCountry}
-              paymentMethod={paymentMethod} setPaymentMethod={setPaymentMethod}
-              phone={phone} setPhone={setPhone}
-            />
-
-            {/* Total */}
-            <Card className="border-0 shadow-card mb-6">
-              <CardContent className="p-5">
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-muted-foreground">Sous-total</span>
-                  <span className="font-semibold">{baseAmount.toLocaleString()} FCFA</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-accent-foreground flex items-center gap-1">
-                      <Tag className="w-3 h-3" /> Réduction ({appliedPromo?.code})
-                    </span>
-                    <span className="font-semibold text-accent-foreground">-{discount.toLocaleString()} FCFA</span>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><ShoppingBag className="w-5 h-5" />Votre commande</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              {loadingLines ? <Loader2 className="w-5 h-5 animate-spin" /> : lines.map((l) => (
+                <div key={l.key} className="flex items-center gap-3 text-sm">
+                  <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden shrink-0">{l.image ? <img src={l.image} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 m-3.5 text-muted-foreground" />}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium line-clamp-1">{l.title}</p>
+                    <p className="text-muted-foreground">{l.variant_label ? `${l.variant_label} · ` : ""}{l.quantity} × {fcfa(l.unit)}{l.offer_id ? " · prix négocié" : ""}</p>
                   </div>
+                  <span className="font-semibold">{fcfa(l.unit * l.quantity)}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {!offerParam && <CheckoutPromoCode promoInput={promoInput} setPromoInput={setPromoInput} promoLoading={promoLoading} appliedPromo={promo} onApply={applyPromo} onRemove={() => setPromo(null)} />}
+
+          {needsDelivery && (
+            <Card>
+              <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Truck className="w-5 h-5" />Réception</CardTitle></CardHeader>
+              <CardContent className="space-y-4">
+                <RadioGroup value={fulfil} onValueChange={(v) => setFulfil(v as typeof fulfil)} className="space-y-2">
+                  {option("delivery", <Truck className="w-5 h-5" />, "Livraison à domicile", zone ? `Estimation ${fcfa(zone.base_fee)} à ${zone.city}, sous ${zone.eta_hours} h environ. Le prix exact est fixé avec le livreur.` : "Le prix est fixé avec le livreur choisi (550 F/km).")}
+                  {option("pickup_point", <MapPin className="w-5 h-5" />, "Point relais", points.length ? `${points.length} point${points.length > 1 ? "s" : ""} disponible${points.length > 1 ? "s" : ""}` : "Aucun point relais ouvert pour l'instant", !points.length)}
+                  {singleShop?.store_pickup_address && option("store_pickup", <Store className="w-5 h-5" />, "Retrait en boutique", `${singleShop.name} : ${singleShop.store_pickup_address}`)}
+                </RadioGroup>
+                {fulfil === "delivery" && <AddressBook selectable value={address?.id} onSelect={setAddress} />}
+                {fulfil === "pickup_point" && (
+                  <RadioGroup value={pointId} onValueChange={setPointId} className="space-y-2">
+                    {points.map((p) => (
+                      <label key={p.id} htmlFor={`pp-${p.id}`} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer ${pointId === p.id ? "border-primary bg-primary/5" : "border-border"}`}>
+                        <RadioGroupItem value={p.id} id={`pp-${p.id}`} className="mt-1" />
+                        <span><span className="font-medium block">{p.name} — {p.city}</span><span className="text-sm text-muted-foreground">{p.address}{p.opening_hours ? ` · ${p.opening_hours}` : ""}</span></span>
+                      </label>
+                    ))}
+                  </RadioGroup>
                 )}
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-muted-foreground">Frais de livraison</span>
-                  <span className="text-sm text-muted-foreground">Calculés après sélection du livreur</span>
-                </div>
-                <Separator className="my-3" />
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-lg">Total</span>
-                  <div className="text-right">
-                    {discount > 0 && (
-                      <span className="text-sm text-muted-foreground line-through block">{baseAmount.toLocaleString()} FCFA</span>
-                    )}
-                    <span className="font-bold text-2xl text-primary">{checkoutAmount.toLocaleString()} FCFA</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-                  <Shield className="w-4 h-4 text-accent-foreground" />
-                  Fonds bloqués en escrow jusqu'à validation de la réception
-                </div>
+                <p className="text-xs text-muted-foreground">À la remise, donnez votre code à 6 chiffres (visible dans vos commandes) : c'est la preuve de réception.</p>
+                <div><Label htmlFor="notes">Instructions (facultatif)</Label><Textarea id="notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Appeler avant de passer…" /></div>
               </CardContent>
             </Card>
+          )}
 
-            <Button onClick={handlePayment} disabled={loading} className="w-full h-14 text-lg bg-gradient-hero">
-              {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <CheckCircle className="w-5 h-5 mr-2" />}
-              Payer {checkoutAmount.toLocaleString()} FCFA
-            </Button>
-            <TopUpDialog
-              key={topUpAmount ?? 0}
-              open={topUpAmount !== null}
-              onOpenChange={(o) => { if (!o) setTopUpAmount(null); }}
-              defaultAmount={topUpAmount ?? undefined}
-              returnPath={`${window.location.pathname}${window.location.search}`}
-            />
-            {topUpAmount !== null && (
-              <p className="text-sm text-center text-muted-foreground mt-2">
-                Solde insuffisant : rechargez {topUpAmount.toLocaleString()} FCFA via FedaPay pour finaliser la commande.
-              </p>
-            )}
-          </motion.div>
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2 text-lg"><Smartphone className="w-5 h-5" />Paiement</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              <RadioGroup value={pay} onValueChange={(v) => setPay(v as typeof pay)} className="space-y-2">
+                {flag("direct_mobile_money") && option("mobile", <Smartphone className="w-5 h-5" />, "Mobile money", "TMoney, Flooz, MTN, Moov, Orange, Wave ou carte, en une fois via FedaPay")}
+                {option("wallet", <Wallet className="w-5 h-5" />, "Portefeuille MIYASHI", `Solde : ${fcfa(balance)}${balance < total ? " (insuffisant)" : ""}`, balance < total)}
+                {flag("cash_on_delivery") && option("cod", <Banknote className="w-5 h-5" />, "Paiement à la livraison",
+                  codAllowed ? "Payez en espèces au livreur ou au vendeur, contre votre code de remise" : allProducts ? `Non disponible pour cette commande (vendeur ou montant > ${fcfa(COD_LIMIT)})` : "Réservé aux produits", !codAllowed)}
+              </RadioGroup>
+              {pay === "mobile" && (
+                <div><Label htmlFor="mm-phone">Numéro mobile money</Label><Input id="mm-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="90 00 00 00" className="h-12" /></div>
+              )}
+              {balance < total && pay === "wallet" && <Link to="/wallet" className="text-sm text-primary underline">Recharger le portefeuille</Link>}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-5 space-y-2">
+              <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{fcfa(subtotal)}</span></div>
+              {discount > 0 && <div className="flex justify-between text-accent"><span className="flex items-center gap-1"><Tag className="w-3 h-3" />{promo?.code}</span><span>-{fcfa(discount)}</span></div>}
+              {needsDelivery && fulfil === "delivery" && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Livraison</span><span className="text-muted-foreground">{zone ? `≈ ${fcfa(zone.base_fee)}, payée au livreur` : "fixée avec le livreur"}</span></div>}
+              <Separator />
+              <div className="flex justify-between items-end"><span className="font-bold text-lg">Total</span><span className="font-bold text-2xl text-primary">{money(total)}</span></div>
+              <p className="flex items-center gap-2 text-xs text-muted-foreground pt-1"><Shield className="w-4 h-4 text-accent" />{pay === "cod" ? "Vous ne payez qu'à la remise du colis." : "Fonds bloqués en séquestre jusqu'à votre confirmation de réception."}</p>
+            </CardContent>
+          </Card>
+
+          <Button onClick={submit} disabled={busy || loadingLines} className="w-full h-14 text-lg">
+            {busy && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+            {pay === "cod" ? `Confirmer la commande (${fcfa(total)})` : pay === "mobile" ? `Payer ${fcfa(total)} par mobile money` : `Payer ${fcfa(total)}`}
+          </Button>
         </div>
       </main>
       <Footer />
     </div>
   );
-};
-
-export default Checkout;
+}

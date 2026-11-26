@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
 import ProductMediaUpload from "./ProductMediaUpload";
+import { AiListingButton, PriceSuggestion } from "./ListingAssist";
 
 type Category = Tables<"categories">;
 
@@ -145,6 +146,10 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
                 <ImagePlus className="w-4 h-4" /> Photos & Vidéos
               </Label>
               <ProductMediaUpload images={images} onImagesChange={setImages} />
+              <AiListingButton images={images} hint={[formData.title, formData.description].filter(Boolean).join(" — ")} onDraft={(d) => {
+                const cat = categories.find((c) => c.slug === d.category_slug);
+                setFormData((f) => ({ ...f, title: d.title, description: `${d.description}${d.condition && d.condition !== "inconnu" ? `\n\nÉtat : ${d.condition}` : ""}`, category_id: cat?.id ?? f.category_id }));
+              }} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -161,6 +166,7 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
                   className={errors.price ? "border-destructive" : ""}
                 />
                 {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
+                <PriceSuggestion title={formData.title} categoryId={formData.category_id} onPick={(p) => setFormData((f) => ({ ...f, price: String(p) }))} />
               </div>
 
               <div className="space-y-2">

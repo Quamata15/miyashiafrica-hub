@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PortfolioGrid } from "@/components/commerce/Services";
+import { useAuth as usePortfolioAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -294,6 +296,7 @@ const PublicProfile = () => {
 
           {/* Tabs */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            {userId && <div className="mb-8"><PortfolioGridOwner userId={userId} /></div>}
             <Tabs defaultValue={products.length > 0 ? "products" : services.length > 0 ? "services" : "reviews"}>
               <TabsList className="grid w-full grid-cols-3 mb-6">
                 <TabsTrigger value="products">
@@ -419,3 +422,8 @@ const EmptyState = ({ icon: Icon, text }: { icon: React.ElementType; text: strin
 );
 
 export default PublicProfile;
+
+function PortfolioGridOwner({ userId }: { userId: string }) {
+  const { user } = usePortfolioAuth();
+  return <PortfolioGrid userId={userId} editable={user?.id === userId} />;
+}

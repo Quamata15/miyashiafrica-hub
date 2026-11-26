@@ -226,6 +226,12 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
               Mentions légales
             </Link>
+            <Link to="/status" className="text-sm text-white/50 hover:text-primary transition-colors">
+              État du service
+            </Link>
+            <Link to="/settings" className="text-sm text-white/50 hover:text-primary transition-colors">
+              Préférences et cookies
+            </Link>
             <Link to="/install" className="text-sm text-white/50 hover:text-primary transition-colors flex items-center gap-1">
               <Download className="w-3 h-3" /> Installer l'app
             </Link>

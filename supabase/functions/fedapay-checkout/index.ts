@@ -1,5 +1,7 @@
-// Creates a FedaPay transaction to top up the signed-in user's MIYASHI wallet
-// and returns the hosted payment URL (mobile money or card).
+// Creates a FedaPay transaction and returns the hosted payment URL (mobile money or card).
+// Two uses: a wallet top-up {amount}, or paying a checkout directly {checkout_id} — the
+// amount then comes from the server-side pending checkout and the order is placed as soon
+// as FedaPay confirms the payment.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { fedapay, unwrapTransaction } from "../_shared/fedapay.ts";
 
@@ -26,17 +28,24 @@ Deno.serve(async (req) => {
   const { data: { user } } = await userClient.auth.getUser();
   if (!user) return json({ error: "Connexion requise" }, 401);
 
-  let body: { amount?: number; phone?: string; prefix?: string; return_path?: string };
+  let body: { amount?: number; phone?: string; prefix?: string; return_path?: string; checkout_id?: string };
   try { body = await req.json(); } catch { return json({ error: "Requête invalide" }, 400); }
 
-  const amount = Math.round(Number(body.amount));
+  const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  let checkoutId: string | null = null;
+  let amount = Math.round(Number(body.amount));
+  if (typeof body.checkout_id === "string") {
+    const { data: pc } = await admin.from("pending_checkouts").select("id, user_id, total, status").eq("id", body.checkout_id).maybeSingle();
+    if (!pc || pc.user_id !== user.id || pc.status !== "pending") return json({ error: "Commande introuvable ou déjà payée" }, 404);
+    checkoutId = pc.id;
+    amount = Math.ceil(Number(pc.total));
+  }
   if (!Number.isFinite(amount) || amount < 100 || amount > 5_000_000) {
     return json({ error: "Montant invalide (100 à 5 000 000 FCFA)" }, 400);
   }
   const returnPath = typeof body.return_path === "string" && body.return_path.startsWith("/") && !body.return_path.startsWith("//")
     ? body.return_path.slice(0, 200) : "/wallet";
 
-  const admin = createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const { data: profile } = await admin.from("profiles").select("full_name, phone").eq("user_id", user.id).maybeSingle();
   const [firstname, ...rest] = (profile?.full_name || user.email?.split("@")[0] || "Client").trim().split(/\s+/);
   const lastname = rest.join(" ") || "MIYASHI";
@@ -44,7 +53,7 @@ Deno.serve(async (req) => {
   const country = COUNTRY_BY_PREFIX[body.prefix ?? ""] ?? "tg";
 
   const { data: row, error: rowErr } = await admin.from("fedapay_transactions")
-    .insert({ user_id: user.id, amount, return_path: returnPath }).select("id").single();
+    .insert({ user_id: user.id, amount, return_path: returnPath, checkout_id: checkoutId }).select("id").single();
   if (rowErr) { console.error(rowErr); return json({ error: "Impossible de préparer le paiement" }, 500); }
 
   const siteUrl = (Deno.env.get("SITE_URL") ?? req.headers.get("origin") ?? "").replace(/\/$/, "");
@@ -52,10 +61,10 @@ Deno.serve(async (req) => {
     const created = unwrapTransaction(await fedapay("/transactions", {
       method: "POST",
       body: {
-        description: `Recharge portefeuille MIYASHI (${amount} FCFA)`,
+        description: checkoutId ? `Commande MIYASHI (${amount} FCFA)` : `Recharge portefeuille MIYASHI (${amount} FCFA)`,
         amount,
         currency: { iso: "XOF" },
-        callback_url: `${siteUrl}/wallet?topup=${row.id}`,
+        callback_url: checkoutId ? `${siteUrl}/checkout/return?topup=${row.id}` : `${siteUrl}/wallet?topup=${row.id}`,
         merchant_reference: row.id,
         customer: {
           firstname, lastname,

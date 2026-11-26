@@ -10,6 +10,9 @@ import { FavoritesProvider } from "@/hooks/useFavorites";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { PrefsProvider } from "@/lib/prefs";
+import CookieConsent from "@/components/layout/CookieConsent";
+import { AnnouncementBar } from "@/components/home/SiteBanners";
 
 // Lazy-loaded pages
 const Index = lazy(() => import("./pages/Index"));
@@ -49,6 +52,19 @@ const HelpGuide = lazy(() => import("./pages/HelpGuide"));
 const Campaigns = lazy(() => import("./pages/Campaigns"));
 const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
+const CheckoutReturn = lazy(() => import("./pages/CheckoutReturn"));
+const Invoice = lazy(() => import("./pages/Invoice"));
+const Savings = lazy(() => import("./pages/Savings"));
+const Offers = lazy(() => import("./pages/Offers"));
+const Addresses = lazy(() => import("./pages/Addresses"));
+const Compare = lazy(() => import("./pages/Compare"));
+const Shop = lazy(() => import("./pages/Shop"));
+const ShopManage = lazy(() => import("./pages/ShopManage"));
+const Bookings = lazy(() => import("./pages/Bookings"));
+const Quotes = lazy(() => import("./pages/Quotes"));
+const Status = lazy(() => import("./pages/Status"));
+const PickupPartner = lazy(() => import("./pages/PickupPartner"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 const queryClient = new QueryClient();
 
@@ -56,12 +72,15 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <PrefsProvider>
         <CartProvider>
           <FavoritesProvider>
             <TooltipProvider>
               <Toaster />
               <Sonner />
               <BrowserRouter>
+                <AnnouncementBar />
+                <CookieConsent />
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
                     {/* Public routes */}
@@ -84,6 +103,9 @@ const App = () => (
                     <Route path="/user/:userId" element={<PublicProfile />} />
                     <Route path="/user/:userId/follows" element={<UserFollows />} />
                     <Route path="/driver-registration" element={<DriverRegistration />} />
+                    <Route path="/boutique/:slug" element={<Shop />} />
+                    <Route path="/compare" element={<Compare />} />
+                    <Route path="/status" element={<Status />} />
 
                     {/* Protected routes */}
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -103,6 +125,16 @@ const App = () => (
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                     <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
                     <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+                    <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
+                    <Route path="/invoice/:orderId" element={<ProtectedRoute><Invoice /></ProtectedRoute>} />
+                    <Route path="/savings" element={<ProtectedRoute><Savings /></ProtectedRoute>} />
+                    <Route path="/offers" element={<ProtectedRoute><Offers /></ProtectedRoute>} />
+                    <Route path="/addresses" element={<ProtectedRoute><Addresses /></ProtectedRoute>} />
+                    <Route path="/shop/manage" element={<ProtectedRoute><ShopManage /></ProtectedRoute>} />
+                    <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+                    <Route path="/quotes" element={<ProtectedRoute><Quotes /></ProtectedRoute>} />
+                    <Route path="/pickup-partner" element={<ProtectedRoute><PickupPartner /></ProtectedRoute>} />
+                    <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
@@ -112,6 +144,7 @@ const App = () => (
             </TooltipProvider>
           </FavoritesProvider>
         </CartProvider>
+        </PrefsProvider>
       </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>

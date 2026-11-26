@@ -8,3 +8,24 @@ verify_jwt = false
 
 [functions.fedapay-webhook]
 verify_jwt = false
+
+[functions.moderate]
+verify_jwt = false
+
+[functions.embed]
+verify_jwt = false
+
+[functions.semantic-search]
+verify_jwt = false
+
+[functions.notify-dispatch]
+verify_jwt = false
+
+[functions.ussd]
+verify_jwt = false
+
+[functions.health]
+verify_jwt = false
+
+[functions.backup-export]
+verify_jwt = false

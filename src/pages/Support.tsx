@@ -1,4 +1,6 @@
 import { useState } from "react";
+import AiAssistant from "@/components/support/AiAssistant";
+import { usePrefs } from "@/lib/prefs";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -11,6 +13,7 @@ import {
 } from "lucide-react";
 
 const Support = () => {
+  const { flag } = usePrefs();
   const navigate = useNavigate();
 
   const categories = [
@@ -42,6 +45,7 @@ const Support = () => {
               Trouvez des réponses à vos questions ou contactez notre équipe de support.
             </p>
           </motion.div>
+          {flag("ai_assistant") && <div className="mb-12"><AiAssistant /></div>}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
             {categories.map((cat, i) => (

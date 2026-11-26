@@ -7,7 +7,9 @@ interface CartItem {
   id: string;
   product_id: string | null;
   service_id: string | null;
+  variant_id: string | null;
   quantity: number;
+  variant?: { id: string; label: string; price: number | null } | null;
   product?: {
     id: string;
     title: string;
@@ -26,7 +28,7 @@ interface CartItem {
 interface CartContextType {
   items: CartItem[];
   loading: boolean;
-  addToCart: (productId?: string, serviceId?: string, quantity?: number) => Promise<void>;
+  addToCart: (productId?: string, serviceId?: string, quantity?: number, variantId?: string | null) => Promise<void>;
   removeFromCart: (itemId: string) => Promise<void>;
   updateQuantity: (itemId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -59,7 +61,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         id,
         product_id,
         service_id,
+        variant_id,
         quantity,
+        variant:variant_id (id, label, price),
         products:product_id (id, title, price, images, stock),
         services:service_id (id, title, price, images)
       `)
@@ -70,6 +74,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         id: item.id,
         product_id: item.product_id,
         service_id: item.service_id,
+        variant_id: item.variant_id,
+        variant: item.variant,
         quantity: item.quantity,
         product: item.products,
         service: item.services
@@ -79,14 +85,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   };
 
-  const addToCart = async (productId?: string, serviceId?: string, quantity = 1) => {
+  const addToCart = async (productId?: string, serviceId?: string, quantity = 1, variantId: string | null = null) => {
     if (!user) {
       toast.error('Connectez-vous pour ajouter au panier');
       return;
     }
 
     const existingItem = items.find(
-      item => item.product_id === productId && item.service_id === serviceId
+      item => item.product_id === (productId ?? null) && item.service_id === (serviceId ?? null) && (item.variant_id ?? null) === variantId
     );
 
     if (existingItem) {
@@ -98,6 +104,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       user_id: user.id,
       product_id: productId || null,
       service_id: serviceId || null,
+      variant_id: variantId,
       quantity
     });
 
@@ -159,7 +166,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => {
-    const price = item.product?.price || item.service?.price || 0;
+    const price = item.variant?.price ?? item.product?.price ?? item.service?.price ?? 0;
     return sum + (price * item.quantity);
   }, 0);
 

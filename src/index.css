@@ -281,3 +281,14 @@
     }
   }
 }
+
+/* Data saver mode (#50): no motion, no decorative blur. */
+html[data-saver] *, html[data-saver] *::before, html[data-saver] *::after {
+  animation-duration: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0s !important;
+}
+html[data-saver] .blur-\[130px\], html[data-saver] .animate-marquee { display: none; }
+
+@media print {
+  header, footer, .no-print { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+}

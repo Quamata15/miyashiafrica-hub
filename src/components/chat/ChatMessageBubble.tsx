@@ -1,4 +1,5 @@
-import { Check, CheckCheck, MapPin, Download, FileText } from "lucide-react";
+import { Check, CheckCheck, MapPin, Download, FileText, Video } from "lucide-react";
+import { TranslateMessage } from "./ChatExtras";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 
@@ -92,8 +93,25 @@ const ChatMessageBubble = ({ message, isOwn }: ChatMessageBubbleProps) => {
           </a>
         );
 
+      case 'audio':
+        return message.attachment_url ? (
+          <audio controls preload="none" src={message.attachment_url} className="max-w-[240px] h-10" aria-label="Message vocal" />
+        ) : <p className="text-sm">{message.content}</p>;
+
+      case 'video_call':
+        return (
+          <a href={message.attachment_url || '#'} target="_blank" rel="noopener noreferrer"
+            className={`flex items-center gap-3 p-2 rounded-lg ${isOwn ? 'bg-primary-foreground/10' : 'bg-background/50'}`}>
+            <span className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center"><Video className="h-5 w-5 text-accent" /></span>
+            <span className="text-sm font-medium">Appel vidéo<span className="block text-xs opacity-70">Rejoindre l'appel</span></span>
+          </a>
+        );
+
       default:
-        return <p className="text-sm">{message.content}</p>;
+        return (<>
+          <p className="text-sm whitespace-pre-line break-words">{message.content}</p>
+          {!isOwn && message.content && message.content.length > 1 && <TranslateMessage messageId={message.id} />}
+        </>);
     }
   };
 

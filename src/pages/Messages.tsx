@@ -13,6 +13,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
+import { QuickReplies, VideoCallButton, VoiceRecorder } from "@/components/chat/ChatExtras";
+import { QuoteDialog } from "@/components/commerce/Services";
+import { usePrefs } from "@/lib/prefs";
 import EmojiPicker from "@/components/chat/EmojiPicker";
 import {
   MessageSquare, Search, Send, MoreVertical,
@@ -23,6 +26,7 @@ import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 
 const Messages = () => {
+  const { flag } = usePrefs();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const {
@@ -196,13 +200,12 @@ const Messages = () => {
                         </Avatar>
                         <div>
                           <p className="font-semibold">{selectedConversation.otherUser?.full_name || "Utilisateur"}</p>
-                          <p className="text-xs text-accent">
-                            {otherUserTyping ? "En train d'écrire..." : "En ligne"}
-                          </p>
+                          {otherUserTyping && <p className="text-xs text-accent">En train d'écrire…</p>}
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon"><MoreVertical className="h-5 w-5" /></Button>
+                        {flag("video_calls") && <VideoCallButton send={sendMessage} />}
+                        {flag("quotes") && user && <QuoteDialog clientId={selectedConversation.participant_1 === user.id ? selectedConversation.participant_2 : selectedConversation.participant_1} />}
                       </div>
                     </div>
 
@@ -233,6 +236,7 @@ const Messages = () => {
 
                     {/* Message Input */}
                     <div className="p-4 border-t border-border bg-card">
+                      <QuickReplies onPick={(t) => setNewMessage(t)} />
                       <div className="flex items-center gap-2">
                         <ChatAttachmentMenu
                           onSendImage={handleSendImage}
@@ -251,6 +255,7 @@ const Messages = () => {
                           className="flex-1"
                         />
                         <EmojiPicker onEmojiSelect={(emoji) => setNewMessage(prev => prev + emoji)} />
+                        {flag("voice_messages") && !newMessage.trim() && <VoiceRecorder upload={uploadAttachment} send={sendMessage} />}
                         <Button
                           onClick={handleSend}
                           disabled={!newMessage.trim() || sending}

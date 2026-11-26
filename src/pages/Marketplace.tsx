@@ -17,6 +17,9 @@ import { useFavorites } from "@/hooks/useFavorites";
 import AdvancedSearchFilters, { ActiveFilterPills, type SearchFilters } from "@/components/search/AdvancedSearchFilters";
 import MarketplaceProductCard from "@/components/marketplace/MarketplaceProductCard";
 import MarketplacePagination from "@/components/marketplace/MarketplacePagination";
+import { ImageSearchButton, SemanticResults, VoiceSearchButton } from "@/components/search/SmartSearch";
+import { Recommendations } from "@/components/commerce/ProductTiles";
+import { SiteBanners } from "@/components/home/SiteBanners";
 import type { Tables } from "@/integrations/supabase/types";
 import PageHero from "@/components/layout/PageHero";
 import { PHOTOS } from "@/lib/photos";
@@ -170,6 +173,8 @@ const Marketplace = () => {
             photo={PHOTOS.treichville}
           />
 
+          <div className="-mx-4"><SiteBanners placement="marketplace_top" /></div>
+
           {/* Filters Bar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
             className="bg-card rounded-2xl p-4 shadow-card mb-8">
@@ -177,7 +182,11 @@ const Marketplace = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 <Input placeholder="Rechercher un produit ou vendeur..." value={filters.searchTerm}
-                  onChange={(e) => updateFilters({ searchTerm: e.target.value })} className="pl-12 h-12 rounded-xl border-muted" />
+                  onChange={(e) => updateFilters({ searchTerm: e.target.value })} className="pl-12 pr-24 h-12 rounded-xl border-muted" />
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center">
+                  <VoiceSearchButton onResult={(t) => updateFilters({ searchTerm: t })} />
+                  <ImageSearchButton onResult={(t) => updateFilters({ searchTerm: t })} />
+                </div>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
                 <Button variant={filters.selectedCategory === null ? "default" : "outline"} size="sm"
@@ -260,6 +269,7 @@ const Marketplace = () => {
           )}
 
           <MarketplacePagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          {filters.searchTerm ? <SemanticResults query={filters.searchTerm} excludeIds={filteredProducts.slice(0, 60).map((p) => p.id)} /> : <Recommendations />}
         </div>
       </main>
       <Footer />

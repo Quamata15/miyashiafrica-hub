@@ -68,6 +68,9 @@ const DashboardSidebar = ({ activeTab, onTabChange, userRoles, collapsed }: Dash
     { label: "Messages", icon: MessageSquare, action: () => navigate("/messages") },
     { label: "Favoris", icon: Heart, action: () => navigate("/favorites") },
     { label: "Portefeuille", icon: Wallet, action: () => navigate("/wallet") },
+    { label: "Ma boutique", icon: Package, action: () => navigate("/shop/manage") },
+    { label: "Offres", icon: Megaphone, action: () => navigate("/offers") },
+    { label: "Rendez-vous", icon: Briefcase, action: () => navigate("/bookings") },
   ];
 
   const allItems = [...mainItems, ...sellerItems, ...providerItems, ...marketingItems, ...deliveryItems];

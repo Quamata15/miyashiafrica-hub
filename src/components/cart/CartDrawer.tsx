@@ -87,8 +87,9 @@ const CartDrawer = () => {
                           <h4 className="font-medium text-sm line-clamp-2 mb-1">
                             {itemData.title}
                           </h4>
+                          {item.variant?.label && <p className="text-xs text-muted-foreground">{item.variant.label}</p>}
                           <p className="text-primary font-semibold text-sm">
-                            {formatPrice(itemData.price || 0)}
+                            {formatPrice(item.variant?.price ?? itemData.price ?? 0)}
                           </p>
                           <div className="flex items-center justify-between mt-2">
                             <div className="flex items-center gap-2">
