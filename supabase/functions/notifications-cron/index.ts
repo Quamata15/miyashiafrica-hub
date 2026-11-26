@@ -10,9 +10,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Accepts CRON_SECRET (env) or the Vault secret used by the pg_cron jobs.
   const cronSecret = Deno.env.get("CRON_SECRET");
   const provided = req.headers.get("x-cron-secret") ?? req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
-  if (!cronSecret || provided !== cronSecret) {
+  let authorized = !!provided && !!cronSecret && provided === cronSecret;
+  if (!authorized && provided) {
+    const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data } = await admin.rpc("verify_cron_secret", { p_secret: provided });
+    authorized = data === true;
+  }
+  if (!authorized) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
