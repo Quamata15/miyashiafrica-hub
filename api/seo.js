@@ -1,8 +1,23 @@
 // Server-rendered meta tags for crawlers and link previews (Google, WhatsApp, Facebook, X…).
-// vercel.json routes bot user-agents on /product/:id, /service/:id and /boutique/:slug here.
+// vercel.json routes bot user-agents on /product/:id, /service/:id, /boutique/:slug and the public pages in STATIC here.
 import { SITE, esc, rest } from "./_supabase.js";
 
-const DEFAULT_IMG = "https://images.unsplash.com/photo-1734255026082-82fdc81991f0?auto=format&fit=crop&w=1200&h=630&q=75";
+const DEFAULT_IMG = `${SITE}/og-image.jpg`;
+const PHOTO = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&h=630&q=75`;
+
+// Public pages that are not database records: their own title, description and preview image.
+const STATIC = {
+  "/": ["Le grand marché d'Afrique de l'Ouest", "Produits, services, talents et livraison. Paiement mobile money protégé jusqu'à la réception.", DEFAULT_IMG],
+  "/marketplace": ["Marketplace : pagnes wax, artisanat, mode, alimentation", "Achetez auprès de vendeurs vérifiés du Togo, du Bénin, de Côte d'Ivoire et du Sénégal. Paiement protégé jusqu'à la réception.", PHOTO("photo-1575303093127-18b3c4ef8c41")],
+  "/services": ["Services et prestataires", "Couture, coiffure, réparation, événementiel, transport : trouvez un prestataire près de chez vous, demandez un devis, réservez.", DEFAULT_IMG],
+  "/freelance": ["Freelances et talents africains", "Développeurs, graphistes, traducteurs, community managers : publiez une mission ou proposez vos services.", DEFAULT_IMG],
+  "/devenir-point-relais": ["Devenir point relais MIYASHI", "Boutiques, pharmacies, agences et entreprises de logistique : recevez et remettez les colis MIYASHI dans votre quartier. Conditions, pièces à fournir, vérifications et rémunération par colis.", PHOTO("photo-1587293852726-70cdb56c2866")],
+  "/driver-registration": ["Devenir livreur MIYASHI", "Moto, tricycle ou voiture : livrez les commandes MIYASHI et soyez payé sur votre portefeuille mobile money.", DEFAULT_IMG],
+  "/faq": ["Questions fréquentes", "Paiement protégé, livraison, retours, mobile money, points relais : toutes les réponses.", DEFAULT_IMG],
+  "/help": ["Centre d'aide", "Guides pour acheter, vendre, livrer et payer sur MIYASHI.", DEFAULT_IMG],
+  "/contact": ["Contact", "Écrivez à l'équipe MIYASHI.", DEFAULT_IMG],
+  "/status": ["État du service", "Disponibilité en direct du site, des paiements et des notifications MIYASHI.", DEFAULT_IMG],
+};
 
 function page({ title, description, url, image, jsonLd, body }) {
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -48,6 +63,8 @@ export default async function handler(req, res) {
       }
     }
   } catch { /* fall through to the default page */ }
+  const st = STATIC[path];
+  if (!html && st) html = page({ title: st[0], description: st[1], url, image: st[2], body: `<p>${esc(st[1])}</p>` });
   html ??= page({ title: "Le grand marché d'Afrique de l'Ouest", description: "Produits, services, talents et livraison. Paiement mobile money protégé jusqu'à la réception.", url, image: DEFAULT_IMG, body: "" });
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "public, s-maxage=600, stale-while-revalidate=86400");

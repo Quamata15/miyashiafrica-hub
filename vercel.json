@@ -43,6 +43,105 @@
       "destination": "/api/seo?path=/boutique/:slug"
     },
     {
+      "source": "/marketplace",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/marketplace"
+    },
+    {
+      "source": "/services",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/services"
+    },
+    {
+      "source": "/freelance",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/freelance"
+    },
+    {
+      "source": "/devenir-point-relais",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/devenir-point-relais"
+    },
+    {
+      "source": "/driver-registration",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/driver-registration"
+    },
+    {
+      "source": "/faq",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/faq"
+    },
+    {
+      "source": "/help",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/help"
+    },
+    {
+      "source": "/contact",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/contact"
+    },
+    {
+      "source": "/status",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|slackbot|discordbot|pinterest|embedly|quora link preview|skypeuripreview).*"
+        }
+      ],
+      "destination": "/api/seo?path=/status"
+    },
+    {
       "source": "/((?!api/|assets/|sw\\.js|workbox-|manifest\\.webmanifest|registerSW\\.js|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
