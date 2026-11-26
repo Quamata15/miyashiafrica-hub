@@ -32,9 +32,9 @@ const DOCUMENT_TYPES = [
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  pending: { label: "En attente", color: "bg-yellow-100 text-yellow-800", icon: Clock },
-  approved: { label: "Approuvé", color: "bg-green-100 text-green-800", icon: CheckCircle },
-  rejected: { label: "Rejeté", color: "bg-red-100 text-red-800", icon: XCircle },
+  pending: { label: "En attente", color: "bg-yellow-500/15 text-yellow-400", icon: Clock },
+  approved: { label: "Approuvé", color: "bg-green-500/15 text-green-400", icon: CheckCircle },
+  rejected: { label: "Rejeté", color: "bg-red-500/15 text-red-400", icon: XCircle },
 };
 
 const KYCVerification = () => {
@@ -182,7 +182,7 @@ const KYCVerification = () => {
               const submitted = docs.find(d => d.document_type === docType);
               const status = submitted?.status || "missing";
               const StatusIcon = status === "approved" ? CheckCircle : status === "rejected" ? XCircle : status === "pending" ? Clock : AlertTriangle;
-              const statusColor = status === "approved" ? "text-green-600" : status === "rejected" ? "text-red-500" : status === "pending" ? "text-yellow-600" : "text-muted-foreground";
+              const statusColor = status === "approved" ? "text-green-400" : status === "rejected" ? "text-red-500" : status === "pending" ? "text-yellow-400" : "text-muted-foreground";
 
               return (
                 <div key={docType} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">

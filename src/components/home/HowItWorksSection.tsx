@@ -16,7 +16,7 @@ const HowItWorksSection = () => {
         <div className="text-center max-w-2xl mx-auto mb-14">
           <p className="text-xs font-semibold tracking-[0.3em] uppercase text-accent mb-3">Zéro arnaque</p>
           <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight mb-4">
-            Acheter devient <span className="text-gradient-accent whitespace-nowrap">sans risque</span>
+            Acheter devient <span className="text-accent whitespace-nowrap">sans risque</span>
           </h2>
           <p className="text-muted-foreground">
             Chaque paiement transite par le séquestre MIYASHI. L'argent ne bouge qu'une fois la commande reçue.
@@ -25,7 +25,7 @@ const HowItWorksSection = () => {
 
         <div className="relative grid md:grid-cols-4 gap-4">
           <div
-            className="hidden md:block absolute top-[52px] left-[12%] right-[12%] h-px bg-gradient-to-r from-[hsl(var(--neon-gold))] via-[hsl(var(--neon-magenta))] to-[hsl(var(--neon-emerald))] opacity-60"
+            className="hidden md:block absolute top-[52px] left-[12%] right-[12%] h-px bg-gradient-to-r from-primary/60 to-accent/60"
             aria-hidden
           />
           {steps.map((step, index) => (
@@ -38,11 +38,11 @@ const HowItWorksSection = () => {
               className="relative glass rounded-2xl p-6 text-center"
             >
               <div className="relative mx-auto mb-5 w-[72px] h-[72px]">
-                <div className="absolute inset-0 rounded-2xl bg-gradient-hero blur-xl opacity-40" aria-hidden />
+                <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-xl opacity-30" aria-hidden />
                 <div className="relative w-full h-full rounded-2xl neon-border bg-background flex items-center justify-center">
                   <step.icon className="w-7 h-7 text-primary" />
                 </div>
-                <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-hero text-primary-foreground font-display text-xs font-bold flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground font-display text-xs font-bold flex items-center justify-center">
                   {index + 1}
                 </span>
               </div>

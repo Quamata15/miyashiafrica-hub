@@ -120,7 +120,7 @@ const Campaigns = () => {
   const statusColors: Record<string, string> = {
     draft: "bg-muted text-muted-foreground",
     active: "bg-primary/10 text-primary",
-    paused: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    paused: "bg-yellow-500/15 text-yellow-400 dark:bg-yellow-900/30 dark:text-yellow-400",
     completed: "bg-muted text-muted-foreground",
   };
   const statusLabels: Record<string, string> = {

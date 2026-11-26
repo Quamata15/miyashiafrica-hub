@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Store, Briefcase, ArrowRight, Check } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { PHOTOS, photoUrl } from "@/lib/photos";
 
 const OFFERS = [
   {
@@ -29,13 +30,13 @@ const CTASection = () => {
     <section className="py-20">
       <div className="container">
         <div className="relative overflow-hidden rounded-[2rem] bg-gradient-dark border border-white/10 p-6 md:p-12">
-          <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
-          <div className="absolute inset-x-0 bottom-0 h-2 pattern-kente opacity-80" aria-hidden />
-          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full bg-[hsl(var(--neon-magenta)/0.25)] blur-[100px]" aria-hidden />
+          <img src={photoUrl(PHOTOS.senegalMarket, 1600, 900)} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-30" aria-hidden />
+          <div className="absolute inset-0 bg-gradient-to-b from-[hsl(240_25%_6%/0.75)] via-[hsl(240_25%_6%/0.85)] to-[hsl(240_25%_6%/0.95)]" aria-hidden />
+          <div className="absolute inset-x-0 bottom-0 h-1.5 pattern-kente opacity-80" aria-hidden />
 
           <div className="relative text-center max-w-2xl mx-auto mb-10">
             <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight text-[hsl(40_30%_96%)]">
-              Votre place au <span className="text-gradient-hero">marché</span> vous attend
+              Votre place au <span className="text-primary">marché</span> vous attend
             </h2>
           </div>
 
@@ -47,13 +48,8 @@ const CTASection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="relative rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-6 md:p-8 overflow-hidden"
+                className="relative rounded-2xl border border-white/10 bg-[hsl(240_20%_8%/0.7)] backdrop-blur-xl p-6 md:p-8 overflow-hidden"
               >
-                <div
-                  className="absolute -right-16 -top-16 w-56 h-56 rounded-full blur-3xl opacity-30"
-                  style={{ background: `hsl(var(${o.glow}))` }}
-                  aria-hidden
-                />
                 <span
                   className="relative w-12 h-12 rounded-xl flex items-center justify-center mb-5"
                   style={{ background: `hsl(var(${o.glow}) / 0.18)` }}
@@ -72,7 +68,7 @@ const CTASection = () => {
                   ))}
                 </ul>
                 <Link to={o.href} className="relative">
-                  <Button className={`${i === 0 ? "bg-gradient-hero" : "bg-gradient-accent"} text-[hsl(250_40%_6%)] font-semibold rounded-xl h-12 px-6`}>
+                  <Button className={`${i === 0 ? "bg-primary hover:bg-primary/90" : "bg-accent hover:bg-accent/90"} text-[hsl(240_30%_6%)] font-semibold rounded-xl h-12 px-6`}>
                     {o.cta} <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </Link>

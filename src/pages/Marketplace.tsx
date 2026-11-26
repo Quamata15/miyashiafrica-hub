@@ -18,6 +18,8 @@ import AdvancedSearchFilters, { ActiveFilterPills, type SearchFilters } from "@/
 import MarketplaceProductCard from "@/components/marketplace/MarketplaceProductCard";
 import MarketplacePagination from "@/components/marketplace/MarketplacePagination";
 import type { Tables } from "@/integrations/supabase/types";
+import PageHero from "@/components/layout/PageHero";
+import { PHOTOS } from "@/lib/photos";
 
 type Product = Tables<"products">;
 type Category = Tables<"categories">;
@@ -161,12 +163,12 @@ const Marketplace = () => {
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
           {/* Hero */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-3">Marketplace</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Découvrez des milliers de produits authentiques africains, de l'artisanat local aux dernières technologies.
-            </p>
-          </motion.div>
+          <PageHero
+            eyebrow="Marketplace"
+            title="Tout le marché, en un seul endroit"
+            description="Mode, vivres, électronique, maison : des vendeurs vérifiés d'Afrique de l'Ouest, payés seulement quand vous avez reçu."
+            photo={PHOTOS.treichville}
+          />
 
           {/* Filters Bar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}

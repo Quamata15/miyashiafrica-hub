@@ -1,4 +1,4 @@
-// Social sign-in through Supabase Auth (replaces the Lovable Cloud OAuth broker).
+// Social sign-in through Supabase Auth.
 // Enable the Google / Apple providers in Supabase → Authentication → Providers,
 // and add the site URL to Authentication → URL Configuration → Redirect URLs.
 import { supabase } from "../supabase/client";
@@ -8,7 +8,7 @@ type SignInOptions = {
   extraParams?: Record<string, string>;
 };
 
-export const lovable = {
+export const socialAuth = {
   auth: {
     signInWithOAuth: async (provider: "google" | "apple", opts?: SignInOptions) => {
       const { error } = await supabase.auth.signInWithOAuth({

@@ -77,8 +77,8 @@ const VerificationGate = ({
   return (
     <Card className="border-0 shadow-card">
       <CardContent className="p-6 text-center space-y-4">
-        <div className="w-14 h-14 rounded-2xl bg-yellow-50 flex items-center justify-center mx-auto">
-          <AlertTriangle className="w-7 h-7 text-yellow-600" />
+        <div className="w-14 h-14 rounded-2xl bg-yellow-500/10 flex items-center justify-center mx-auto">
+          <AlertTriangle className="w-7 h-7 text-yellow-400" />
         </div>
         <div>
           <h3 className="text-lg font-semibold mb-1">Vérification requise</h3>
@@ -89,7 +89,7 @@ const VerificationGate = ({
         </div>
 
         {pendingCount > 0 && (
-          <Badge className="bg-yellow-100 text-yellow-800">
+          <Badge className="bg-yellow-500/15 text-yellow-400">
             {pendingCount} document(s) en attente de validation
           </Badge>
         )}

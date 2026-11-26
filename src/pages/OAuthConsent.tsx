@@ -74,7 +74,7 @@ export default function OAuthConsent() {
   const scopes: string[] = String(details?.scope ?? details?.scopes ?? "").split(/[\s,]+/).filter(Boolean);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background p-4">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-warm p-4">
       <Card className="w-full max-w-md border-0 shadow-card">
         {error ? (
           <CardContent className="p-6 text-center text-sm text-destructive">

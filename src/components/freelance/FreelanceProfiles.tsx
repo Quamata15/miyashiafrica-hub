@@ -141,7 +141,7 @@ const FreelanceProfiles = () => {
 
                 <Badge 
                   variant="default" 
-                  className="bg-green-500/10 text-green-600 hover:bg-green-500/20"
+                  className="bg-green-500/10 text-green-400 hover:bg-green-500/20"
                 >
                   Disponible
                 </Badge>

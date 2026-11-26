@@ -14,9 +14,10 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Loader2, Truck, ArrowLeft, Apple, ShoppingBag, Store, Briefcase } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { lovable } from "@/integrations/lovable/index";
+import { socialAuth } from "@/integrations/auth/social";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
 import { motion } from "framer-motion";
+import { PHOTOS, photoUrl } from "@/lib/photos";
 
 const SOCIAL_PROVIDERS = String(import.meta.env.VITE_SOCIAL_PROVIDERS ?? "").split(",").map((p) => p.trim()).filter(Boolean);
 
@@ -139,7 +140,7 @@ const Auth = () => {
 
   const handleAppleSignIn = async () => {
     setIsLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("apple", {
+    const { error } = await socialAuth.auth.signInWithOAuth("apple", {
       redirect_uri: nextUrl,
     });
     if (error) {
@@ -154,7 +155,7 @@ const Auth = () => {
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    const { error } = await lovable.auth.signInWithOAuth("google", {
+    const { error } = await socialAuth.auth.signInWithOAuth("google", {
       redirect_uri: nextUrl,
     });
     if (error) {
@@ -172,10 +173,29 @@ const Auth = () => {
       <SEOHead title="Connexion" description="Connectez-vous ou créez votre compte MIYASHI pour acheter, vendre et proposer vos services." canonical="/auth" />
       <Header />
       <main className="flex-1 flex items-center justify-center py-12 px-4 pt-24">
+        <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-stretch">
+        {/* Photo side (desktop) */}
+        <div className="relative hidden lg:flex overflow-hidden rounded-3xl border border-foreground/10 min-h-[560px]">
+          <img
+            src={photoUrl(PHOTOS.senegalMarket, 900, 1100)}
+            alt={PHOTOS.senegalMarket.alt}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(240_25%_5%/0.95)] via-[hsl(240_25%_5%/0.35)] to-transparent" />
+          <div className="relative mt-auto p-8">
+            <p className="text-xs font-semibold tracking-[0.3em] uppercase text-primary mb-3">MIYASHI</p>
+            <h2 className="font-display text-3xl font-extrabold text-white mb-3">Le marché vous attend.</h2>
+            <ul className="space-y-2 text-sm text-white/80">
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Achetez et vendez en toute sécurité</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Paiement mobile money sous séquestre</li>
+              <li className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-primary" /> Livraison suivie dans votre ville</li>
+            </ul>
+          </div>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md mx-auto self-center"
         >
           <Card className="border-0 shadow-elevated">
             <CardHeader className="text-center pb-2">
@@ -441,6 +461,7 @@ const Auth = () => {
             </CardContent>
           </Card>
         </motion.div>
+        </div>
       </main>
       <Footer />
     </div>

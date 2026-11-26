@@ -11,7 +11,7 @@ import { fr } from "date-fns/locale";
 
 const LEVELS = {
   bronze: {
-    label: "Bronze", icon: Star, color: "text-orange-600", bg: "bg-orange-100",
+    label: "Bronze", icon: Star, color: "text-orange-400", bg: "bg-orange-500/15",
     min: 0, next: 2000,
     perks: ["1 pt / 100F d'achat", "Protection acheteur"],
     cashback: 0,
@@ -23,13 +23,13 @@ const LEVELS = {
     cashback: 2,
   },
   gold: {
-    label: "Or", icon: Crown, color: "text-yellow-600", bg: "bg-yellow-100",
+    label: "Or", icon: Crown, color: "text-yellow-400", bg: "bg-yellow-500/15",
     min: 5000, next: 10000,
     perks: ["3 pts / 100F d'achat", "5% cashback", "Livraison prioritaire", "Promos VIP"],
     cashback: 5,
   },
   platinum: {
-    label: "Platine", icon: Trophy, color: "text-purple-600", bg: "bg-purple-100",
+    label: "Platine", icon: Trophy, color: "text-purple-400", bg: "bg-purple-500/15",
     min: 10000, next: 999999,
     perks: ["5 pts / 100F d'achat", "10% cashback", "Livraison gratuite", "Support prioritaire", "Accès avant-première"],
     cashback: 10,

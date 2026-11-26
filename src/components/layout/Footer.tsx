@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { PHOTOS } from "@/lib/photos";
 
 const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   const { user } = useAuth();
@@ -199,9 +200,22 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
 
         {/* Bottom */}
         <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-white/50">
-            © 2026 MIYASHI by ASHIZAN Group. Tous droits réservés.
-          </p>
+          <div className="text-center md:text-left">
+            <p className="text-sm text-white/50">
+              © 2026 MIYASHI by ASHIZAN Group. Tous droits réservés.
+            </p>
+            <p className="text-xs text-white/35 mt-1">
+              Photos :{" "}
+              {Object.values(PHOTOS).map((p, i, all) => (
+                <span key={p.id}>
+                  <a href={`${p.profile}?utm_source=miyashi&utm_medium=referral`} target="_blank" rel="noreferrer" className="hover:text-white/70 underline-offset-2 hover:underline">{p.author}</a>
+                  {i < all.length - 1 ? ", " : ""}
+                </span>
+              ))}{" "}
+              sur{" "}
+              <a href="https://unsplash.com/?utm_source=miyashi&utm_medium=referral" target="_blank" rel="noreferrer" className="hover:text-white/70 hover:underline">Unsplash</a>
+            </p>
+          </div>
           <div className="flex items-center gap-6 flex-wrap justify-center">
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
               Conditions d'utilisation

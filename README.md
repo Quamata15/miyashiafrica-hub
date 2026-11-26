@@ -740,25 +740,46 @@ Style moderne et dynamique,
 Couleurs africaines 
 Illustrations et responsive
 
-This project was built with [Lovable](https://lovable.dev).
+---
 
-**Live app**: https://miyashiafrica-hub.lovable.app
+## Projet technique
 
-## Build with Lovable
+**Site en ligne** : https://miyashiafrica-hub.vercel.app
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d7179309-139a-4111-b65f-5e7215fb8b5b).
+| Brique | Technologie |
+|---|---|
+| Front | React 18 + Vite + TypeScript, Tailwind, shadcn/ui, design « Afro-futur » |
+| Base de données & auth | Supabase (projet `decycxufopbagjdpejul`), Postgres + RLS |
+| Fonctions serveur | Supabase Edge Functions (`supabase/functions`) |
+| Paiement | FedaPay (recharge du portefeuille, séquestre interne) |
+| IA | Claude API (conseiller sécurité admin) |
+| Hébergement | Vercel |
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+### Développement local
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+npm install
+npm run dev        # http://localhost:8080
+npm run build      # build de production dans dist/
+npm test
 ```
+
+Les variables publiques sont dans `.env` (URL et clé publique Supabase, `VITE_SITE_URL`,
+`VITE_SOCIAL_PROVIDERS`).
+
+### Base de données
+
+Les migrations sont dans `supabase/migrations` (à appliquer dans l'ordre), puis
+`drizzle/migrations` pour les durcissements de sécurité.
+
+### Secrets des fonctions (Supabase → Edge Functions → Secrets)
+
+- `FEDAPAY_SECRET_KEY`, `FEDAPAY_WEBHOOK_SECRET` : paiements FedaPay
+- `SITE_URL` : adresse publique du site
+- `ANTHROPIC_API_KEY` : conseiller sécurité IA
+- Les tâches planifiées utilisent un secret stocké dans Supabase Vault (aucune action requise)
+
+### Serveur MCP
+
+`https://decycxufopbagjdpejul.supabase.co/functions/v1/mcp` : recherche de produits,
+commandes, portefeuille et notifications de l'utilisateur connecté (OAuth Supabase).

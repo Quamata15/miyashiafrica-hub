@@ -1,4 +1,4 @@
--- Base schema for MIYASHI (reconstructed: the original initial Lovable migration
+-- Base schema for MIYASHI (reconstructed: the original initial migration
 -- was not present in the repository). Must run before every other migration.
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;

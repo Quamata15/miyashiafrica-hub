@@ -216,7 +216,7 @@ const ServiceMilestones = () => {
                                 key={milestone.id}
                                 className={`flex items-start gap-3 p-3 rounded-lg ${
                                   milestone.status === "completed" 
-                                    ? "bg-green-50 dark:bg-green-950/20" 
+                                    ? "bg-green-500/10 dark:bg-green-950/20" 
                                     : "bg-muted/50"
                                 }`}
                               >

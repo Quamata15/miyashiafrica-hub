@@ -25,6 +25,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import AdvancedSearchFilters, { ActiveFilterPills, type SearchFilters } from "@/components/search/AdvancedSearchFilters";
 import type { Tables } from "@/integrations/supabase/types";
+import PageHero from "@/components/layout/PageHero";
+import { PHOTOS } from "@/lib/photos";
 
 type Service = Tables<"services">;
 type Category = Tables<"categories">;
@@ -163,46 +165,20 @@ const Services = () => {
       <Header />
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4">
-          {/* Hero Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
+          <PageHero
+            eyebrow="Services"
+            title="Les meilleurs artisans et pros, près de chez vous"
+            description="Couture, plomberie, design, cours, beauté… Demandez un devis, suivez la mission, payez à la validation."
+            photo={PHOTOS.tailors}
           >
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-3">
-              Services Professionnels
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Trouvez des prestataires qualifiés pour tous vos besoins : développement, design, marketing, conseil et bien plus encore.
-            </p>
-          </motion.div>
-
-          {/* Stats Bar */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
-          >
-            {[
-              { label: "Prestataires actifs", value: "500+", icon: User },
-              { label: "Services disponibles", value: services.length.toString(), icon: Wrench },
-              { label: "Projets complétés", value: "1,200+", icon: CheckCircle },
-              { label: "Clients satisfaits", value: "98%", icon: Star },
-            ].map((stat) => (
-              <Card key={stat.label} className="p-4 border-0 shadow-card">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <stat.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground">{stat.label}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </motion.div>
+            <div className="flex flex-wrap gap-2">
+              {["Paiement à la validation", "Prestataires vérifiés", "Devis gratuit"].map((t) => (
+                <span key={t} className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs text-white backdrop-blur">
+                  <CheckCircle className="w-3.5 h-3.5 text-primary" /> {t}
+                </span>
+              ))}
+            </div>
+          </PageHero>
 
           {/* Filters Bar */}
           <motion.div 

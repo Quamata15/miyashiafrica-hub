@@ -19,4 +19,4 @@ Disallow: /messages
 Disallow: /checkout
 Disallow: /wallet
 
-Sitemap: https://miyashi-hub.lovable.app/sitemap.xml
+Sitemap: https://miyashiafrica-hub.vercel.app/sitemap.xml

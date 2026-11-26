@@ -48,7 +48,7 @@ const Create = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-warm">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
@@ -56,7 +56,7 @@ const Create = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
         <main className="flex-1 flex items-center justify-center pt-24">
           <motion.div

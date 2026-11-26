@@ -38,11 +38,11 @@ const EmailVerificationBanner = ({ email }: EmailVerificationBannerProps) => {
 
   return (
     <div className="mb-6 rounded-xl border border-yellow-300/50 bg-yellow-50/80 dark:bg-yellow-900/20 dark:border-yellow-700/40 p-4 flex items-start gap-3">
-      <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-800/40 flex items-center justify-center shrink-0">
-        <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+      <div className="w-10 h-10 rounded-full bg-yellow-500/15 dark:bg-yellow-800/40 flex items-center justify-center shrink-0">
+        <AlertTriangle className="w-5 h-5 text-yellow-400 dark:text-yellow-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-sm text-yellow-800 dark:text-yellow-200">
+        <h4 className="font-semibold text-sm text-yellow-400 dark:text-yellow-200">
           Vérifiez votre adresse email
         </h4>
         <p className="text-xs text-yellow-700/80 dark:text-yellow-300/70 mt-0.5">
@@ -51,7 +51,7 @@ const EmailVerificationBanner = ({ email }: EmailVerificationBannerProps) => {
         <Button
           variant="outline"
           size="sm"
-          className="mt-2 h-8 text-xs border-yellow-400/60 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-100 dark:hover:bg-yellow-800/30"
+          className="mt-2 h-8 text-xs border-yellow-400/60 text-yellow-400 dark:text-yellow-200 hover:bg-yellow-100 dark:hover:bg-yellow-800/30"
           onClick={handleResend}
           disabled={sending}
         >

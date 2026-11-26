@@ -67,7 +67,7 @@ const App = () => (
                     {/* Public routes */}
                     <Route path="/" element={<Index />} />
                     <Route path="/auth" element={<Auth />} />
-                    <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+                    <Route path="/oauth/consent" element={<OAuthConsent />} />
                     <Route path="/marketplace" element={<Marketplace />} />
                     <Route path="/product/:id" element={<ProductDetail />} />
                     <Route path="/services" element={<Services />} />

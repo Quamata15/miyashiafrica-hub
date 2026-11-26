@@ -111,8 +111,8 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled 
-          ? "bg-card/95 backdrop-blur-xl border-b border-border shadow-soft" 
-          : "bg-card/80 backdrop-blur-sm"
+          ? "bg-background/75 backdrop-blur-2xl border-b border-foreground/[0.08] shadow-soft"
+          : "bg-background/30 backdrop-blur-md border-b border-transparent"
       )}
     >
       <div className="container mx-auto">
@@ -121,11 +121,11 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
             <motion.div 
               whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg"
+              className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow"
             >
-              <span className="font-display font-bold text-xl text-primary-foreground">M</span>
+              <span className="font-display font-black text-xl text-primary-foreground">M</span>
             </motion.div>
-            <span className="font-display font-bold text-xl text-foreground hidden sm:block group-hover:text-primary transition-colors">
+            <span className="font-display font-black tracking-tight text-xl text-foreground hidden sm:block group-hover:text-primary transition-colors">
               MIYASHI
             </span>
           </Link>
@@ -139,8 +139,8 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-200",
                   isActive(link.href)
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-foreground/[0.08] text-foreground shadow-[inset_0_-2px_0_hsl(var(--primary))]"
+                    : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.05]"
                 )}
               >
                 <link.icon className="w-4 h-4" />
@@ -367,7 +367,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   <button
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left",
-                      isActive(link.href) ? "bg-primary text-primary-foreground" : "text-foreground hover:bg-muted"
+                      isActive(link.href) ? "bg-gradient-hero text-primary-foreground" : "text-foreground hover:bg-foreground/[0.06]"
                     )}
                     onClick={() => go(link.href)}
                   >
