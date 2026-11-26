@@ -1,114 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap');
-
+/*
+ * MIYASHI — « Afro-futur » design system
+ * Night market lit by neon: deep indigo night, solar gold, market orange,
+ * emerald trust, with kente-inspired geometry. Dark is the signature theme;
+ * light ("Harmattan") keeps the same accents, deepened for contrast.
+ */
 @layer base {
   :root {
-    /* MIYASHI Palette - Consumer-facing */
-    --background: 38 45% 96%;
-    --foreground: 0 0% 6%;
+    /* Light — Harmattan */
+    --background: 40 33% 97%;
+    --foreground: 248 30% 8%;
 
-    --card: 38 40% 99%;
-    --card-foreground: 0 0% 6%;
+    --card: 0 0% 100%;
+    --card-foreground: 248 30% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 248 30% 8%;
 
-    --popover: 38 40% 99%;
-    --popover-foreground: 0 0% 6%;
+    --primary: 38 100% 44%;           /* solar gold */
+    --primary-foreground: 248 40% 6%;
+    --secondary: 18 100% 50%;         /* market orange */
+    --secondary-foreground: 0 0% 100%;
+    --accent: 160 84% 30%;            /* emerald */
+    --accent-foreground: 0 0% 100%;
 
-    /* Soleil Quotidien - Primary (Énergie, action) */
-    --primary: 43 93% 35%;
-    --primary-foreground: 0 0% 6%;
+    --muted: 40 25% 92%;
+    --muted-foreground: 248 10% 38%;
 
-    /* Orange Marché - Secondary (Achat, CTA) */
-    --secondary: 27 100% 36%;
-    --secondary-foreground: 38 45% 96%;
-
-    /* Beige Sable - Muted (Confort visuel) */
-    --muted: 33 40% 93%;
-    --muted-foreground: 25 15% 40%;
-
-    /* Vert MIYASHI - Accent (Confiance) */
-    --accent: 152 70% 30%;
-    --accent-foreground: 38 45% 96%;
-
-    /* Rouge Échange - Destructive */
-    --destructive: 14 85% 40%;
-    --destructive-foreground: 38 45% 96%;
-
-    /* Info blue */
-    --info: 210 60% 50%;
+    --destructive: 352 80% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 196 90% 40%;
     --info-foreground: 0 0% 100%;
 
-    --border: 33 30% 88%;
-    --input: 33 30% 88%;
-    --ring: 43 93% 49%;
+    --border: 248 15% 87%;
+    --input: 248 15% 87%;
+    --ring: 38 100% 50%;
+    --radius: 1rem;
 
-    --radius: 0.75rem;
+    /* Neon spectrum */
+    --neon-gold: 42 100% 55%;
+    --neon-orange: 18 100% 56%;
+    --neon-magenta: 326 95% 60%;
+    --neon-emerald: 158 90% 45%;
+    --neon-cyan: 190 100% 50%;
 
-    /* MIYASHI Custom tokens */
-    --gradient-hero: linear-gradient(135deg, hsl(43 93% 49%) 0%, hsl(27 100% 45%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(152 70% 39%) 0%, hsl(152 50% 50%) 100%);
-    --gradient-warm: linear-gradient(180deg, hsl(38 45% 96%) 0%, hsl(33 40% 93%) 100%);
-    --gradient-dark: linear-gradient(135deg, hsl(0 0% 6%) 0%, hsl(25 20% 15%) 100%);
-    --shadow-soft: 0 4px 20px -4px hsl(0 0% 6% / 0.08);
-    --shadow-card: 0 8px 32px -8px hsl(0 0% 6% / 0.1);
-    --shadow-elevated: 0 16px 48px -12px hsl(0 0% 6% / 0.15);
+    --gradient-hero: linear-gradient(110deg, hsl(42 100% 52%) 0%, hsl(18 100% 54%) 50%, hsl(326 92% 56%) 100%);
+    --gradient-accent: linear-gradient(120deg, hsl(158 85% 36%) 0%, hsl(190 95% 42%) 100%);
+    --gradient-warm: radial-gradient(1200px 600px at 85% -10%, hsl(42 100% 55% / 0.14), transparent 60%),
+                     radial-gradient(900px 500px at -10% 20%, hsl(326 95% 60% / 0.08), transparent 60%),
+                     hsl(40 33% 97%);
+    --gradient-dark: linear-gradient(135deg, hsl(250 40% 7%) 0%, hsl(268 40% 12%) 100%);
 
-    /* ASHIZAN tokens (institutional) */
-    --gold: 42 54% 51%;
-    --terre-rouge: 0 56% 39%;
-    --racine-verte: 152 56% 27%;
-    --noir-institutionnel: 0 0% 6%;
+    --shadow-soft: 0 4px 20px -6px hsl(248 40% 10% / 0.10);
+    --shadow-card: 0 10px 34px -12px hsl(248 40% 10% / 0.16);
+    --shadow-elevated: 0 24px 60px -18px hsl(248 40% 10% / 0.25);
+    --glow-gold: 0 0 0 1px hsl(42 100% 55% / 0.35), 0 10px 40px -8px hsl(42 100% 50% / 0.45);
 
-    /* Sidebar */
-    --sidebar-background: 38 40% 99%;
-    --sidebar-foreground: 0 0% 6%;
-    --sidebar-primary: 43 93% 49%;
-    --sidebar-primary-foreground: 0 0% 6%;
-    --sidebar-accent: 33 40% 93%;
-    --sidebar-accent-foreground: 0 0% 6%;
-    --sidebar-border: 33 30% 88%;
-    --sidebar-ring: 43 93% 49%;
+    --glass: 0 0% 100% / 0.72;
+    --grid-line: 248 30% 20% / 0.05;
+    --pattern-ink: 38 100% 40% / 0.10;
+
+    /* ASHIZAN institutional tokens (kept for existing pages) */
+    --gold: 42 100% 52%;
+    --terre-rouge: 8 75% 45%;
+    --racine-verte: 160 84% 30%;
+    --noir-institutionnel: 248 40% 6%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 248 30% 8%;
+    --sidebar-primary: 38 100% 44%;
+    --sidebar-primary-foreground: 248 40% 6%;
+    --sidebar-accent: 40 25% 92%;
+    --sidebar-accent-foreground: 248 30% 8%;
+    --sidebar-border: 248 15% 87%;
+    --sidebar-ring: 38 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 33 40% 93%;
+    /* Dark — Nuit de Lomé */
+    --background: 250 38% 5%;
+    --foreground: 40 30% 96%;
 
-    --card: 25 15% 12%;
-    --card-foreground: 33 40% 93%;
+    --card: 250 30% 9%;
+    --card-foreground: 40 30% 96%;
+    --popover: 250 30% 9%;
+    --popover-foreground: 40 30% 96%;
 
-    --popover: 25 15% 12%;
-    --popover-foreground: 33 40% 93%;
+    --primary: 42 100% 55%;
+    --primary-foreground: 250 40% 6%;
+    --secondary: 18 100% 56%;
+    --secondary-foreground: 250 40% 6%;
+    --accent: 158 90% 45%;
+    --accent-foreground: 250 40% 6%;
 
-    --primary: 43 93% 49%;
-    --primary-foreground: 0 0% 6%;
+    --muted: 250 22% 14%;
+    --muted-foreground: 250 12% 68%;
 
-    --secondary: 27 100% 45%;
-    --secondary-foreground: 38 45% 96%;
+    --destructive: 352 90% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --info: 190 100% 50%;
+    --info-foreground: 250 40% 6%;
 
-    --muted: 25 15% 18%;
-    --muted-foreground: 33 20% 60%;
+    --border: 250 22% 18%;
+    --input: 250 22% 18%;
+    --ring: 42 100% 55%;
 
-    --accent: 152 70% 39%;
-    --accent-foreground: 38 45% 96%;
+    --gradient-warm: radial-gradient(1100px 620px at 85% -10%, hsl(42 100% 55% / 0.16), transparent 60%),
+                     radial-gradient(900px 600px at -10% 30%, hsl(326 95% 60% / 0.12), transparent 60%),
+                     radial-gradient(800px 500px at 50% 120%, hsl(158 90% 45% / 0.10), transparent 60%),
+                     hsl(250 38% 5%);
+    --gradient-dark: linear-gradient(135deg, hsl(250 40% 7%) 0%, hsl(268 45% 13%) 100%);
 
-    --destructive: 14 70% 45%;
-    --destructive-foreground: 38 45% 96%;
+    --shadow-soft: 0 4px 20px -6px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 12px 40px -14px hsl(0 0% 0% / 0.7);
+    --shadow-elevated: 0 26px 70px -20px hsl(0 0% 0% / 0.8);
 
-    --border: 25 15% 22%;
-    --input: 25 15% 22%;
-    --ring: 43 93% 49%;
+    --glass: 250 30% 10% / 0.55;
+    --grid-line: 40 30% 96% / 0.05;
+    --pattern-ink: 42 100% 55% / 0.12;
 
-    --sidebar-background: 25 15% 10%;
-    --sidebar-foreground: 33 40% 93%;
-    --sidebar-primary: 43 93% 49%;
-    --sidebar-primary-foreground: 0 0% 6%;
-    --sidebar-accent: 25 15% 18%;
-    --sidebar-accent-foreground: 33 40% 93%;
-    --sidebar-border: 25 15% 22%;
-    --sidebar-ring: 43 93% 49%;
+    --sidebar-background: 250 32% 7%;
+    --sidebar-foreground: 40 30% 96%;
+    --sidebar-primary: 42 100% 55%;
+    --sidebar-primary-foreground: 250 40% 6%;
+    --sidebar-accent: 250 22% 14%;
+    --sidebar-accent-foreground: 40 30% 96%;
+    --sidebar-border: 250 22% 18%;
+    --sidebar-ring: 42 100% 55%;
   }
 }
 
@@ -117,14 +139,23 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', 'Open Sans', system-ui, sans-serif;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-feature-settings: "ss01", "ss02";
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Poppins', 'Montserrat', system-ui, sans-serif;
-    letter-spacing: -0.01em;
+    font-family: 'Unbounded', 'Space Grotesk', system-ui, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.35);
   }
 }
 
@@ -136,60 +167,112 @@
     background-clip: text;
   }
 
-  .bg-gradient-hero {
-    background: var(--gradient-hero);
-  }
-
-  .bg-gradient-accent {
+  .text-gradient-accent {
     background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .bg-gradient-warm {
-    background: var(--gradient-warm);
+  .bg-gradient-hero { background: var(--gradient-hero); }
+  .bg-gradient-accent { background: var(--gradient-accent); }
+  .bg-gradient-warm { background: var(--gradient-warm); }
+  .bg-gradient-dark { background: var(--gradient-dark); }
+
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-glow { box-shadow: var(--glow-gold); }
+
+  /* Frosted glass surface */
+  .glass {
+    background: hsl(var(--glass));
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid hsl(var(--foreground) / 0.08);
   }
 
-  .bg-gradient-dark {
-    background: var(--gradient-dark);
+  /* Gradient hairline border (works on any background) */
+  :where(.neon-border) {
+    position: relative;
+  }
+  .neon-border {
+    isolation: isolate;
+  }
+  .neon-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(130deg, hsl(var(--neon-gold) / 0.7), hsl(var(--neon-magenta) / 0.35) 45%, hsl(var(--neon-emerald) / 0.6));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
   }
 
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
+  /* Futuristic grid floor */
+  .bg-grid {
+    background-image:
+      linear-gradient(hsl(var(--grid-line)) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--grid-line)) 1px, transparent 1px);
+    background-size: 56px 56px;
   }
 
-  .shadow-card {
-    box-shadow: var(--shadow-card);
-  }
-
-  .shadow-elevated {
-    box-shadow: var(--shadow-elevated);
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  /* African-inspired geometric pattern */
+  /* Kente-inspired geometry: woven strips + diamonds */
   .pattern-african {
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        hsl(var(--primary) / 0.03) 10px,
-        hsl(var(--primary) / 0.03) 20px
-      );
+    background-image:
+      linear-gradient(45deg, hsl(var(--pattern-ink)) 25%, transparent 25%, transparent 75%, hsl(var(--pattern-ink)) 75%),
+      linear-gradient(45deg, hsl(var(--pattern-ink)) 25%, transparent 25%, transparent 75%, hsl(var(--pattern-ink)) 75%);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 14px;
+  }
+
+  .pattern-kente {
+    background-image:
+      repeating-linear-gradient(90deg,
+        hsl(var(--neon-gold) / 0.9) 0 10px, transparent 10px 14px,
+        hsl(var(--neon-emerald) / 0.9) 14px 20px, transparent 20px 24px,
+        hsl(var(--neon-orange) / 0.9) 24px 34px, transparent 34px 38px,
+        hsl(var(--neon-magenta) / 0.8) 38px 42px, transparent 42px 48px);
+  }
+
+  .mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  }
+  .mask-radial {
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 72%);
+    mask-image: radial-gradient(ellipse at center, #000 30%, transparent 72%);
+  }
+
+  .animate-float { animation: float 6s ease-in-out infinite; }
+  .animate-pulse-slow { animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  .animate-spin-slow { animation: spin 28s linear infinite; }
+  .animate-spin-reverse { animation: spin 40s linear infinite reverse; }
+  .animate-marquee { animation: marquee 38s linear infinite; }
+  .animate-shimmer {
+    background-size: 200% auto;
+    animation: shimmer 6s linear infinite;
   }
 
   @keyframes float {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-20px);
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-14px); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes shimmer {
+    to { background-position: 200% center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-float, .animate-spin-slow, .animate-spin-reverse, .animate-marquee, .animate-shimmer, .animate-pulse-slow {
+      animation: none;
     }
   }
 }

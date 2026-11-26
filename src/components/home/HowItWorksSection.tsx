@@ -1,107 +1,53 @@
-import { UserPlus, Search, CreditCard, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { Search, Smartphone, Lock, PackageCheck } from "lucide-react";
 
 const steps = [
-  {
-    icon: UserPlus,
-    title: "Créez votre compte",
-    description: "Inscription gratuite en moins de 2 minutes avec vérification sécurisée",
-    color: "from-primary to-primary/70",
-  },
-  {
-    icon: Search,
-    title: "Explorez & Choisissez",
-    description: "Parcourez produits, services ou talents selon vos besoins",
-    color: "from-secondary to-secondary/70",
-  },
-  {
-    icon: CreditCard,
-    title: "Payez en sécurité",
-    description: "Paiement sécurisé via Mobile Money, carte bancaire ou wallet MIYASHI",
-    color: "from-accent to-accent/70",
-  },
-  {
-    icon: CheckCircle,
-    title: "Recevez & Validez",
-    description: "Votre commande livrée, votre satisfaction garantie",
-    color: "from-primary to-secondary",
-  },
+  { icon: Search, title: "Trouvez", description: "Cherchez un produit, un service ou un talent près de chez vous." },
+  { icon: Smartphone, title: "Payez", description: "Mobile money ou carte via FedaPay, en quelques secondes." },
+  { icon: Lock, title: "Séquestre", description: "Votre argent est bloqué chez MIYASHI, pas chez le vendeur." },
+  { icon: PackageCheck, title: "Recevez", description: "Vous confirmez la réception : le vendeur est payé." },
 ];
 
 const HowItWorksSection = () => {
   return (
-    <section className="py-16 md:py-24 bg-gradient-warm relative overflow-hidden">
-      {/* Decorative elements */}
-      <motion.div 
-        className="absolute top-0 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl"
-        animate={{ y: [0, 30, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div 
-        className="absolute bottom-0 right-1/4 w-64 h-64 bg-secondary/5 rounded-full blur-3xl"
-        animate={{ y: [0, -30, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      />
-      
+    <section className="relative py-20 md:py-28 overflow-hidden">
+      <div className="absolute inset-0 bg-grid mask-radial opacity-70" aria-hidden />
       <div className="container relative">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-accent/10 text-accent text-sm font-medium mb-4">
-            Simple & Sécurisé
-          </span>
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Comment ça marche ?
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <p className="text-xs font-semibold tracking-[0.3em] uppercase text-accent mb-3">Zéro arnaque</p>
+          <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight mb-4">
+            Acheter devient <span className="text-gradient-accent whitespace-nowrap">sans risque</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Un processus simple et transparent pour tous vos achats et services
+          <p className="text-muted-foreground">
+            Chaque paiement transite par le séquestre MIYASHI. L'argent ne bouge qu'une fois la commande reçue.
           </p>
-        </motion.div>
+        </div>
 
-        <div className="grid md:grid-cols-4 gap-8 relative">
-          {/* Connection line */}
-          <div className="hidden md:block absolute top-10 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-primary via-secondary to-accent opacity-20" />
-          
+        <div className="relative grid md:grid-cols-4 gap-4">
+          <div
+            className="hidden md:block absolute top-[52px] left-[12%] right-[12%] h-px bg-gradient-to-r from-[hsl(var(--neon-gold))] via-[hsl(var(--neon-magenta))] to-[hsl(var(--neon-emerald))] opacity-60"
+            aria-hidden
+          />
           {steps.map((step, index) => (
             <motion.div
               key={step.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative flex flex-col items-center text-center"
+              transition={{ delay: index * 0.1 }}
+              className="relative glass rounded-2xl p-6 text-center"
             >
-              {/* Step number */}
-              <motion.div 
-                className={`absolute -top-2 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-gradient-to-r ${step.color} text-primary-foreground text-xs font-bold flex items-center justify-center z-10`}
-                initial={{ scale: 0 }}
-                whileInView={{ scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.1 + 0.3, type: "spring" }}
-              >
-                {index + 1}
-              </motion.div>
-              
-              {/* Icon */}
-              <motion.div 
-                className="w-20 h-20 rounded-2xl bg-card shadow-card flex items-center justify-center mb-6 relative"
-                whileHover={{ scale: 1.05, y: -5 }}
-                transition={{ type: "spring", stiffness: 400 }}
-              >
-                <step.icon className="w-8 h-8 text-primary" />
-              </motion.div>
-              
-              {/* Content */}
-              <h3 className="font-display text-lg font-bold text-foreground mb-2">
-                {step.title}
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-xs">
-                {step.description}
-              </p>
+              <div className="relative mx-auto mb-5 w-[72px] h-[72px]">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-hero blur-xl opacity-40" aria-hidden />
+                <div className="relative w-full h-full rounded-2xl neon-border bg-background flex items-center justify-center">
+                  <step.icon className="w-7 h-7 text-primary" />
+                </div>
+                <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-gradient-hero text-primary-foreground font-display text-xs font-bold flex items-center justify-center">
+                  {index + 1}
+                </span>
+              </div>
+              <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
+              <p className="text-sm text-muted-foreground">{step.description}</p>
             </motion.div>
           ))}
         </div>

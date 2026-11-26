@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, ArrowRight, Package, Briefcase } from "lucide-react";
+import { MapPin, ArrowRight, Package, Briefcase } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
@@ -89,11 +89,15 @@ const FeaturedSection = () => {
     visible: { opacity: 1, y: 0 },
   };
 
+  const showProducts = loading || products.length > 0;
+  const showServices = loading || services.length > 0;
+  if (!showProducts && !showServices) return <section ref={sectionRef} aria-hidden />;
+
   return (
-    <section ref={sectionRef} className="py-16 md:py-24 bg-background">
+    <section ref={sectionRef} className="py-16 md:py-24">
       <div className="container">
         {/* Featured Products */}
-        <div className="mb-16">
+        {showProducts && <div className="mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -110,7 +114,7 @@ const FeaturedSection = () => {
               </h2>
             </div>
             <Link to="/marketplace">
-              <Button variant="outline" className="group">
+              <Button variant="outline" className="group glass rounded-xl">
                 Voir tout
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -128,7 +132,7 @@ const FeaturedSection = () => {
               ? Array(4)
                   .fill(0)
                   .map((_, i) => (
-                    <Card key={i} className="overflow-hidden border-0 shadow-card">
+                    <Card key={i} className="overflow-hidden glass rounded-2xl">
                       <Skeleton className="aspect-square" />
                       <CardContent className="p-4">
                         <Skeleton className="h-4 w-3/4 mb-2" />
@@ -139,7 +143,7 @@ const FeaturedSection = () => {
               : products.map((product) => (
                   <motion.div key={product.id} variants={itemVariants}>
                     <Link to={`/product/${product.id}`}>
-                      <Card className="overflow-hidden border-0 shadow-card hover:shadow-elevated transition-all duration-300 group">
+                      <Card className="overflow-hidden glass neon-border rounded-2xl hover:-translate-y-1 transition-all duration-300 group">
                         <div className="aspect-square bg-muted relative overflow-hidden">
                           {product.images?.[0] ? (
                             <img
@@ -179,10 +183,10 @@ const FeaturedSection = () => {
                   </motion.div>
                 ))}
           </motion.div>
-        </div>
+        </div>}
 
         {/* Featured Services */}
-        <div>
+        {showServices && <div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -199,7 +203,7 @@ const FeaturedSection = () => {
               </h2>
             </div>
             <Link to="/services">
-              <Button variant="outline" className="group">
+              <Button variant="outline" className="group glass rounded-xl">
                 Voir tout
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
@@ -217,7 +221,7 @@ const FeaturedSection = () => {
               ? Array(4)
                   .fill(0)
                   .map((_, i) => (
-                    <Card key={i} className="overflow-hidden border-0 shadow-card">
+                    <Card key={i} className="overflow-hidden glass rounded-2xl">
                       <Skeleton className="aspect-video" />
                       <CardContent className="p-4">
                         <Skeleton className="h-4 w-3/4 mb-2" />
@@ -228,7 +232,7 @@ const FeaturedSection = () => {
               : services.map((service) => (
                   <motion.div key={service.id} variants={itemVariants}>
                     <Link to={`/service/${service.id}`}>
-                      <Card className="overflow-hidden border-0 shadow-card hover:shadow-elevated transition-all duration-300 group">
+                      <Card className="overflow-hidden glass neon-border rounded-2xl hover:-translate-y-1 transition-all duration-300 group">
                         <div className="aspect-video bg-muted relative overflow-hidden">
                           {service.images?.[0] ? (
                             <img
@@ -252,10 +256,7 @@ const FeaturedSection = () => {
                         </div>
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 fill-primary text-primary" />
-                              <span className="text-sm font-medium">4.8</span>
-                            </div>
+                            <span className="text-xs text-muted-foreground">Service</span>
                             <span className="font-bold text-secondary text-sm">
                               {service.price
                                 ? `${service.price.toLocaleString()} FCFA`
@@ -269,7 +270,7 @@ const FeaturedSection = () => {
                   </motion.div>
                 ))}
           </motion.div>
-        </div>
+        </div>}
       </div>
     </section>
   );

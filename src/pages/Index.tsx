@@ -8,7 +8,6 @@ import CategoriesSection from "@/components/home/CategoriesSection";
 import FeaturedSection from "@/components/home/FeaturedSection";
 import StatsSection from "@/components/home/StatsSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
-import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
 import TrustSection from "@/components/home/TrustSection";
 
@@ -30,7 +29,6 @@ const Index = () => {
         <CategoriesSection />
         <FeaturedSection />
         <HowItWorksSection />
-        <TestimonialsSection />
         <CTASection />
         <TrustSection />
       </main>
