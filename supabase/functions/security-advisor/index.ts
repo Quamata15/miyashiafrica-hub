@@ -1,11 +1,9 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { createResponsesCall } from "../_shared/responses.ts";
+import Anthropic from "npm:@anthropic-ai/sdk";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-lovable-aig-run-id",
-  "Access-Control-Expose-Headers": "X-Lovable-AIG-Run-ID",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 const json = (body: unknown, status = 200) =>
@@ -26,18 +24,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Méthode non autorisée" }, 405);
 
-  const authHeader = req.headers.get("Authorization") ?? "";
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: authHeader } } },
+    { global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } } },
   );
   const { data: userData } = await supabase.auth.getUser();
   if (!userData?.user) return json({ error: "Connexion requise" }, 401);
-  const { data: isAdmin } = await supabase.rpc("has_role", {
-    _user_id: userData.user.id,
-    _role: "admin",
-  });
+  const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userData.user.id, _role: "admin" });
   if (!isAdmin) return json({ error: "Réservé aux administrateurs" }, 403);
 
   let findings = "";
@@ -49,27 +43,30 @@ Deno.serve(async (req) => {
   if (!findings) return json({ error: "Collez au moins un résultat d'analyse" }, 400);
   if (findings.length > 60000) return json({ error: "Texte trop long (60 000 caractères max)" }, 400);
 
-  const apiKey = Deno.env.get("LOVABLE_API_KEY");
-  if (!apiKey) return json({ error: "Lovable AI n'est pas configuré" }, 500);
+  if (!Deno.env.get("ANTHROPIC_API_KEY")) return json({ error: "L'IA n'est pas configurée (ANTHROPIC_API_KEY)" }, 500);
+  const client = new Anthropic();
 
   try {
-    const { result } = createResponsesCall(
-      req,
-      { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
-      [{ role: "user", content: `Résultats d'analyse :\n\n${findings}` }],
-      INSTRUCTIONS,
-    );
-    const text = await result.text;
-    if (!text.trim()) return json({ error: "L'IA n'a pas renvoyé d'analyse." }, 502);
+    const response = await client.beta.messages.create({
+      model: "claude-opus-5-5",
+      max_tokens: 16000,
+      betas: ["server-side-fallback-2026-07-01"],
+      fallbacks: "default",
+      output_config: { effort: "medium" },
+      system: INSTRUCTIONS,
+      messages: [{ role: "user", content: `Résultats d'analyse :\n\n${findings}` }],
+    } as Anthropic.Beta.MessageCreateParamsNonStreaming);
+
+    if (response.stop_reason === "refusal") return json({ error: "L'IA a refusé d'analyser ce contenu." }, 422);
+    const text = response.content
+      .filter((b): b is Anthropic.Beta.BetaTextBlock => b.type === "text")
+      .map((b) => b.text).join("\n").trim();
+    if (!text) return json({ error: "L'IA n'a pas renvoyé d'analyse." }, 502);
     return json({ analysis: text });
   } catch (e) {
-    const status = (e as { statusCode?: number })?.statusCode ?? 500;
-    console.error("security-advisor error", status, e);
-    const msg =
-      status === 429 ? "Trop de demandes, réessayez dans un instant."
-      : status === 402 ? "Crédits Lovable AI épuisés. Ajoutez des crédits dans les paramètres de l'espace de travail."
-      : status === 403 ? "Accès à l'IA refusé pour cet espace de travail."
-      : "L'analyse IA a échoué.";
-    return json({ error: msg }, status >= 400 && status < 600 ? status : 500);
+    if (e instanceof Anthropic.RateLimitError) return json({ error: "Trop de demandes, réessayez dans un instant." }, 429);
+    if (e instanceof Anthropic.AuthenticationError) return json({ error: "Clé IA invalide." }, 500);
+    console.error("security-advisor error", e);
+    return json({ error: "L'analyse IA a échoué." }, 500);
   }
 });

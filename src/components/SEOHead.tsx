@@ -18,7 +18,7 @@ interface SEOHeadProps {
 
 const SITE_NAME = "MIYASHI";
 const DEFAULT_DESC = "MIYASHI, la marketplace africaine qui connecte acheteurs, vendeurs, prestataires et freelances. Produits, services et emplois en Afrique.";
-const BASE_URL = "https://miyashi-hub.lovable.app";
+const BASE_URL = (import.meta.env.VITE_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "https://miyashi-hub.lovable.app")).replace(/\/$/, "");
 const DEFAULT_OG_IMAGE = "/pwa-icon-512.png";
 
 const SEOHead = ({

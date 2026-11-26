@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import CheckoutOrderSummary from "@/components/checkout/CheckoutOrderSummary";
 import CheckoutPromoCode, { type AppliedPromo } from "@/components/checkout/CheckoutPromoCode";
 import CheckoutPaymentForm from "@/components/checkout/CheckoutPaymentForm";
+import TopUpDialog from "@/components/wallet/TopUpDialog";
 
 interface OrderItem {
   productId?: string;
@@ -48,6 +49,19 @@ const Checkout = () => {
   const [promoInput, setPromoInput] = useState("");
   const [promoLoading, setPromoLoading] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState<AppliedPromo | null>(null);
+  const [topUpAmount, setTopUpAmount] = useState<number | null>(null);
+
+  // Keep the delivery details across the FedaPay redirect.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("miyashi_checkout_draft") || "null");
+      if (saved) {
+        setShippingAddress(saved.shippingAddress || "");
+        setNotes(saved.notes || "");
+        setPhone(saved.phone || "");
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   const isDirectOrder = !!directAmount && !!directSellerId;
   const baseAmount = isDirectOrder ? directAmount : totalPrice;
@@ -103,6 +117,20 @@ const Checkout = () => {
     }
 
     setLoading(true);
+
+    // Orders are paid from the wallet (funds then held in escrow). If the balance is
+    // too low, top up the missing amount with FedaPay first.
+    const { data: walletRow } = await supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle();
+    const balance = Number(walletRow?.balance ?? 0);
+    if (balance < checkoutAmount) {
+      setLoading(false);
+      try {
+        sessionStorage.setItem("miyashi_checkout_draft", JSON.stringify({ shippingAddress, notes, phone }));
+      } catch { /* ignore */ }
+      setTopUpAmount(Math.max(100, Math.ceil(checkoutAmount - balance)));
+      return;
+    }
+
     try {
       let orderItems: OrderItem[] = [];
       if (isDirectOrder) {
@@ -143,6 +171,7 @@ const Checkout = () => {
       }
 
       if (!isDirectOrder) await clearCart();
+      try { sessionStorage.removeItem("miyashi_checkout_draft"); } catch { /* ignore */ }
       setLoading(false);
       toast({ title: "Paiement réussi! ✅", description: "Vos fonds sont sécurisés." });
       navigate(`/order-success?order=${lastOrderId}&total=${lastTotal}`);
@@ -259,6 +288,18 @@ const Checkout = () => {
               {loading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <CheckCircle className="w-5 h-5 mr-2" />}
               Payer {checkoutAmount.toLocaleString()} FCFA
             </Button>
+            <TopUpDialog
+              key={topUpAmount ?? 0}
+              open={topUpAmount !== null}
+              onOpenChange={(o) => { if (!o) setTopUpAmount(null); }}
+              defaultAmount={topUpAmount ?? undefined}
+              returnPath={`${window.location.pathname}${window.location.search}`}
+            />
+            {topUpAmount !== null && (
+              <p className="text-sm text-center text-muted-foreground mt-2">
+                Solde insuffisant : rechargez {topUpAmount.toLocaleString()} FCFA via FedaPay pour finaliser la commande.
+              </p>
+            )}
           </motion.div>
         </div>
       </main>

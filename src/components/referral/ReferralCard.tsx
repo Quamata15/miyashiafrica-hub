@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Gift, Copy, CheckCircle, Users, Wallet } from "lucide-react";
 import { toast } from "sonner";
 
+const SITE_URL = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, "");
+
 const ReferralCard = () => {
   const { user } = useAuth();
   const [code, setCode] = useState<string | null>(null);
@@ -48,7 +50,7 @@ const ReferralCard = () => {
 
   const handleCopy = async () => {
     if (!code) return;
-    const shareText = `Rejoins MIYASHI avec mon code ${code} et reçois 500 FCFA de bonus ! 🎁\nhttps://miyashi-hub.lovable.app/auth?ref=${code}`;
+    const shareText = `Rejoins MIYASHI avec mon code ${code} et reçois 500 FCFA de bonus ! 🎁\n${SITE_URL}/auth?ref=${code}`;
     await navigator.clipboard.writeText(shareText);
     setCopied(true);
     toast.success("Code copié !");
@@ -60,7 +62,7 @@ const ReferralCard = () => {
     const shareData = {
       title: "MIYASHI - Parrainage",
       text: `Rejoins MIYASHI avec mon code ${code} et reçois 500 FCFA de bonus ! 🎁`,
-      url: `https://miyashi-hub.lovable.app/auth?ref=${code}`,
+      url: `${SITE_URL}/auth?ref=${code}`,
     };
     if (navigator.share) {
       await navigator.share(shareData);

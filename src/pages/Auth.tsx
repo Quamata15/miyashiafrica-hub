@@ -110,7 +110,7 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error } = await signUp(signupEmail, signupPassword, signupFullName, nextPath ? nextUrl : undefined);
+    const { error } = await signUp(signupEmail, signupPassword, signupFullName, nextPath ? nextUrl : undefined, signupRole);
     
     if (error) {
       toast({
@@ -119,14 +119,9 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
-      // Assign the selected role after signup
+      // The selected role is assigned by the handle_new_user trigger (signup metadata).
       const { data: { user: newUser } } = await supabase.auth.getUser();
       if (newUser) {
-        await supabase.from("user_roles").insert({
-          user_id: newUser.id,
-          role: signupRole,
-        });
-
         // Apply referral code if provided
         if (referralCode.trim()) {
           await supabase.rpc("apply_referral" as any, { p_referral_code: referralCode.trim() });

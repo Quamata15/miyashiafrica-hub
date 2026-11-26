@@ -1,4 +1,10 @@
-project_id = "mfwjecyhnpmekoqvrrau"
+project_id = "decycxufopbagjdpejul"
 
 [functions.notifications-cron]
+verify_jwt = false
+
+[functions.mcp]
+verify_jwt = false
+
+[functions.fedapay-webhook]
 verify_jwt = false

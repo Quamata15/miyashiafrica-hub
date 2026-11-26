@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import TopUpDialog from "@/components/wallet/TopUpDialog";
+import { confirmFedapayTopup, popTopupReturnPath } from "@/lib/fedapay";
 import VerificationGate from "@/components/kyc/VerificationGate";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useWallet } from "@/hooks/useWallet";
 import { useToast } from "@/hooks/use-toast";
@@ -94,9 +96,39 @@ const paymentsByCountry: Record<string, { label: string; methods: { id: string; 
 
 const WalletPage = () => {
   const { user } = useAuth();
-  const { wallet, transactions, loading, requestWithdrawal } = useWallet();
+  const { wallet, transactions, loading, requestWithdrawal, fetchWallet } = useWallet();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const topupId = searchParams.get("topup");
+
+  // Back from the FedaPay payment page: confirm the top-up, then return to checkout if needed.
+  useEffect(() => {
+    if (!user || !topupId) return;
+    let cancelled = false;
+    (async () => {
+      let status = "pending";
+      for (let i = 0; i < 5 && status === "pending" && !cancelled; i++) {
+        status = await confirmFedapayTopup(topupId);
+        if (status === "pending") await new Promise((r) => setTimeout(r, 3000));
+      }
+      if (cancelled) return;
+      setSearchParams({}, { replace: true });
+      await fetchWallet();
+      if (status === "approved") {
+        toast({ title: "Recharge réussie ✅", description: "Votre portefeuille a été crédité." });
+        const back = popTopupReturnPath();
+        if (back && back !== "/wallet") navigate(back);
+      } else if (status === "pending") {
+        toast({ title: "Paiement en cours de confirmation", description: "Votre solde sera mis à jour dès la validation par l'opérateur." });
+      } else {
+        popTopupReturnPath();
+        toast({ title: "Paiement non abouti", description: `Statut : ${status}`, variant: "destructive" });
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, topupId]);
 
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [withdrawPhone, setWithdrawPhone] = useState("");
@@ -168,6 +200,9 @@ const WalletPage = () => {
                 </div>
               </div>
               <CardContent className="p-4 flex gap-3">
+                <TopUpDialog
+                  trigger={<Button variant="outline" className="flex-1"><ArrowDownCircle className="w-4 h-4 mr-2" /> Recharger</Button>}
+                />
                 <Dialog open={showWithdraw} onOpenChange={setShowWithdraw}>
                   <DialogTrigger asChild>
                     <Button className="flex-1 bg-gradient-hero"><ArrowUpCircle className="w-4 h-4 mr-2" /> Retirer</Button>

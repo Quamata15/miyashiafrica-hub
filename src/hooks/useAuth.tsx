@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, redirectTo?: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, redirectTo?: string, role?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -34,12 +34,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, redirectTo?: string) => {
+  const signUp = async (email: string, password: string, fullName: string, redirectTo?: string, role?: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        // `role` is read by the handle_new_user trigger, so it is saved even
+        // when email confirmation leaves the user without a session.
+        data: { full_name: fullName, ...(role ? { role } : {}) },
         ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
       }
     });
