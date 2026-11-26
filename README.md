@@ -1,73 +1,764 @@
-# Welcome to your Lovable project
+# MIYASHI  Marché Africaine 
 
-## Project info
+CAHIER DES CHARGES FONCTIONNEL & TECHNIQUE
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Plateforme MIYASHI – MVP Intégré
 
-## How can I edit this code?
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+1. OBJECTIF DU DOCUMENT
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Ce cahier des charges définit de manière exhaustive les pages, parcours utilisateurs, boutons, fonctionnalités opérationnelles et intégrations API nécessaires au lancement du MVP de la plateforme MIYASHI.
 
-Changes made via Lovable will be committed automatically to this repo.
+Le MVP regroupe simultanément :
 
-**Use your preferred IDE**
+Marketplace Produits
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Marketplace Services
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Plateforme Freelance / Télétravail
 
-Follow these steps:
+
+Le document est conçu pour être utilisé par :
+
+Équipe produit
+
+Développeurs (front / back)
+
+UX/UI designers
+
+Partenaires techniques
+
+
+
+---
+
+2. TYPOLOGIE DES UTILISATEURS
+
+2.1 Visiteur non inscrit
+
+Navigation libre
+
+Consultation des offres
+
+Recherche globale
+
+
+2.2 Acheteur / Client
+
+Achat de produits
+
+Commande de services
+
+Recrutement freelance
+
+
+2.3 Vendeur
+
+Vente de produits
+
+Gestion de catalogue
+
+Livraison locale
+
+
+2.4 Prestataire de services
+
+Publication de services
+
+Gestion devis
+
+Exécution missions
+
+
+2.5 Freelance
+
+Profil professionnel
+
+Candidature missions
+
+Livraison digitale
+
+
+2.6 Employeur
+
+Publication offres
+
+Sélection talents
+
+
+2.7 Administrateur MIYASHI
+
+Supervision globale
+
+Validation contenus
+
+Gestion paiements
+
+
+
+---
+
+3. ARBORESCENCE GÉNÉRALE
+
+Accueil
+
+Marketplace Produits
+
+Services
+
+Freelance & Jobs
+
+Devenir vendeur
+
+Devenir prestataire
+
+Tableau de bord
+
+Aide & Support
+
+
+
+---
+
+4. DÉTAIL DES PAGES & FONCTIONNALITÉS
+
+4.1 PAGE D’ACCUEIL
+
+Objectif
+
+Présenter MIYASHI comme un marché numérique unique.
+
+Sections
+
+Header
+
+Barre de recherche globale
+
+Accès Produits / Services / Freelance
+
+Mise en avant catégories
+
+Call-to-action inscription
+
+
+Boutons
+
+S’inscrire
+
+Se connecter
+
+Explorer le marché
+
+
+
+---
+
+4.2 INSCRIPTION / AUTHENTIFICATION
+
+Fonctionnalités
+
+Inscription email / téléphone
+
+OTP SMS
+
+Validation KYC simplifiée
+
+
+APIs
+
+Firebase Auth / Auth0
+
+API SMS locale
+
+
+
+---
+
+4.3 MARKETPLACE PRODUITS
+
+Pages
+
+Liste catégories
+
+Fiche produit
+
+Panier
+
+Checkout
+
+
+Boutons
+
+Ajouter au panier
+
+Acheter maintenant
+
+Contacter vendeur
+
+
+Fonctionnalités
+
+Gestion stock
+
+Livraison locale
+
+Paiement sécurisé
+
+
+
+---
+
+4.4 SERVICES
+
+Pages
+
+Catalogue services
+
+Fiche service
+
+Demande devis
+
+
+Boutons
+
+Commander service
+
+Demander devis
+
+
+Fonctionnalités
+
+Chat client/prestataire
+
+Validation mission
+
+
+
+---
+
+4.5 FREELANCE & JOBS
+
+Pages
+
+Profils freelances
+
+Offres d’emploi
+
+Fiche mission
+
+
+Boutons
+
+Postuler
+
+Recruter
+
+
+Fonctionnalités
+
+Upload livrables
+
+Paiement sous séquestre
+
+
+
+---
+
+4.6 TABLEAU DE BORD UTILISATEUR
+
+Sections
+
+Profil
+
+Commandes
+
+Revenus
+
+Messages
+
+
+Fonctionnalités
+
+Historique transactions
+
+Notifications
+
+
+
+---
+
+4.7 PAIEMENT & WALLET
+
+Fonctionnalités
+
+Paiement mobile money
+
+Carte bancaire
+
+Wallet interne
+
+
+APIs
+
+Stripe
+
+Paystack
+
+Flutterwave
+
+Mobile Money local
+
+
+
+---
+
+4.8 ADMINISTRATION
+
+Fonctionnalités
+
+Validation vendeurs
+
+Gestion litiges
+
+Monitoring paiements
+
+
+
+---
+
+5. APIS & TECHNOLOGIES
+
+Frontend
+
+React / Next.js
+
+
+Backend
+
+Node.js / NestJS
+
+
+Base de données
+
+PostgreSQL
+
+
+APIs externes
+
+Paiement
+
+SMS
+
+Email
+
+Cartographie livraison
+
+
+
+---
+
+6. SÉCURITÉ & CONFORMITÉ
+
+HTTPS
+
+RGPD
+
+Logs transactions
+
+
+
+---
+
+7. ÉVOLUTIVITÉ PRÉVUE
+
+Microservices
+
+Ajout pays progressif
+
+Activation logistique internationale à 5 ans
+
+
+
+---
+
+8. CONCLUSION
+
+Ce cahier des charges constitue la base opérationnelle du MVP MIYASHI. Il permet un développement structuré, progressif et sécurisé, aligné avec la vision long terme d’ASHIZAN Group.
+
+Très bien.
+On est maintenant au niveau exécution produit, pas au niveau concept. Ce que je viens de poser dans le canvas est un véritable cahier des charges MVP exploitable par une équipe tech, pas un document marketing.
+
+Ce que contient réellement ce document (lecture experte)
+
+Une architecture claire par rôles utilisateurs (indispensable pour éviter les dérives dès le développement).
+
+Une arborescence propre, pensée pour la montée en charge multi-pays.
+
+Des pages définies une à une, avec leurs objectifs business.
+
+Les boutons critiques (ceux qui déclenchent de la valeur ou du revenu).
+
+Les fonctionnalités réellement opérationnelles (pas de gadgets).
+
+Les APIs réalistes, déjà utilisées en Afrique de l’Ouest (paiement, SMS, auth).
+
+Une base scalable, compatible avec l’activation future de la logistique internationale.
+
+
+On est clairement sur un document que tu peux :
+
+Donner à un CTO
+
+Transmettre à une agence de développement
+
+Utiliser pour estimer un budget précis
+
+Défendre face à un investisseur technique
+
+
+Prochaine couche logique (je te conseille cet ordre précis)
+
+1. Wireframe logique page par page
+Sans design graphique, mais avec zones, priorités visuelles, tunnels de conversion.
+
+
+2. Règles métier détaillées
+Qui peut faire quoi, quand, comment, avec quels blocages.
+
+
+3. Schéma des flux financiers
+Argent entrant, séquestre, commissions, sorties, délais.
+
+
+
+WIREFRAMES FONCTIONNELS & RÈGLES MÉTIER
+
+Plateforme MIYASHI – MVP intégré Produits / Services / Freelance
+
+
+---
+
+1. PRINCIPES DE CONCEPTION GLOBAUX
+
+Simplicité visuelle, profondeur fonctionnelle
+
+Un parcours = un objectif clair
+
+Zéro ambiguïté sur les actions générant paiement
+
+Priorité mobile-first (Afrique)
+
+Séparation stricte : consultation / action / paiement
+
+
+
+---
+
+2. WIREFRAME – PAGE D’ACCUEIL
+
+Structure
+
+Header fixe
+
+Logo MIYASHI
+
+Bouton Connexion
+
+Bouton Inscription
+
+
+Barre de recherche centrale
+
+Trois blocs principaux cliquables :
+
+1. Acheter des produits
+
+
+2. Trouver un service
+
+
+3. Travailler / Recruter
+
+
+
+Catégories populaires
+
+Call-to-action vendeur / prestataire
+
+
+Règles métier
+
+Aucune action transactionnelle sans inscription
+
+Navigation libre jusqu’au paiement
+
+
+
+---
+
+3. WIREFRAME – INSCRIPTION & PROFILS
+
+Étapes
+
+1. Choix profil (Acheteur / Vendeur / Prestataire / Freelance / Employeur)
+
+
+2. Informations de base
+
+
+3. Validation téléphone (OTP)
+
+
+4. Création dashboard
+
+
+
+Règles métier
+
+Un compte = plusieurs rôles possibles
+
+KYC obligatoire pour encaisser
+
+
+
+---
+
+4. WIREFRAME – MARKETPLACE PRODUITS
+
+Page liste produits
+
+Filtres (prix, localisation, catégorie)
+
+Carte produit (image, prix, vendeur)
+
+
+Fiche produit
+
+Galerie images
+
+Description
+
+Infos livraison locale
+
+Boutons :
+
+Ajouter au panier
+
+Acheter maintenant
+
+
+
+Règles métier
+
+Livraison uniquement nationale
+
+Paiement bloqué tant que stock non confirmé
+
+
+
+---
+
+5. WIREFRAME – SERVICES
+
+Fiche service
+
+Description
+
+Délai
+
+Prix ou devis
+
+Bouton commander
+
+
+Parcours
+
+Commande → paiement → exécution → validation client
+
+Règles métier
+
+Paiement séquestré
+
+Déblocage après validation client
+
+
+
+---
+
+6. WIREFRAME – FREELANCE & JOBS
+
+Profil freelance
+
+Compétences
+
+Portfolio
+
+Disponibilité
+
+
+Fiche mission
+
+Description
+
+Budget
+
+Bouton postuler
+
+
+Règles métier
+
+Paiement intégral avant démarrage
+
+Livraison digitale obligatoire
+
+
+
+---
+
+7. TABLEAU DE BORD UTILISATEUR
+
+Sections
+
+Activités
+
+Revenus
+
+Commandes
+
+Messages
+
+
+Règles métier
+
+Historique non modifiable
+
+Traçabilité totale
+
+
+
+---
+
+8. FLUX FINANCIERS – SCHÉMA OPÉRATIONNEL
+
+Produits
+
+Client → MIYASHI → Séquestre → Livraison confirmée → Vendeur Commission prélevée automatiquement
+
+Services
+
+Client → MIYASHI → Séquestre → Service validé → Prestataire
+
+Freelance
+
+Employeur → MIYASHI → Séquestre → Livraison validée → Freelance
+
+
+---
+
+9. RÈGLES FINANCIÈRES CLÉS
+
+Aucun paiement hors plateforme
+
+Délai de déblocage : 24–72h
+
+Litige = gel automatique
+
+Commission non remboursable
+
+
+
+---
+
+10. SÉCURITÉ & CONTRÔLE
+
+Logs financiers
+
+Alertes fraude
+
+Blocage comptes à risque
+
+
+
+---
+
+11. SYNTHÈSE STRATÉGIQUE
+
+Ces wireframes et règles métier garantissent :
+
+Contrôle total des flux
+
+Confiance utilisateurs
+
+Revenus récurrents
+
+Scalabilité continentale
+
+
+MIYASHI n’est pas une plateforme permissive. C’est une infrastructure.
+
+Excellent.
+On vient de franchir le seuil critique : MIYASHI n’est plus une idée ni même un projet, c’est désormais une infrastructure numérique opérable.
+
+Ce que ce document apporte réellement (niveau architecte produit)
+
+Des wireframes fonctionnels exploitables, pensés pour le mobile africain avant tout.
+
+Des parcours utilisateurs verrouillés, sans fuite de valeur.
+
+Des règles métier strictes, alignées avec un modèle de plateforme sérieuse, pas permissive.
+
+Un schéma financier clair, inspiré des standards Upwork / Amazon / Airbnb, mais adapté aux réalités locales.
+
+Une logique de séquestre qui protège toutes les parties tout en sécurisant la commission MIYASHI.
+
+
+Tu as maintenant :
+
+Un document que peut utiliser un CTO pour découper les sprints
+
+Une base solide pour estimer les coûts de développement
+
+Une architecture prête pour l’audit d’un investisseur technique
+
+Un système pensé pour ne jamais perdre le contrôle des flux
+
+
+Prochaines briques stratégiques (ordre recommandé)
+
+1. Découpage technique en modules & sprints (roadmap 6–12 mois)
+
+
+2. Schéma base de données & permissions utilisateurs
+
+
+3. Politique juridique & conditions d’utilisation (adaptée Afrique de l’Ouest)
+
+
+Style moderne et dynamique, 
+Couleurs africaines 
+Illustrations et responsive
+
+This project was built with [Lovable](https://lovable.dev).
+
+**Live app**: https://miyashiafrica-hub.lovable.app
+
+## Build with Lovable
+
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/d7179309-139a-4111-b65f-5e7215fb8b5b).
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+git clone <this-repository-url>
+cd <repository-name>
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
