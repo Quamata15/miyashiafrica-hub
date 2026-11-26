@@ -559,6 +559,42 @@ export type Database = {
         }
         Relationships: []
       }
+      client_errors: {
+        Row: {
+          created_at: string
+          id: number
+          message: string
+          release: string | null
+          session_id: string | null
+          stack: string | null
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          message: string
+          release?: string | null
+          session_id?: string | null
+          stack?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          message?: string
+          release?: string | null
+          session_id?: string | null
+          stack?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           created_at: string
@@ -1579,6 +1615,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ledger_entries: {
+        Row: {
+          account: string
+          created_at: string
+          credit: number
+          debit: number
+          id: number
+          txn_id: string
+        }
+        Insert: {
+          account: string
+          created_at?: string
+          credit?: number
+          debit?: number
+          id?: never
+          txn_id: string
+        }
+        Update: {
+          account?: string
+          created_at?: string
+          credit?: number
+          debit?: number
+          id?: never
+          txn_id?: string
+        }
+        Relationships: []
+      }
       legal_documents: {
         Row: {
           content: string
@@ -2110,6 +2173,203 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      pickup_partner_applications: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          business_type: string | null
+          check_contract: boolean
+          check_documents: boolean
+          check_identity: boolean
+          check_phone: boolean
+          check_references: boolean
+          check_site_visit: boolean
+          check_training: boolean
+          city: string | null
+          commitments: Json
+          company_name: string | null
+          country: string | null
+          created_at: string
+          decided_at: string | null
+          decision_reason: string | null
+          district: string | null
+          documents: Json
+          email: string | null
+          ground_floor_access: boolean | null
+          has_cctv: boolean | null
+          has_fire_extinguisher: boolean | null
+          has_insurance: boolean | null
+          has_internet: boolean | null
+          has_secure_storage: boolean | null
+          has_smartphone: boolean | null
+          id: string
+          info_request: string | null
+          insurer_name: string | null
+          landmark: string | null
+          lat: number | null
+          legal_form: string | null
+          lng: number | null
+          manager_id_number: string | null
+          manager_id_type: string | null
+          manager_name: string | null
+          manager_role: string | null
+          max_parcels: number | null
+          motivation: string | null
+          nif_number: string | null
+          opening_hours: Json
+          parking_nearby: boolean | null
+          payout_account: string | null
+          payout_method: string | null
+          phone: string | null
+          pickup_point_id: string | null
+          premises_status: string | null
+          rccm_number: string | null
+          reviewer_id: string | null
+          site_visit_at: string | null
+          site_visit_notes: string | null
+          staff_count: number | null
+          status: string
+          storage_area_m2: number | null
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+          year_founded: number | null
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          business_type?: string | null
+          check_contract?: boolean
+          check_documents?: boolean
+          check_identity?: boolean
+          check_phone?: boolean
+          check_references?: boolean
+          check_site_visit?: boolean
+          check_training?: boolean
+          city?: string | null
+          commitments?: Json
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decision_reason?: string | null
+          district?: string | null
+          documents?: Json
+          email?: string | null
+          ground_floor_access?: boolean | null
+          has_cctv?: boolean | null
+          has_fire_extinguisher?: boolean | null
+          has_insurance?: boolean | null
+          has_internet?: boolean | null
+          has_secure_storage?: boolean | null
+          has_smartphone?: boolean | null
+          id?: string
+          info_request?: string | null
+          insurer_name?: string | null
+          landmark?: string | null
+          lat?: number | null
+          legal_form?: string | null
+          lng?: number | null
+          manager_id_number?: string | null
+          manager_id_type?: string | null
+          manager_name?: string | null
+          manager_role?: string | null
+          max_parcels?: number | null
+          motivation?: string | null
+          nif_number?: string | null
+          opening_hours?: Json
+          parking_nearby?: boolean | null
+          payout_account?: string | null
+          payout_method?: string | null
+          phone?: string | null
+          pickup_point_id?: string | null
+          premises_status?: string | null
+          rccm_number?: string | null
+          reviewer_id?: string | null
+          site_visit_at?: string | null
+          site_visit_notes?: string | null
+          staff_count?: number | null
+          status?: string
+          storage_area_m2?: number | null
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+          year_founded?: number | null
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          business_type?: string | null
+          check_contract?: boolean
+          check_documents?: boolean
+          check_identity?: boolean
+          check_phone?: boolean
+          check_references?: boolean
+          check_site_visit?: boolean
+          check_training?: boolean
+          city?: string | null
+          commitments?: Json
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decision_reason?: string | null
+          district?: string | null
+          documents?: Json
+          email?: string | null
+          ground_floor_access?: boolean | null
+          has_cctv?: boolean | null
+          has_fire_extinguisher?: boolean | null
+          has_insurance?: boolean | null
+          has_internet?: boolean | null
+          has_secure_storage?: boolean | null
+          has_smartphone?: boolean | null
+          id?: string
+          info_request?: string | null
+          insurer_name?: string | null
+          landmark?: string | null
+          lat?: number | null
+          legal_form?: string | null
+          lng?: number | null
+          manager_id_number?: string | null
+          manager_id_type?: string | null
+          manager_name?: string | null
+          manager_role?: string | null
+          max_parcels?: number | null
+          motivation?: string | null
+          nif_number?: string | null
+          opening_hours?: Json
+          parking_nearby?: boolean | null
+          payout_account?: string | null
+          payout_method?: string | null
+          phone?: string | null
+          pickup_point_id?: string | null
+          premises_status?: string | null
+          rccm_number?: string | null
+          reviewer_id?: string | null
+          site_visit_at?: string | null
+          site_visit_notes?: string | null
+          staff_count?: number | null
+          status?: string
+          storage_area_m2?: number | null
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
+          year_founded?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pickup_partner_applications_pickup_point_id_fkey"
+            columns: ["pickup_point_id"]
+            isOneToOne: false
+            referencedRelation: "pickup_points"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pickup_points: {
         Row: {
@@ -2708,6 +2968,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limits: {
+        Row: {
+          hits: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          hits?: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          hits?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      reconciliation_reports: {
+        Row: {
+          id: number
+          issues: Json
+          ok: boolean
+          run_at: string
+          totals: Json
+        }
+        Insert: {
+          id?: never
+          issues: Json
+          ok: boolean
+          run_at?: string
+          totals: Json
+        }
+        Update: {
+          id?: never
+          issues?: Json
+          ok?: boolean
+          run_at?: string
+          totals?: Json
+        }
+        Relationships: []
       }
       referral_codes: {
         Row: {
@@ -3868,6 +4170,7 @@ export type Database = {
       }
       accept_shop_invite: { Args: { p_shop_id: string }; Returns: undefined }
       admin_find_user: { Args: { p_email: string }; Returns: string }
+      admin_integration_urls: { Args: never; Returns: Json }
       admin_risk_list: {
         Args: { p_min?: number }
         Returns: {
@@ -4009,6 +4312,7 @@ export type Database = {
         Returns: Json
       }
       export_my_data: { Args: never; Returns: Json }
+      f_unaccent: { Args: { "": string }; Returns: string }
       find_delivery_zone: {
         Args: { p_city: string; p_country: string; p_district?: string }
         Returns: {
@@ -4086,6 +4390,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      hit_rate_limit: {
+        Args: { p_key: string; p_max: number; p_window: number }
+        Returns: boolean
+      }
       increment_boost_metric: {
         Args: { p_boost_id: string; p_metric?: string }
         Returns: undefined
@@ -4100,6 +4408,18 @@ export type Database = {
         Returns: Json
       }
       leave_group_buy: { Args: { p_id: string }; Returns: undefined }
+      ledger_counterparty: { Args: { p_type: string }; Returns: string }
+      log_client_error: {
+        Args: {
+          p_message: string
+          p_release?: string
+          p_session?: string
+          p_stack?: string
+          p_url?: string
+          p_user_agent?: string
+        }
+        Returns: undefined
+      }
       make_offer: {
         Args: {
           p_message?: string
@@ -4134,12 +4454,26 @@ export type Database = {
         Args: { p_product_id: string; p_quantity: number; p_variant_id: string }
         Returns: number
       }
+      rate_guard: {
+        Args: { p_action: string; p_max: number; p_window: number }
+        Returns: undefined
+      }
       refresh_risk_scores: { Args: never; Returns: number }
       reject_quote: { Args: { p_quote_id: string }; Returns: undefined }
       respond_offer: {
         Args: { p_action: string; p_counter_price?: number; p_offer_id: string }
         Returns: Json
       }
+      review_partner_application: {
+        Args: {
+          p_action: string
+          p_id: string
+          p_message?: string
+          p_visit_at?: string
+        }
+        Returns: Json
+      }
+      run_reconciliation: { Args: never; Returns: Json }
       scan_shipping_label: { Args: { p_qr_token: string }; Returns: Json }
       search_products: {
         Args: {
@@ -4241,6 +4575,7 @@ export type Database = {
         }
         Returns: Json
       }
+      submit_partner_application: { Args: { p_id: string }; Returns: Json }
       track_product_view: {
         Args: { p_product_id: string; p_session?: string }
         Returns: undefined
@@ -4255,6 +4590,11 @@ export type Database = {
       }
       verify_admin_access: { Args: never; Returns: boolean }
       verify_cron_secret: { Args: { p_secret: string }; Returns: boolean }
+      verify_ussd_key: { Args: { p_key: string }; Returns: boolean }
+      withdraw_partner_application: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:

@@ -77,7 +77,7 @@ export function AvailabilityEditor() {
   const { user } = useAuth();
   const [rows, setRows] = useState<Avail[]>([]);
   const [busy, setBusy] = useState(false);
-  useEffect(() => { user && supabase.from("provider_availability").select("*").eq("provider_id", user.id).order("weekday").then(({ data }) => setRows((data ?? []).map((r) => ({ ...r, start_time: r.start_time.slice(0, 5), end_time: r.end_time.slice(0, 5) })))); }, [user]);
+  useEffect(() => { if (user) supabase.from("provider_availability").select("*").eq("provider_id", user.id).order("weekday").then(({ data }) => setRows((data ?? []).map((r) => ({ ...r, start_time: r.start_time.slice(0, 5), end_time: r.end_time.slice(0, 5) })))); }, [user]);
   const save = async () => {
     if (!user) return;
     setBusy(true);

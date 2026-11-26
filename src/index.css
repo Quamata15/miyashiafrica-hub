@@ -14,6 +14,7 @@
   :root {
     /* Light — Harmattan */
     --background: 40 33% 97%;
+    --backdrop-market: url('/backdrop/baobab-market-light.svg');
     --foreground: 248 30% 8%;
 
     --card: 0 0% 100%;
@@ -82,6 +83,7 @@
   .dark {
     /* Dark — Nuit de Lomé */
     --background: 240 22% 6%;
+    --backdrop-market: url('/backdrop/baobab-market-dark.svg');
     --foreground: 40 30% 96%;
 
     --card: 240 18% 10%;
@@ -175,12 +177,15 @@
   .bg-gradient-hero { background: var(--gradient-hero); }
   .bg-gradient-accent { background: var(--gradient-accent); }
   /* Page backdrop used by every inner page: night glows + faint grid floor */
+  /* Page background: faint grid, warm gradient, and the market under the baobabs
+     (fixed at the bottom of the screen, see public/backdrop). */
   .bg-gradient-warm {
     background:
+      var(--backdrop-market) center bottom / max(100vw, 1100px) auto no-repeat,
       linear-gradient(hsl(var(--grid-line)) 1px, transparent 1px),
       linear-gradient(90deg, hsl(var(--grid-line)) 1px, transparent 1px),
       var(--gradient-warm);
-    background-size: 56px 56px, 56px 56px, auto;
+    background-size: max(100vw, 1100px) auto, 56px 56px, 56px 56px, auto;
     background-attachment: fixed;
   }
   .bg-gradient-dark { background: var(--gradient-dark); }
@@ -287,6 +292,7 @@ html[data-saver] *, html[data-saver] *::before, html[data-saver] *::after {
   animation-duration: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0s !important;
 }
 html[data-saver] .blur-\[130px\], html[data-saver] .animate-marquee { display: none; }
+html[data-saver] { --backdrop-market: none; }
 
 @media print {
   header, footer, .no-print { display: none !important; }

@@ -24,6 +24,8 @@ import {
   CheckCircle, ArrowRight, Loader2, DollarSign 
 } from "lucide-react";
 import DriverContract from "@/components/driver/DriverContract";
+import PageHero from "@/components/layout/PageHero";
+import { PHOTOS } from "@/lib/photos";
 
 const DriverRegistration = () => {
   const { user } = useAuth();
@@ -101,22 +103,8 @@ const DriverRegistration = () => {
       <main className="flex-1 pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-5xl">
           {/* Hero */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-12"
-          >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-elevated">
-              <Truck className="w-10 h-10 text-primary-foreground" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4">
-              Devenez <span className="text-gradient-hero">Livreur MIYASHI</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Rejoignez notre réseau de livreurs et gagnez de l'argent en livrant des produits dans votre zone.
-              Commission attractive, horaires flexibles, paiement garanti.
-            </p>
-          </motion.div>
+          <PageHero eyebrow="Livreurs" title="Devenez livreur MIYASHI" photo={PHOTOS.motoGoods}
+            description="Livrez dans votre zone, choisissez vos horaires, soyez payé dès que le client confirme la réception." />
 
           {/* Benefits */}
           <motion.div

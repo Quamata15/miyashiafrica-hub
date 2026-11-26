@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { passwordProblems } from "@/lib/password";
+import { BrandMark } from "@/components/brand/BrandMark";
 import SEOHead from "@/components/SEOHead";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate, Navigate } from "react-router-dom";
@@ -111,8 +113,11 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (passwordProblems(signupPassword).length) {
+      toast({ title: "Mot de passe trop faible", description: `Il manque : ${passwordProblems(signupPassword).join(", ")}`, variant: "destructive" });
+      return;
+    }
     setIsLoading(true);
-    
     const { error } = await signUp(signupEmail, signupPassword, signupFullName, nextPath ? nextUrl : undefined, signupRole);
     
     if (error) {
@@ -199,9 +204,7 @@ const Auth = () => {
         >
           <Card className="border-0 shadow-elevated">
             <CardHeader className="text-center pb-2">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-lg">
-                <span className="font-display font-bold text-2xl text-primary-foreground">M</span>
-              </div>
+              <BrandMark className="w-16 h-16 mx-auto mb-4" />
               <CardTitle className="text-2xl font-display font-bold">MIYASHI</CardTitle>
               <CardDescription>
                 Un marché de tous les jours
@@ -386,9 +389,13 @@ const Auth = () => {
                         value={signupPassword}
                         onChange={(e) => setSignupPassword(e.target.value)}
                         required
-                        minLength={6}
+                        minLength={8}
                         className="h-12"
+                        aria-describedby="pw-rules"
                       />
+                      <p id="pw-rules" className={`text-xs ${signupPassword && passwordProblems(signupPassword).length ? "text-destructive" : "text-muted-foreground"}`}>
+                        {signupPassword && passwordProblems(signupPassword).length ? `Il manque : ${passwordProblems(signupPassword).join(", ")}` : "8 caractères minimum, avec une majuscule, une minuscule et un chiffre."}
+                      </p>
                     </div>
                     {/* Referral code */}
                     <div className="space-y-2">

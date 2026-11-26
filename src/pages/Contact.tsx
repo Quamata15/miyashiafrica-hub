@@ -82,7 +82,7 @@ const Contact = () => {
                   <div className="space-y-2">
                     <Label>Catégorie</Label>
                     <Select value={form.category} onValueChange={v => setForm({ ...form, category: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger aria-label="Catégorie"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="general">Général</SelectItem>
                         <SelectItem value="order">Commande</SelectItem>

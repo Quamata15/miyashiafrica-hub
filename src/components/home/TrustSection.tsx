@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useT } from "@/lib/i18n";
+import { PHOTOS, photoUrl } from "@/lib/photos";
 import { ShieldCheck, Lock, BadgeCheck, Headphones } from "lucide-react";
 
 const features = [
@@ -9,9 +11,13 @@ const features = [
 ];
 
 const TrustSection = () => {
+  const { t } = useT();
   return (
-    <section className="py-16 border-t border-border/60">
-      <div className="container">
+    <section className="relative py-16 border-t border-border/60 overflow-hidden">
+      <img src={photoUrl(PHOTOS.baobabNdem, 1800, 700)} alt="" aria-hidden loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-[0.12]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" aria-hidden />
+      <div className="container relative">
+        <p className="text-center text-sm text-muted-foreground mb-8">{t("Comme sous l'arbre à palabres : des règles claires, une parole tenue.")}</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {features.map((f, i) => (
             <motion.div

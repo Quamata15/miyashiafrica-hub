@@ -12,7 +12,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "mobile:sync": "vite build && cap sync",
-    "mobile:android": "vite build && cap sync android && cap open android"
+    "mobile:android": "vite build && cap sync android && cap open android",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "test:e2e": "playwright test --trace off",
+    "test:db": "scripts/db-test.sh",
+    "check": "npm run lint -- --quiet && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@capacitor/core": "^7.6.11",
@@ -80,6 +84,7 @@
     "@capacitor/android": "^7.6.11",
     "@capacitor/cli": "^7.6.11",
     "@eslint/js": "^9.32.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
@@ -88,6 +93,7 @@
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
+    "axe-core": "^4.10.3",
     "drizzle-kit": "0.x",
     "drizzle-orm": "0.x",
     "eslint": "^9.32.0",

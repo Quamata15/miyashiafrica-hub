@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight, Search, ShoppingBag, Wrench, Users, Truck, ShieldCheck, Zap, Lock, Bike, Star,
@@ -24,6 +25,7 @@ const PILLARS = [
 ];
 
 const HeroSection = () => {
+  const { t, lang } = useT();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   // Editable from Admin → Contenu (#47); these defaults show until it loads.
@@ -38,6 +40,8 @@ const HeroSection = () => {
   return (
     <section className="relative overflow-hidden pt-28 md:pt-32 pb-14">
       <div className="absolute inset-0 bg-gradient-warm" />
+      {/* Baobabs at dusk: the market gathers under them */}
+      <img src={photoUrl(PHOTOS.baobabSunset, 1800, 900)} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-bottom opacity-[0.22] mix-blend-luminosity dark:mix-blend-normal [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]" />
       <div className="absolute inset-0 bg-grid mask-radial opacity-70" />
       <div className="absolute -top-48 right-[-10%] w-[640px] h-[640px] rounded-full bg-primary/15 blur-[130px]" />
 
@@ -54,7 +58,7 @@ const HeroSection = () => {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-accent opacity-75 animate-ping" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              {hero.eyebrow}
+              {lang === "en" ? t("Le grand marché d'Afrique de l'Ouest, dans votre poche") : hero.eyebrow}
             </motion.div>
 
             <motion.h1
@@ -63,9 +67,9 @@ const HeroSection = () => {
               transition={{ delay: 0.08 }}
               className="font-display font-black leading-[0.95] tracking-tight text-[2.6rem] sm:text-6xl xl:text-7xl mb-6"
             >
-              {hero.title_1}
+              {lang === "en" ? t("Tout s'achète.") : hero.title_1}
               <br />
-              <span className="text-primary">{hero.title_2}</span>
+              <span className="text-primary">{lang === "en" ? t("Tout se vend.") : hero.title_2}</span>
             </motion.h1>
 
             <motion.p
@@ -74,7 +78,7 @@ const HeroSection = () => {
               transition={{ delay: 0.16 }}
               className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8"
             >
-              {hero.subtitle}
+              {lang === "en" ? t("Produits, services, talents et livraison au même endroit. Vous payez en mobile money, l'argent reste bloqué jusqu'à ce que vous ayez reçu votre commande.") : hero.subtitle}
             </motion.p>
 
             <motion.form
@@ -89,14 +93,14 @@ const HeroSection = () => {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Que cherchez-vous aujourd'hui ?"
+                placeholder={t("Que cherchez-vous aujourd'hui ?")}
                 aria-label="Rechercher sur MIYASHI"
                 className="flex-1 min-w-0 bg-transparent outline-none text-base placeholder:text-muted-foreground/80 py-3"
               />
               <VoiceSearchButton onResult={(t) => { setQuery(t); go(t); }} />
               <ImageSearchButton onResult={(t) => go(t)} />
               <Button type="submit" className="rounded-xl h-12 px-5 font-semibold">
-                <span className="hidden sm:inline">Chercher</span>
+                <span className="hidden sm:inline">{t("Chercher")}</span>
                 <ArrowRight className="w-5 h-5 sm:ml-1" />
               </Button>
             </motion.form>
@@ -126,7 +130,7 @@ const HeroSection = () => {
               className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mt-7 text-sm text-muted-foreground"
             >
               <Link to="/create?type=product" className="inline-flex items-center gap-2 font-semibold text-foreground hover:text-primary transition-colors">
-                <Zap className="w-4 h-4 text-primary" /> Ouvrir ma boutique gratuitement
+                <Zap className="w-4 h-4 text-primary" /> {t("Ouvrir ma boutique gratuitement")}
               </Link>
               <span className="inline-flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-accent" /> TMoney · Flooz · MTN · Wave · Carte

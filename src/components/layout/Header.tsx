@@ -1,4 +1,6 @@
 import { useState, useEffect, forwardRef } from "react";
+import { useT, LanguageSwitch } from "@/lib/i18n";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -31,6 +33,7 @@ import ThemeToggle from "@/components/theme/ThemeToggle";
 import GlobalSearch from "@/components/search/GlobalSearch";
 
 const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
+  const { t } = useT();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
@@ -119,11 +122,8 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
         <div className="flex items-center justify-between h-16 md:h-18">
           {/* Logo */}
           <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow"
-            >
-              <span className="font-display font-black text-xl text-primary-foreground">M</span>
+            <motion.div whileHover={{ scale: 1.06, rotate: -3 }} className="drop-shadow-[0_6px_18px_hsl(42_100%_55%/0.35)]">
+              <BrandMark className="w-10 h-10" />
             </motion.div>
             <span className="font-display font-black tracking-tight text-xl text-foreground hidden sm:block group-hover:text-primary transition-colors">
               MIYASHI
@@ -144,7 +144,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                 )}
               >
                 <link.icon className="w-4 h-4" />
-                <span>{link.label}</span>
+                <span>{t(link.label)}</span>
               </Link>
             ))}
           </nav>
@@ -154,16 +154,17 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-1">
+            <LanguageSwitch />
             <ThemeToggle />
             {user ? (
               <>
-                <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => navigate("/favorites")}>
+                <Button variant="ghost" size="icon" className="rounded-xl" aria-label="Favoris" onClick={() => navigate("/favorites")}>
                   <Heart className="w-5 h-5" />
                 </Button>
 
                 <CartDrawer />
 
-                <Button variant="ghost" size="icon" className="relative rounded-xl" onClick={() => navigate("/dashboard")}>
+                <Button variant="ghost" size="icon" className="relative rounded-xl" aria-label="Notifications" onClick={() => navigate("/dashboard")}>
                   <Bell className="w-5 h-5" />
                   {unreadNotifications > 0 && (
                     <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-secondary text-secondary-foreground">
@@ -172,7 +173,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   )}
                 </Button>
 
-                <Button variant="ghost" size="icon" className="relative rounded-xl" onClick={() => navigate("/messages")}>
+                <Button variant="ghost" size="icon" className="relative rounded-xl" aria-label="Messages" onClick={() => navigate("/messages")}>
                   <MessageSquare className="w-5 h-5" />
                   {unreadMessages > 0 && (
                     <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs bg-secondary text-secondary-foreground">
@@ -182,7 +183,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                 </Button>
 
                 <Button variant="default" size="sm" onClick={() => navigate("/create")} className="rounded-xl shadow-md bg-gradient-hero ml-1">
-                  + Créer
+                  {t("+ Créer")}
                 </Button>
 
                 {/* Profile dropdown — only when logged in */}
@@ -199,7 +200,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-60 p-2" align="end">
                     <DropdownMenuLabel className="font-normal">
-                      <p className="text-sm font-medium">Mon Compte</p>
+                      <p className="text-sm font-medium">{t("Mon Compte")}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -207,19 +208,19 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     {/* Main */}
                      <DropdownMenuGroup>
                       <DropdownMenuItem onClick={() => navigate("/dashboard")} className="cursor-pointer">
-                        <LayoutDashboard className="mr-2 h-4 w-4" /> Tableau de bord
+                        <LayoutDashboard className="mr-2 h-4 w-4" /> {t("Tableau de bord")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/feed")} className="cursor-pointer">
-                        <Rss className="mr-2 h-4 w-4" /> Fil d'actualité
+                        <Rss className="mr-2 h-4 w-4" /> {t("Fil d'actualité")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
-                        <User className="mr-2 h-4 w-4" /> Mon Profil
+                        <User className="mr-2 h-4 w-4" /> {t("Mon Profil")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/wallet")} className="cursor-pointer">
-                        <Wallet className="mr-2 h-4 w-4" /> Mon Portefeuille
+                        <Wallet className="mr-2 h-4 w-4" /> {t("Mon Portefeuille")}
                       </DropdownMenuItem>
                       <DropdownMenuSub>
-                        <DropdownMenuSubTrigger className="cursor-pointer"><ShoppingBag className="mr-2 h-4 w-4" /> Mes achats</DropdownMenuSubTrigger>
+                        <DropdownMenuSubTrigger className="cursor-pointer"><ShoppingBag className="mr-2 h-4 w-4" /> {t("Mes achats")}</DropdownMenuSubTrigger>
                         <DropdownMenuPortal>
                           <DropdownMenuSubContent>
                             {[["/offers", "Offres et marchandage"], ["/savings", "Épargne"], ["/bookings", "Rendez-vous"], ["/quotes", "Devis"], ["/addresses", "Adresses"], ["/compare", "Comparateur"]].map(([href, label]) => (
@@ -229,10 +230,10 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
                       <DropdownMenuItem onClick={() => navigate("/shop/manage")} className="cursor-pointer">
-                        <Store className="mr-2 h-4 w-4" /> Ma boutique
+                        <Store className="mr-2 h-4 w-4" /> {t("Ma boutique")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer">
-                        <Settings2 className="mr-2 h-4 w-4" /> Préférences
+                        <Settings2 className="mr-2 h-4 w-4" /> {t("Préférences")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
 
@@ -242,21 +243,21 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     <DropdownMenuGroup>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger className="cursor-pointer">
-                          <Briefcase className="mr-2 h-4 w-4" /> Mes Espaces
+                          <Briefcase className="mr-2 h-4 w-4" /> {t("Mes Espaces")}
                         </DropdownMenuSubTrigger>
                         <DropdownMenuPortal>
                           <DropdownMenuSubContent>
                             <DropdownMenuItem onClick={() => navigate("/provider-space")} className="cursor-pointer">
-                              <Briefcase className="mr-2 h-4 w-4" /> Prestataire
+                              <Briefcase className="mr-2 h-4 w-4" /> {t("Prestataire")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/driver-dashboard")} className="cursor-pointer">
-                              <Truck className="mr-2 h-4 w-4" /> Livreur
+                              <Truck className="mr-2 h-4 w-4" /> {t("Livreur")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/boost")} className="cursor-pointer">
-                              <Star className="mr-2 h-4 w-4" /> Booster
+                              <Star className="mr-2 h-4 w-4" /> {t("Booster")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/pickup-partner")} className="cursor-pointer">
-                              <MapPin className="mr-2 h-4 w-4" /> Point relais
+                              <MapPin className="mr-2 h-4 w-4" /> {t("Point relais")}
                             </DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
@@ -268,14 +269,14 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     {/* Communication */}
                     <DropdownMenuGroup>
                       <DropdownMenuItem onClick={() => navigate("/messages")} className="cursor-pointer">
-                        <MessageSquare className="mr-2 h-4 w-4" /> Messages
+                        <MessageSquare className="mr-2 h-4 w-4" /> {t("Messages")}
                         {unreadMessages > 0 && <Badge className="ml-auto bg-secondary text-xs">{unreadMessages}</Badge>}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/alerts")} className="cursor-pointer">
-                        <BellRing className="mr-2 h-4 w-4" /> Alertes recherche
+                        <BellRing className="mr-2 h-4 w-4" /> {t("Alertes recherche")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/disputes")} className="cursor-pointer">
-                        <Shield className="mr-2 h-4 w-4" /> Litiges
+                        <Shield className="mr-2 h-4 w-4" /> {t("Litiges")}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
 
@@ -284,7 +285,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => navigate("/admin")} className="cursor-pointer text-primary">
-                          <Shield className="mr-2 h-4 w-4" /> Administration
+                          <Shield className="mr-2 h-4 w-4" /> {t("Administration")}
                         </DropdownMenuItem>
                       </>
                     )}
@@ -295,21 +296,21 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     <DropdownMenuGroup>
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger className="cursor-pointer">
-                          <HelpCircle className="mr-2 h-4 w-4" /> Aide
+                          <HelpCircle className="mr-2 h-4 w-4" /> {t("Aide")}
                         </DropdownMenuSubTrigger>
                         <DropdownMenuPortal>
                           <DropdownMenuSubContent>
                             <DropdownMenuItem onClick={() => navigate("/help")} className="cursor-pointer">
-                              <HelpCircle className="mr-2 h-4 w-4" /> Centre d'aide
+                              <HelpCircle className="mr-2 h-4 w-4" /> {t("Centre d'aide")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/faq")} className="cursor-pointer">
-                              <FileText className="mr-2 h-4 w-4" /> FAQ
+                              <FileText className="mr-2 h-4 w-4" /> {t("FAQ")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/contact")} className="cursor-pointer">
-                              <Phone className="mr-2 h-4 w-4" /> Contact
+                              <Phone className="mr-2 h-4 w-4" /> {t("Contact")}
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate("/support")} className="cursor-pointer">
-                              <MessageSquare className="mr-2 h-4 w-4" /> Support
+                              <MessageSquare className="mr-2 h-4 w-4" /> {t("Support")}
                             </DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
@@ -318,7 +319,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
 
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" /> Se déconnecter
+                      <LogOut className="mr-2 h-4 w-4" /> {t("Se déconnecter")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -326,10 +327,10 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
             ) : (
               <>
                 <Button variant="ghost" size="sm" onClick={() => navigate("/auth")} className="rounded-xl">
-                  Se connecter
+                  {t("Se connecter")}
                 </Button>
                 <Button size="sm" onClick={() => navigate("/auth")} className="rounded-xl shadow-md bg-gradient-hero">
-                  S'inscrire
+                  {t("S'inscrire")}
                 </Button>
               </>
             )}
@@ -391,7 +392,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     onClick={() => go(link.href)}
                   >
                     <link.icon className="w-5 h-5" />
-                    <span className="font-medium">{link.label}</span>
+                    <span className="font-medium">{t(link.label)}</span>
                   </button>
                 </motion.div>
               ))}
@@ -489,17 +490,22 @@ const MobileMenuItem = ({ icon: Icon, label, onClick, badge, className }: {
   onClick: () => void;
   badge?: number;
   className?: string;
-}) => (
+}) => <MobileMenuButton Icon={Icon} label={label} onClick={onClick} badge={badge} className={className} />;
+
+const MobileMenuButton = ({ Icon, label, onClick, badge, className }: { Icon: React.ElementType; label: string; onClick: () => void; badge?: number; className?: string }) => {
+  const { t } = useT();
+  return (
   <button
     className={cn("flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left hover:bg-muted", className)}
     onClick={onClick}
   >
     <Icon className="w-5 h-5" />
-    <span className="font-medium flex-1">{label}</span>
+    <span className="font-medium flex-1">{t(label)}</span>
     {!!badge && badge > 0 && (
       <Badge className="bg-secondary text-secondary-foreground text-xs">{badge}</Badge>
     )}
   </button>
-);
+  );
+};
 
 export default Header;

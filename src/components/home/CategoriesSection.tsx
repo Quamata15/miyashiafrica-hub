@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useT } from "@/lib/i18n";
 import { Link } from "react-router-dom";
 import {
   Smartphone, Shirt, Home, Car, Apple, Palette, Wrench, GraduationCap, ArrowUpRight, Sprout, Sparkles,
@@ -17,29 +18,30 @@ type Tile = {
 const TILES: Tile[] = [
   { name: "Mode & Pagne", hint: "Wax, kente, prêt-à-porter", icon: Shirt, href: "/marketplace?q=pagne", span: "md:col-span-2 md:row-span-2", photo: PHOTOS.waxFabrics },
   { name: "Vivres & Marché", hint: "Igname, riz, épices, frais", icon: Apple, href: "/marketplace?q=vivres", span: "md:col-span-2", photo: PHOTOS.grains },
-  { name: "Électronique", hint: "Téléphones, ordinateurs", icon: Smartphone, href: "/marketplace?q=téléphone" },
-  { name: "Maison & Déco", hint: "Meubles, cuisine, déco", icon: Home, href: "/marketplace?q=maison" },
+  { name: "Électronique", hint: "Téléphones, ordinateurs", icon: Smartphone, href: "/marketplace?q=téléphone", photo: PHOTOS.phoneRepair },
+  { name: "Maison & Déco", hint: "Meubles, cuisine, déco", icon: Home, href: "/marketplace?q=maison", photo: PHOTOS.woodMask },
   { name: "Auto & Moto", hint: "Véhicules et pièces détachées", icon: Car, href: "/marketplace?q=moto", span: "md:col-span-2", photo: PHOTOS.motoGoods },
-  { name: "Agriculture", hint: "Semences, outils, élevage", icon: Sprout, href: "/marketplace?q=agriculture" },
-  { name: "Beauté", hint: "Soins, karité, cosmétiques", icon: Sparkles, href: "/marketplace?q=beauté" },
-  { name: "Services pro", hint: "Plombier, électricien, mécano", icon: Wrench, href: "/services" },
-  { name: "Art & Design", hint: "Créatifs et artisans", icon: Palette, href: "/services" },
-  { name: "Formation", hint: "Cours et coaching", icon: GraduationCap, href: "/services", span: "md:col-span-2" },
+  { name: "Agriculture", hint: "Semences, outils, élevage", icon: Sprout, href: "/marketplace?q=agriculture", photo: PHOTOS.cassavaFarmers },
+  { name: "Beauté", hint: "Soins, karité, cosmétiques", icon: Sparkles, href: "/marketplace?q=beauté", photo: PHOTOS.sheaWomen },
+  { name: "Services pro", hint: "Couture, plomberie, mécanique", icon: Wrench, href: "/services", photo: PHOTOS.tailors },
+  { name: "Art & Design", hint: "Créatifs et artisans", icon: Palette, href: "/services", photo: PHOTOS.kenteHeadwrap },
+  { name: "Formation", hint: "Cours et coaching", icon: GraduationCap, href: "/services", span: "md:col-span-2", photo: PHOTOS.schoolGirl },
 ];
 
 const CategoriesSection = () => {
+  const { t } = useT();
   return (
     <section className="relative py-20">
       <div className="container">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
           <div>
-            <p className="text-xs font-semibold tracking-[0.3em] uppercase text-primary mb-3">Les allées du marché</p>
+            <p className="text-xs font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("Les allées du marché")}</p>
             <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight">
-              Un marché, <span className="text-primary">mille étals</span>
+              {t("Un marché,")} <span className="text-primary">{t("mille étals")}</span>
             </h2>
           </div>
           <p className="text-muted-foreground max-w-md">
-            Du sac d'igname au dernier smartphone, du coiffeur au développeur : chaque allée est à portée de doigt.
+            {t("Du sac d'igname au dernier smartphone, du coiffeur au développeur : chaque allée est à portée de doigt.")}
           </p>
         </div>
 
@@ -51,7 +53,7 @@ const CategoriesSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ delay: (i % 4) * 0.06 }}
-              className={`${t.span ?? ""} ${t.photo || t.name === "Formation" ? "col-span-2" : ""}`}
+              className={`${t.span ?? ""} ${t.span ? "col-span-2" : ""}`}
             >
               <Link
                 to={t.href}
@@ -60,7 +62,7 @@ const CategoriesSection = () => {
                 {t.photo && (
                   <>
                     <img
-                      src={photoUrl(t.photo, t.span?.includes("row-span") ? 900 : 700, t.span?.includes("row-span") ? 900 : 360)}
+                      src={photoUrl(t.photo, t.span?.includes("row-span") ? 900 : t.span ? 700 : 420, t.span?.includes("row-span") ? 900 : t.span ? 360 : 360)}
                       alt={t.photo.alt}
                       loading="lazy"
                       className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"

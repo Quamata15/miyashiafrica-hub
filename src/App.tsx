@@ -11,8 +11,11 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { PrefsProvider } from "@/lib/prefs";
+import { I18nProvider } from "@/lib/i18n";
 import CookieConsent from "@/components/layout/CookieConsent";
 import { AnnouncementBar } from "@/components/home/SiteBanners";
+import NetworkStatus from "@/components/layout/NetworkStatus";
+import { MfaGate } from "@/components/security/Mfa";
 
 // Lazy-loaded pages
 const Index = lazy(() => import("./pages/Index"));
@@ -65,14 +68,22 @@ const Quotes = lazy(() => import("./pages/Quotes"));
 const Status = lazy(() => import("./pages/Status"));
 const PickupPartner = lazy(() => import("./pages/PickupPartner"));
 const Settings = lazy(() => import("./pages/Settings"));
+const BecomePickupPoint = lazy(() => import("./pages/BecomePickupPoint"));
 
-const queryClient = new QueryClient();
+// Retries with backoff and offline-first behaviour for slow mobile networks (#13).
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 2, retryDelay: (n) => Math.min(1000 * 2 ** n, 8000), staleTime: 30_000, refetchOnWindowFocus: false, networkMode: "offlineFirst" },
+    mutations: { networkMode: "offlineFirst" },
+  },
+});
 
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <PrefsProvider>
+        <I18nProvider>
         <CartProvider>
           <FavoritesProvider>
             <TooltipProvider>
@@ -81,6 +92,8 @@ const App = () => (
               <BrowserRouter>
                 <AnnouncementBar />
                 <CookieConsent />
+                <NetworkStatus />
+                <MfaGate />
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
                     {/* Public routes */}
@@ -106,6 +119,7 @@ const App = () => (
                     <Route path="/boutique/:slug" element={<Shop />} />
                     <Route path="/compare" element={<Compare />} />
                     <Route path="/status" element={<Status />} />
+                    <Route path="/devenir-point-relais" element={<BecomePickupPoint />} />
 
                     {/* Protected routes */}
                     <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -144,6 +158,7 @@ const App = () => (
             </TooltipProvider>
           </FavoritesProvider>
         </CartProvider>
+        </I18nProvider>
         </PrefsProvider>
       </AuthProvider>
     </QueryClientProvider>

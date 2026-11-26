@@ -1,4 +1,6 @@
 import { forwardRef } from "react";
+import { useT } from "@/lib/i18n";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { Link } from "react-router-dom";
 import { 
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
@@ -13,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { PHOTOS } from "@/lib/photos";
 
 const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
+  const { t } = useT();
   const { user } = useAuth();
 
   const exploreLinks = [
@@ -20,6 +23,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
     { label: "Services", href: "/services", icon: Briefcase },
     { label: "Freelance & Emploi", href: "/freelance", icon: Users },
     { label: "Devenir livreur", href: "/driver-registration", icon: Truck },
+    { label: "Devenir point relais", href: "/devenir-point-relais", icon: Truck },
   ];
 
   const accountLinks = [
@@ -93,9 +97,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shadow-lg">
-                <span className="font-display font-bold text-2xl text-primary-foreground">M</span>
-              </div>
+              <BrandMark className="w-12 h-12" />
               <span className="font-display font-bold text-2xl">MIYASHI</span>
             </Link>
             <p className="text-white/70 text-sm mb-6 max-w-xs leading-relaxed">
@@ -218,19 +220,19 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
           </div>
           <div className="flex items-center gap-6 flex-wrap justify-center">
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
-              Conditions d'utilisation
+              {t("Conditions d'utilisation")}
             </Link>
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
-              Politique de confidentialité
+              {t("Politique de confidentialité")}
             </Link>
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
-              Mentions légales
+              {t("Mentions légales")}
             </Link>
             <Link to="/status" className="text-sm text-white/50 hover:text-primary transition-colors">
-              État du service
+              {t("État du service")}
             </Link>
             <Link to="/settings" className="text-sm text-white/50 hover:text-primary transition-colors">
-              Préférences et cookies
+              {t("Préférences et cookies")}
             </Link>
             <Link to="/install" className="text-sm text-white/50 hover:text-primary transition-colors flex items-center gap-1">
               <Download className="w-3 h-3" /> Installer l'app
@@ -246,26 +248,29 @@ const FooterColumn = ({ title, icon: Icon, links }: {
   title: string;
   icon: React.ElementType;
   links: { label: string; href: string; icon?: React.ElementType }[];
-}) => (
+}) => {
+  const { t } = useT();
+  return (
   <div>
     <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
       <Icon className="w-4 h-4 text-primary" />
-      {title}
+      {t(title)}
     </h4>
     <ul className="space-y-3">
       {links.map((link) => (
-        <li key={link.label}>
+        <li key={link.href}>
           <Link
             to={link.href}
             className="text-sm text-white/70 hover:text-primary transition-colors inline-flex items-center gap-1 group"
           >
-            {link.label}
+            {t(link.label)}
             <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
           </Link>
         </li>
       ))}
     </ul>
   </div>
-);
+  );
+};
 
 export default Footer;

@@ -198,7 +198,7 @@ const Marketplace = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Select value={filters.sortBy} onValueChange={(v) => updateFilters({ sortBy: v })}>
-                  <SelectTrigger className="w-40 h-10 rounded-xl">
+                  <SelectTrigger className="w-40 h-10 rounded-xl" aria-label="Trier par">
                     <ArrowUpDown className="w-4 h-4 mr-2" /><SelectValue placeholder="Trier par" />
                   </SelectTrigger>
                   <SelectContent>
@@ -210,9 +210,9 @@ const Marketplace = () => {
                   </SelectContent>
                 </Select>
                 <div className="flex items-center border rounded-xl p-1">
-                  <Button variant={viewMode === "grid" ? "default" : "ghost"} size="icon" className="h-8 w-8 rounded-lg"
+                  <Button variant={viewMode === "grid" ? "default" : "ghost"} size="icon" className="h-8 w-8 rounded-lg" aria-label="Affichage en grille" aria-pressed={viewMode === "grid"}
                     onClick={() => setViewMode("grid")}><Grid3X3 className="h-4 w-4" /></Button>
-                  <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-8 w-8 rounded-lg"
+                  <Button variant={viewMode === "list" ? "default" : "ghost"} size="icon" className="h-8 w-8 rounded-lg" aria-label="Affichage en liste" aria-pressed={viewMode === "list"}
                     onClick={() => setViewMode("list")}><List className="h-4 w-4" /></Button>
                 </div>
                 <AdvancedSearchFilters filters={filters} onFiltersChange={updateFilters} onReset={resetFilters} categories={categories} type="product" />

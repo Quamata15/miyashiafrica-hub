@@ -61,7 +61,7 @@ const ChatMessageBubble = ({ message, isOwn }: ChatMessageBubbleProps) => {
           </a>
         );
 
-      case 'location':
+      case 'location': {
         const loc = message.location_data;
         if (!loc) return <p className="text-sm">{message.content}</p>;
         return (
@@ -92,7 +92,7 @@ const ChatMessageBubble = ({ message, isOwn }: ChatMessageBubbleProps) => {
             </div>
           </a>
         );
-
+      }
       case 'audio':
         return message.attachment_url ? (
           <audio controls preload="none" src={message.attachment_url} className="max-w-[240px] h-10" aria-label="Message vocal" />

@@ -14,12 +14,15 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Download, Loader2 } from "lucide-react";
 import { resetCookieConsent } from "@/components/layout/CookieConsent";
+import { MfaSettings } from "@/components/security/Mfa";
+import { useT } from "@/lib/i18n";
 
 const LANGS: [string, string][] = [["fr", "Français"], ["en", "Anglais"], ["ee", "Éwé"], ["fon", "Fon"], ["yo", "Yoruba"], ["ha", "Haoussa"], ["wo", "Wolof"], ["tw", "Twi"], ["bm", "Bambara"], ["pt", "Portugais"]];
 
 export default function Settings() {
   const { user } = useAuth();
   const { currency, currencies, setCurrency, dataSaver, setDataSaver } = usePrefs();
+  const { lang: uiLang, setLang: setUiLang } = useT();
   const [p, setP] = useState({ email_notifications: true, whatsapp_notifications: false, whatsapp_number: "", language: "fr" });
   const [exporting, setExporting] = useState(false);
 
@@ -54,6 +57,10 @@ export default function Settings() {
     <PageShell title="Préférences et confidentialité">
       <div className="space-y-6">
         <Card><CardHeader><CardTitle className="text-lg">Affichage</CardTitle></CardHeader><CardContent className="space-y-4">
+          <div><Label htmlFor="ui-lang">Langue du site</Label>
+            <select id="ui-lang" value={uiLang} onChange={(e) => setUiLang(e.target.value as "fr" | "en")} className="w-full h-10 rounded-md border border-input bg-background px-3 mt-1">
+              <option value="fr">Français</option><option value="en">English (menus et accueil)</option>
+            </select></div>
           <div><Label htmlFor="cur">Afficher aussi les prix en</Label>
             <select id="cur" value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 mt-1">
               {currencies.map((c) => <option key={c.code} value={c.code}>{c.name} ({c.symbol})</option>)}
@@ -76,6 +83,8 @@ export default function Settings() {
               <Button onClick={() => save({ whatsapp_number: p.whatsapp_number })}>Enregistrer</Button></div>
           )}
         </CardContent></Card>
+
+        <Card><CardHeader><CardTitle className="text-lg">Sécurité du compte</CardTitle></CardHeader><CardContent><MfaSettings /></CardContent></Card>
 
         <Card><CardHeader><CardTitle className="text-lg">Mes données</CardTitle></CardHeader><CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

@@ -55,6 +55,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    // Shared phones: drop any API data the offline cache may hold.
+    try { if ("caches" in window) for (const k of await caches.keys()) if (k.startsWith("supabase")) await caches.delete(k); } catch { /* ignore */ }
   };
 
   return (

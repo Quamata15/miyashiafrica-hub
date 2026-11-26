@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { passwordProblems } from "@/lib/password";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -49,10 +50,10 @@ const ResetPassword = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (passwordProblems(password).length) {
       toast({
         title: "Erreur",
-        description: "Le mot de passe doit contenir au moins 6 caractères.",
+        description: `Il manque : ${passwordProblems(password).join(", ")}.`,
         variant: "destructive",
       });
       return;

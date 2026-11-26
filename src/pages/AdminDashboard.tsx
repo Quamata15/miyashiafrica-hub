@@ -19,6 +19,7 @@ import AdminKYCPanel from "@/components/admin/AdminKYCPanel";
 import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
+import { MfaSettings, useHasMfa } from "@/components/security/Mfa";
 import { AdminContent, AdminDelivery, AdminFlagsAudit, AdminLegal, AdminModeration, AdminOps, AdminRevenue } from "@/components/admin/AdminPlatform";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -28,6 +29,7 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const hasMfa = useHasMfa();
   const [checking, setChecking] = useState(true);
 
   const [users, setUsers] = useState<any[]>([]);
@@ -137,6 +139,13 @@ const AdminDashboard = () => {
                 <p className="text-xs md:text-sm text-muted-foreground">Panneau de contrôle central</p>
               </div>
             </div>
+            {hasMfa === false && (
+              <div className="mb-6 rounded-2xl border border-destructive/40 bg-destructive/[0.06] p-5">
+                <p className="font-semibold mb-1">Sécurisez ce compte administrateur</p>
+                <p className="text-sm text-muted-foreground mb-4">Ce compte peut déplacer de l'argent et voir des pièces d'identité. Activez la double authentification maintenant, et changez le mot de passe s'il a été partagé.</p>
+                <MfaSettings />
+              </div>
+            )}
 
             {/* Stats - responsive grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4 mb-6 md:mb-8">

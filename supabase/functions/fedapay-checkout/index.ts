@@ -27,6 +27,11 @@ Deno.serve(async (req) => {
   });
   const { data: { user } } = await userClient.auth.getUser();
   if (!user) return json({ error: "Connexion requise" }, 401);
+  {
+    const { data: allowed } = await createClient(url, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!)
+      .rpc("hit_rate_limit", { p_key: `fedapay:${user.id}`, p_max: 10, p_window: 600 });
+    if (allowed === false) return json({ error: "Trop de tentatives de paiement, patientez 10 minutes" }, 429);
+  }
 
   let body: { amount?: number; phone?: string; prefix?: string; return_path?: string; checkout_id?: string };
   try { body = await req.json(); } catch { return json({ error: "Requête invalide" }, 400); }

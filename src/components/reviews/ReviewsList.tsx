@@ -60,7 +60,7 @@ const ReviewsList = ({ productId, serviceId, userId, sellerId }: ReviewsListProp
     if (!error && data) {
       // Fetch reviewer profiles from profiles_public
       const reviewerIds = [...new Set(data.map((r) => r.reviewer_id))];
-      let profilesMap = new Map<string, { full_name: string | null; username: string | null; avatar_url: string | null }>();
+      const profilesMap = new Map<string, { full_name: string | null; username: string | null; avatar_url: string | null }>();
 
       if (reviewerIds.length > 0) {
         const { data: profiles } = await supabase

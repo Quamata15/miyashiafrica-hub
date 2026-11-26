@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, miyashi-supabase-fedapay]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npx eslint . --quiet
+      - name: Type check
+        run: npx tsc --noEmit -p tsconfig.app.json
+      - name: Unit tests
+        run: npx vitest run
+      - name: Build
+        run: npm run build
+      - name: End-to-end tests (Supabase mocked)
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test --trace off
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: test-results
+          retention-days: 7
+
+  database:
+    # Rolled-back SQL scenario (orders, escrow, ledger, offers, relay applications…).
+    # Add the repository secret SUPABASE_ACCESS_TOKEN to enable it, and SUPABASE_PROJECT_REF for a test project.
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: SQL scenario
+        if: ${{ env.SUPABASE_ACCESS_TOKEN != '' }}
+        run: scripts/db-test.sh

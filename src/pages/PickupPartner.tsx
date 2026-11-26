@@ -37,7 +37,7 @@ export default function PickupPartner() {
     if (error || !r?.success) return toast.error(error?.message ?? r?.error ?? "Code incorrect");
     toast.success("Colis remis"); load();
   };
-  if (!points.length) return <PageShell title="Point relais"><EmptyState icon={<MapPin className="w-6 h-6" />} title="Vous n'êtes partenaire d'aucun point relais">Contactez MIYASHI pour ouvrir un point relais dans votre commerce.</EmptyState></PageShell>;
+  if (!points.length) return <PageShell title="Point relais"><EmptyState icon={<MapPin className="w-6 h-6" />} title="Vous n'êtes partenaire d'aucun point relais">Votre commerce peut le devenir : <a href="/devenir-point-relais" className="text-primary underline">voir les conditions et candidater</a>.</EmptyState></PageShell>;
   return (
     <PageShell title="Point relais" description={points.map((p) => `${p.name} (${p.city})`).join(" · ")}>
       {!orders.length ? <EmptyState icon={<Package className="w-6 h-6" />} title="Aucun colis en attente" /> : (

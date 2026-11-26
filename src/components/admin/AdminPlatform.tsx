@@ -14,9 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Download, Loader2, RefreshCw } from "lucide-react";
+import { Copy, Download, Loader2, RefreshCw } from "lucide-react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import CrudTable from "./CrudTable";
+import AdminPartnerApplications from "./AdminPartnerApplications";
 
 const COUNTRIES: [string, string][] = [["TG", "Togo"], ["BJ", "Bénin"], ["CI", "Côte d'Ivoire"], ["SN", "Sénégal"], ["BF", "Burkina Faso"], ["ML", "Mali"], ["NE", "Niger"], ["GN", "Guinée"], ["GH", "Ghana"], ["NG", "Nigeria"], ["GW", "Guinée-Bissau"]];
 
@@ -122,8 +123,9 @@ export function AdminModeration() {
 
 export function AdminDelivery() {
   return (
-    <Tabs defaultValue="zones">
-      <TabsList><TabsTrigger value="zones">Zones et tarifs</TabsTrigger><TabsTrigger value="points">Points relais</TabsTrigger><TabsTrigger value="customs">Douane et TVA</TabsTrigger></TabsList>
+    <Tabs defaultValue="applications">
+      <TabsList className="flex-wrap h-auto"><TabsTrigger value="applications">Candidatures points relais</TabsTrigger><TabsTrigger value="zones">Zones et tarifs</TabsTrigger><TabsTrigger value="points">Points relais</TabsTrigger><TabsTrigger value="customs">Douane et TVA</TabsTrigger></TabsList>
+      <TabsContent value="applications" className="mt-4"><AdminPartnerApplications /></TabsContent>
       <TabsContent value="zones" className="mt-4">
         <p className="text-sm text-muted-foreground mb-3">Tarif affiché au client avant de choisir le livreur. Laissez le quartier vide pour toute la ville.</p>
         <CrudTable table="delivery_zones" order="city" defaults={{ country: "TG", eta_hours: 24, is_active: true }} fields={[
@@ -171,7 +173,7 @@ export function AdminContent() {
   }, []);
   const save = async (key: string, value: unknown) => {
     const { error } = await supabase.from("site_content").upsert({ key, value: value as any, updated_at: new Date().toISOString() });
-    error ? toast.error(error.message) : toast.success("Publié");
+    if (error) toast.error(error.message); else toast.success("Publié");
   };
   return (
     <div className="space-y-6">
@@ -249,6 +251,9 @@ export function AdminLegal() {
 type Status = { component: string; ok: boolean; last_checked: string; uptime_24h: number; uptime_7d: number; latency_ms: number };
 type Backup = { id: string; started_at: string; finished_at: string | null; path: string | null; size_bytes: number | null; verified: boolean; error: string | null; row_counts: Record<string, number> | null };
 
+type Recon = { id: number; run_at: string; ok: boolean; issues: unknown[]; totals: Record<string, unknown> };
+type ClientError = { id: number; message: string; url: string | null; release: string | null; created_at: string };
+
 export function AdminOps() {
   const [status, setStatus] = useState<Status[]>([]);
   const [backups, setBackups] = useState<Backup[]>([]);
@@ -257,6 +262,13 @@ export function AdminOps() {
     supabase.from("backup_runs").select("*").order("started_at", { ascending: false }).limit(20).then(({ data }) => setBackups((data ?? []) as Backup[]));
   };
   useEffect(load, []);
+  const [recon, setRecon] = useState<Recon[]>([]);
+  const [errors, setErrors] = useState<ClientError[]>([]);
+  const [urls, setUrls] = useState<Record<string, string> | null>(null);
+  const loadRecon = () => supabase.from("reconciliation_reports").select("*").order("run_at", { ascending: false }).limit(14).then(({ data }) => setRecon((data ?? []) as Recon[]));
+  const loadErrors = () => supabase.from("client_errors").select("id, message, url, release, created_at").order("created_at", { ascending: false }).limit(50).then(({ data }) => setErrors((data ?? []) as ClientError[]));
+  const loadUrls = () => supabase.rpc("admin_integration_urls").then(({ data, error }) => (error ? toast.error(error.message) : setUrls(data as Record<string, string>)));
+  const copy = (v: string) => navigator.clipboard.writeText(v).then(() => toast.success("Copié"), () => toast.error("Copie impossible"));
   const download = async (b: Backup) => {
     const { data, error } = await supabase.storage.from("backups").createSignedUrl(b.path!, 300);
     if (error || !data) return toast.error("Téléchargement impossible");
@@ -264,7 +276,8 @@ export function AdminOps() {
   };
   return (
     <Tabs defaultValue="status">
-      <TabsList><TabsTrigger value="status">État du service</TabsTrigger><TabsTrigger value="backups">Sauvegardes</TabsTrigger><TabsTrigger value="currencies">Devises</TabsTrigger></TabsList>
+      <TabsList className="flex-wrap h-auto"><TabsTrigger value="status">État du service</TabsTrigger><TabsTrigger value="backups">Sauvegardes</TabsTrigger><TabsTrigger value="currencies">Devises</TabsTrigger>
+        <TabsTrigger value="recon" onClick={loadRecon}>Rapprochement</TabsTrigger><TabsTrigger value="errors" onClick={loadErrors}>Erreurs</TabsTrigger><TabsTrigger value="integrations" onClick={loadUrls}>Intégrations</TabsTrigger></TabsList>
       <TabsContent value="status" className="mt-4 space-y-3">
         <div className="flex items-center gap-3"><Button size="sm" variant="outline" onClick={load}><RefreshCw className="w-4 h-4 mr-1" />Actualiser</Button><Link to="/status" className="text-sm text-primary underline">Page publique</Link></div>
         {status.map((s) => (
@@ -284,6 +297,35 @@ export function AdminOps() {
             {b.error ? <Badge variant="destructive">Échec : {b.error.slice(0, 60)}</Badge> : b.verified ? <Badge>Vérifiée</Badge> : <Badge variant="secondary">{b.finished_at ? "Non vérifiée" : "En cours"}</Badge>}
             {b.size_bytes != null && <span className="text-muted-foreground">{(b.size_bytes / 1024).toFixed(0)} Ko · {Object.values(b.row_counts ?? {}).reduce((s, n) => s + n, 0)} lignes</span>}
             {b.path && <Button size="sm" variant="outline" onClick={() => download(b)}><Download className="w-4 h-4 mr-1" />Télécharger</Button>}
+          </div>
+        ))}
+      </TabsContent>
+      <TabsContent value="recon" className="mt-4 space-y-2">
+        <p className="text-sm text-muted-foreground">Chaque nuit : soldes des portefeuilles comparés à leur historique, paiements FedaPay comparés aux crédits, grand livre équilibré (débits = crédits), commandes payées comparées au séquestre. Un écart notifie les administrateurs.</p>
+        {recon.length === 0 && <p className="text-sm text-muted-foreground">Aucun rapport pour l'instant (premier passage cette nuit à 2 h 47 UTC).</p>}
+        {recon.map((r) => (
+          <div key={r.id} className="rounded-xl border border-foreground/10 p-3 text-sm space-y-1">
+            <div className="flex items-center gap-3"><span className="flex-1">{new Date(r.run_at).toLocaleString("fr-FR")}</span>{r.ok ? <Badge>Équilibré</Badge> : <Badge variant="destructive">{r.issues.length} écart(s)</Badge>}</div>
+            {!r.ok && <pre className="text-xs whitespace-pre-wrap bg-muted/50 rounded-lg p-2">{JSON.stringify(r.issues, null, 2)}</pre>}
+          </div>
+        ))}
+      </TabsContent>
+      <TabsContent value="errors" className="mt-4 space-y-2">
+        <p className="text-sm text-muted-foreground">Erreurs JavaScript remontées par les navigateurs des visiteurs (50 dernières).</p>
+        {errors.length === 0 && <p className="text-sm text-muted-foreground">Aucune erreur remontée.</p>}
+        {errors.map((e) => (
+          <div key={e.id} className="rounded-xl border border-foreground/10 p-3 text-sm">
+            <p className="font-medium break-words">{e.message}</p>
+            <p className="text-xs text-muted-foreground break-all">{new Date(e.created_at).toLocaleString("fr-FR")} · {e.url ?? "—"}{e.release ? ` · ${e.release}` : ""}</p>
+          </div>
+        ))}
+      </TabsContent>
+      <TabsContent value="integrations" className="mt-4 space-y-3">
+        <p className="text-sm text-muted-foreground">Adresses à coller chez vos fournisseurs. L'adresse USSD/SMS contient une clé secrète générée et gardée dans le coffre de Supabase : ne la publiez pas.</p>
+        {urls && ([["ussd", "Rappel USSD (Africa's Talking)"], ["sms", "Rappel SMS entrants"], ["fedapay_webhook", "Webhook FedaPay"]] as const).map(([k, label]) => urls[k] && (
+          <div key={k} className="space-y-1">
+            <Label>{label}</Label>
+            <div className="flex gap-2"><Input readOnly value={urls[k]} className="font-mono text-xs" onFocus={(e) => e.currentTarget.select()} /><Button size="icon" variant="outline" aria-label={`Copier : ${label}`} onClick={() => copy(urls[k])}><Copy className="w-4 h-4" /></Button></div>
           </div>
         ))}
       </TabsContent>

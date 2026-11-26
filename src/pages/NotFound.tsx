@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { BrandMark } from "@/components/brand/BrandMark";
 import SEOHead from "@/components/SEOHead";
 import { useEffect } from "react";
 import { Home, ArrowLeft, Search } from "lucide-react";
@@ -15,9 +16,7 @@ const NotFound = () => {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-warm px-4">
       <SEOHead title="Page introuvable" noindex />
       <div className="text-center max-w-md">
-        <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
-          <span className="font-bold text-5xl text-primary-foreground">M</span>
-        </div>
+        <BrandMark className="w-24 h-24 mx-auto mb-6" />
         <h1 className="text-7xl font-bold text-primary mb-2">404</h1>
         <h2 className="text-2xl font-semibold text-foreground mb-3">Page introuvable</h2>
         <p className="text-muted-foreground mb-8">

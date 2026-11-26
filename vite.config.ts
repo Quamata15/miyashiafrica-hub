@@ -55,7 +55,8 @@ export default defineConfig(() => ({
         clientsClaim: true,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*supabase.*\/rest\//,
+            // Only the public catalogue: never cache private data (wallet, orders, messages) on the device.
+            urlPattern: /^https:\/\/.*supabase.*\/rest\/v1\/(products|product_variants|product_price_tiers|categories|services|shops|currencies|site_content|site_banners|feature_flags|delivery_zones|pickup_points|faq_items|legal_documents)\?/,
             handler: "NetworkFirst",
             options: {
               cacheName: "supabase-api",
@@ -64,7 +65,7 @@ export default defineConfig(() => ({
             },
           },
           {
-            urlPattern: /^https:\/\/.*supabase.*\/storage\//,
+            urlPattern: /^https:\/\/.*supabase.*\/storage\/v1\/object\/public\//,
             handler: "CacheFirst",
             options: {
               cacheName: "supabase-storage",

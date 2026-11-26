@@ -18,9 +18,9 @@ describe("EmojiPicker", () => {
     const trigger = screen.getAllByRole("button")[0];
     fireEvent.click(trigger);
     
-    // Find and click an emoji
-    const emojiButton = await screen.findByText("😀");
-    fireEvent.click(emojiButton);
+    // The emoji also appears as a category icon: click the one in the grid (last occurrence).
+    const matches = await screen.findAllByText("😀");
+    fireEvent.click(matches[matches.length - 1]);
     
     expect(onSelect).toHaveBeenCalledWith("😀");
   });

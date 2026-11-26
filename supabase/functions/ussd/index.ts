@@ -1,9 +1,9 @@
 // USSD and SMS access for basic phones (#37), compatible with Africa's Talking.
-//   USSD callback URL : https://<project>.supabase.co/functions/v1/ussd?key=<USSD_SECRET>
+//   USSD callback URL : shown to admins in Admin → Exploitation (key stored in Vault as ussd_callback_key)
 //   SMS callback URL  : same URL with &mode=sms  (keywords: SOLDE, CMD, PRIX <produit>, SUIVI <n°>)
 // Read-only: balance, recent orders, prices, order tracking. The caller is matched by the phone
 // number saved in the MIYASHI profile. Nothing can be bought or withdrawn from here.
-import { adminClient, json } from "../_shared/http.ts";
+import { adminClient, json, rateLimit } from "../_shared/http.ts";
 
 const fcfa = (n: number) => `${Math.round(n).toLocaleString("fr-FR").replace(/ /g, " ")} F`;
 const STATUS: Record<string, string> = { pending: "en attente", confirmed: "confirmee", processing: "en preparation", shipped: "expediee", delivered: "livree", completed: "terminee", cancelled: "annulee" };
@@ -47,11 +47,15 @@ async function track(db: any, uid: string, ref: string) {
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
-  const secret = Deno.env.get("USSD_SECRET");
-  if (!secret || url.searchParams.get("key") !== secret) return json({ error: "Unauthorized" }, 401);
+  const key = url.searchParams.get("key") ?? "";
+  const env = Deno.env.get("USSD_SECRET");
+  const ok = (env && key === env) || (key.length >= 32 && (await adminClient().rpc("verify_ussd_key", { p_key: key })).data === true);
+  if (!ok) return json({ error: "Unauthorized" }, 401);
   const form = await req.formData().catch(() => null);
   const get = (k: string) => String(form?.get(k) ?? url.searchParams.get(k) ?? "");
   const db = adminClient();
+  const caller = (get("phoneNumber") || get("from")).replace(/\D/g, "");
+  if (caller && !(await rateLimit(`ussd:${caller}`, 40, 3600))) return new Response("END Trop de demandes, réessayez plus tard.", { headers: { "Content-Type": "text/plain" } });
   const textResp = (s: string) => new Response(plain(s), { headers: { "Content-Type": "text/plain; charset=utf-8" } });
 
   if (url.searchParams.get("mode") === "sms") {

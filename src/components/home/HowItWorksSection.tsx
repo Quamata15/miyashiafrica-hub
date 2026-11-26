@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { useT } from "@/lib/i18n";
+import { PHOTOS, photoUrl } from "@/lib/photos";
 import { Search, Smartphone, Lock, PackageCheck } from "lucide-react";
 
 const steps = [
@@ -9,17 +11,18 @@ const steps = [
 ];
 
 const HowItWorksSection = () => {
+  const { t } = useT();
   return (
     <section className="relative py-20 md:py-28 overflow-hidden">
       <div className="absolute inset-0 bg-grid mask-radial opacity-70" aria-hidden />
       <div className="container relative">
         <div className="text-center max-w-2xl mx-auto mb-14">
-          <p className="text-xs font-semibold tracking-[0.3em] uppercase text-accent mb-3">Zéro arnaque</p>
+          <p className="text-xs font-semibold tracking-[0.3em] uppercase text-accent mb-3">{t("Zéro arnaque")}</p>
           <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight mb-4">
-            Acheter devient <span className="text-accent whitespace-nowrap">sans risque</span>
+            {t("Acheter devient")} <span className="text-accent whitespace-nowrap">{t("sans risque")}</span>
           </h2>
           <p className="text-muted-foreground">
-            Chaque paiement transite par le séquestre MIYASHI. L'argent ne bouge qu'une fois la commande reçue.
+            {t("Chaque paiement transite par le séquestre MIYASHI. L'argent ne bouge qu'une fois la commande reçue.")}
           </p>
         </div>
 
@@ -46,9 +49,18 @@ const HowItWorksSection = () => {
                   {index + 1}
                 </span>
               </div>
-              <h3 className="font-display text-lg font-bold mb-2">{step.title}</h3>
-              <p className="text-sm text-muted-foreground">{step.description}</p>
+              <h3 className="font-display text-lg font-bold mb-2">{t(step.title)}</h3>
+              <p className="text-sm text-muted-foreground">{t(step.description)}</p>
             </motion.div>
+          ))}
+        </div>
+
+        <div className="mt-12 grid grid-cols-3 gap-3 md:gap-4" aria-hidden>
+          {[PHOTOS.pepperSeller, PHOTOS.grainsSeller, PHOTOS.spiceSeller].map((p) => (
+            <div key={p.id} className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-2xl border border-foreground/10">
+              <img src={photoUrl(p, 800, 500)} alt="" loading="lazy" className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            </div>
           ))}
         </div>
       </div>

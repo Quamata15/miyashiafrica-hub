@@ -136,7 +136,7 @@ const Dashboard = () => {
             onClick={() => {
               const next = !sidebarCollapsed;
               setSidebarCollapsed(next);
-              try { localStorage.setItem("dashboard-sidebar-collapsed", String(next)); } catch {}
+              try { localStorage.setItem("dashboard-sidebar-collapsed", String(next)); } catch { /* storage unavailable */ }
             }}
             className="absolute -right-3 top-6 z-10 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-md text-xs hover:scale-110 transition-transform"
           >

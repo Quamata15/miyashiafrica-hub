@@ -68,7 +68,7 @@ const AdvancedSearchFilters = ({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl relative">
+        <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl relative" aria-label="Filtres avancés">
           <SlidersHorizontal className="h-4 w-4" />
           {activeFiltersCount > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">

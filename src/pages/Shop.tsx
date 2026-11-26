@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { TileGrid, type TileProduct } from "@/components/commerce/ProductTiles";
 import { ShareButtons, VacationBanner } from "@/components/commerce/ProductExtras";
 import { openState, type Hours } from "@/lib/hours";
+import { PHOTOS, photoUrl } from "@/lib/photos";
 import { Clock, MapPin, MessageSquare, Search, Store } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -57,7 +58,7 @@ export default function Shop() {
       <Header />
       <main className="flex-1 pt-20 pb-12">
         <div className="relative h-44 md:h-64 bg-muted overflow-hidden" style={shop.theme_color ? { background: shop.theme_color } : undefined}>
-          {shop.banner_url && <img src={shop.banner_url} alt="" className="w-full h-full object-cover" />}
+          <img src={shop.banner_url || photoUrl(PHOTOS.baobabTwin, 1600, 500)} alt="" className={`w-full h-full object-cover ${shop.banner_url ? "" : "opacity-60"}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
         </div>
         <div className="container mx-auto px-4 -mt-16 relative">

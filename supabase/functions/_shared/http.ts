@@ -30,3 +30,12 @@ export async function isInternal(req: Request): Promise<boolean> {
   const { data } = await adminClient().rpc("verify_cron_secret", { p_secret: provided });
   return data === true;
 }
+
+/** Fixed-window rate limit backed by the database. Returns true when the call is allowed. */
+export async function rateLimit(key: string, max: number, windowSeconds: number): Promise<boolean> {
+  const { data, error } = await adminClient().rpc("hit_rate_limit", { p_key: key, p_max: max, p_window: windowSeconds });
+  return error ? true : data === true;   // fail open: never block payments because the limiter is down
+}
+
+export const clientIp = (req: Request) =>
+  (req.headers.get("x-forwarded-for") ?? req.headers.get("cf-connecting-ip") ?? "unknown").split(",")[0].trim();

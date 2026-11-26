@@ -1,6 +1,6 @@
 // Public semantic product search (#44): "chaussures pour courir" also finds "baskets de sport".
 // GET/POST {q, limit}. No API key needed (gte-small runs inside the edge runtime).
-import { adminClient, cors, json } from "../_shared/http.ts";
+import { adminClient, clientIp, cors, json, rateLimit } from "../_shared/http.ts";
 import { embed } from "../_shared/embed.ts";
 
 Deno.serve(async (req) => {
@@ -10,6 +10,7 @@ Deno.serve(async (req) => {
   const q = String(body.q ?? url.searchParams.get("q") ?? "").trim().slice(0, 200);
   const limit = Math.min(Math.max(Number(body.limit ?? url.searchParams.get("limit") ?? 24) || 24, 1), 60);
   if (q.length < 2) return json({ results: [] });
+  if (!(await rateLimit(`semantic:${clientIp(req)}`, 60, 60))) return json({ error: "Trop de recherches, patientez une minute" }, 429);
   try {
     const vector = await embed(q);
     const { data, error } = await adminClient().rpc("semantic_search_products", {

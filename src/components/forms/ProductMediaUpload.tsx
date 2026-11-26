@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { compressImage } from "@/lib/upload";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -30,11 +31,12 @@ const ProductMediaUpload = ({ images, onImagesChange, maxFiles = 8 }: ProductMed
     setUploading(true);
     const newUrls: string[] = [];
 
-    for (const file of Array.from(files)) {
+    for (const original of Array.from(files)) {
+      const file = await compressImage(original);
       const ext = file.name.split(".").pop();
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
-      const { error } = await supabase.storage.from("product-media").upload(path, file);
+      const { error } = await supabase.storage.from("product-media").upload(path, file, { contentType: file.type || undefined });
       if (error) {
         toast({ title: "Erreur upload", description: error.message, variant: "destructive" });
         continue;
