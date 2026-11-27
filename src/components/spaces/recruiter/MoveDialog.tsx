@@ -41,7 +41,7 @@ export default function MoveDialog({ ids, stage, jobTitle, open, onOpenChange, o
           <div><Label>Vers</Label><Select value={target} onValueChange={setTarget}><SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>{STAGES.filter((s) => s.key !== "withdrawn").map((s) => <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>)}</SelectContent></Select></div>
           <div className="flex flex-wrap gap-1">{templates.map((t, i) => <Button key={t.id ?? i} type="button" size="sm" variant="outline" onClick={() => setMessage(fillTemplate(t.body, { poste: jobTitle }))}>{t.name}</Button>)}</div>
-          <div><Label>Message au(x) candidat(s) (facultatif)</Label><Textarea rows={5} maxLength={2000} value={message} onChange={(e) => setMessage(e.target.value)} /></div>
+          <div><Label>Message au(x) candidat(s) (facultatif)</Label><Textarea rows={3} maxLength={2000} value={message} onChange={(e) => setMessage(e.target.value)} /></div>
           {target === "rejected" && <div><Label>Motif interne (non visible du candidat)</Label><Input maxLength={500} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Expérience insuffisante en fiscalité" /></div>}
         </div>
         <DialogFooter><Button onClick={go} disabled={busy}>{busy && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}Confirmer</Button></DialogFooter>

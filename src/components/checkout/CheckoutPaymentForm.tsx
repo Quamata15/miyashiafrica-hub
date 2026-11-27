@@ -61,7 +61,7 @@ const CheckoutPaymentForm = ({
             <Label>Numéro de téléphone</Label>
             <div className="flex gap-2">
               <Input value={countryData?.prefix || "+228"} disabled className="w-20" />
-              <Input placeholder="XX XX XX XX" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-12" />
+              <Input placeholder="XX XX XX XX" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
           </div>
         )}
@@ -70,7 +70,7 @@ const CheckoutPaymentForm = ({
           <div className="mt-4 space-y-3">
             <div className="space-y-2">
               <Label>Numéro de carte</Label>
-              <Input placeholder="XXXX XXXX XXXX XXXX" className="h-12" />
+              <Input placeholder="XXXX XXXX XXXX XXXX" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2"><Label>Expiration</Label><Input placeholder="MM/AA" /></div>

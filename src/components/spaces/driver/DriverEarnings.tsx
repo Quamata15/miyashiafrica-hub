@@ -24,7 +24,7 @@ export default function DriverEarnings({ onTab }: { onTab: (tab: string) => void
 
   const missing = s && (s.available === null || !s.contract_signed || s.kyc !== "approved");
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <GuideProgressCard space="livreur" onTab={onTab} />
       {missing && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 flex flex-col sm:flex-row sm:items-center gap-3">

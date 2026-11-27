@@ -46,7 +46,7 @@ export default function Shop() {
   };
 
   if (shop === null) return (
-    <div className="min-h-screen flex flex-col bg-gradient-warm"><Header /><main className="flex-1 pt-28 text-center px-4"><Store className="w-12 h-12 mx-auto text-muted-foreground mb-3" /><h1 className="text-2xl font-bold">Boutique introuvable</h1></main><Footer /></div>
+    <div className="min-h-screen flex flex-col bg-gradient-warm"><Header /><main className="flex-1 pt-header text-center px-4"><Store className="w-12 h-12 mx-auto text-muted-foreground mb-3" /><h1 className="text-2xl font-bold">Boutique introuvable</h1></main><Footer /></div>
   );
   if (!shop) return <div className="min-h-screen bg-gradient-warm" />;
 
@@ -56,7 +56,7 @@ export default function Shop() {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title={shop.name} description={shop.description?.slice(0, 155) ?? `Boutique ${shop.name} sur MIYASHI`} canonical={`/boutique/${shop.slug}`} />
       <Header />
-      <main className="flex-1 pt-20 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="relative h-44 md:h-64 bg-muted overflow-hidden" style={shop.theme_color ? { background: shop.theme_color } : undefined}>
           <img src={shop.banner_url || photoUrl(PHOTOS.baobabTwin, 1600, 500)} alt="" className={`w-full h-full object-cover ${shop.banner_url ? "" : "opacity-60"}`} />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />

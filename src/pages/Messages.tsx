@@ -113,8 +113,8 @@ const Messages = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-24">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[calc(100vh-200px)]">
+      <main className="flex-1 container mx-auto px-4 pb-4 pt-header">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="h-[calc(100dvh-7rem)] md:h-[calc(100dvh-8rem)]">
           <Card className="h-full overflow-hidden border-0 shadow-elevated">
             <div className="flex h-full">
               {/* Conversations List */}

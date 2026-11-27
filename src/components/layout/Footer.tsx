@@ -75,13 +75,13 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
 
       {/* Newsletter Section */}
       <div className="relative border-b border-white/10">
-        <div className="container py-12">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="container py-6 md:py-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 lg:gap-6">
             <div>
-              <h3 className="text-2xl font-display font-bold mb-2">
+              <h3 className="text-lg md:text-xl font-display font-bold mb-1">
                 Restez informé des dernières offres
               </h3>
-              <p className="text-white/70">
+              <p className="text-sm text-white/70">
                 Inscrivez-vous à notre newsletter pour recevoir les meilleures opportunités.
               </p>
             </div>
@@ -98,43 +98,43 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
         </div>
       </div>
 
-      <div className="container py-12 md:py-16 relative">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-10">
+      <div className="container py-8 md:py-10 relative">
+        <div className={`grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-6 lg:gap-10 ${user ? "lg:grid-cols-6" : "lg:grid-cols-5"}`}>
           {/* Brand */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <BrandMark className="w-12 h-12" />
+            <Link to="/" className="flex items-center gap-2 mb-3">
+              <BrandMark className="w-10 h-10" />
               <span className="font-display font-bold text-2xl">MIYASHI</span>
             </Link>
-            <p className="text-white/70 text-sm mb-6 max-w-xs leading-relaxed">
+            <p className="text-white/70 text-sm mb-3 max-w-xs leading-relaxed">
               La marketplace africaine qui connecte acheteurs, vendeurs, prestataires et freelances dans un écosystème dynamique et innovant.
             </p>
-            <div className="space-y-3 text-sm">
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm lg:flex-col lg:gap-2">
               <motion.a 
                 href="mailto:contact@miyashi.africa"
-                className="flex items-center gap-3 text-white/70 hover:text-primary transition-colors group"
+                className="flex items-center gap-2 text-white/70 hover:text-primary transition-colors group"
                 whileHover={{ x: 5 }}
               >
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <Mail className="w-4 h-4" />
                 </div>
                 <span>contact@miyashi.africa</span>
               </motion.a>
               <motion.a 
                 href="tel:+22897095685"
-                className="flex items-center gap-3 text-white/70 hover:text-primary transition-colors group"
+                className="flex items-center gap-2 text-white/70 hover:text-primary transition-colors group"
                 whileHover={{ x: 5 }}
               >
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <Phone className="w-4 h-4" />
                 </div>
                 <span>+228 97 09 56 85</span>
               </motion.a>
               <motion.div 
-                className="flex items-center gap-3 text-white/70 group"
+                className="flex items-center gap-2 text-white/70 group"
                 whileHover={{ x: 5 }}
               >
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
                   <MapPin className="w-4 h-4" />
                 </div>
                 <span>Lomé, Togo</span>
@@ -142,14 +142,14 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
             </div>
 
             {/* Social Links */}
-            <div className="flex items-center gap-2 mt-6">
+            <div className="flex items-center gap-2 mt-4">
               {socialLinks.map((social) => (
                 <motion.a
                   key={social.label}
                   href={social.href}
                   whileHover={{ scale: 1.1, y: -2 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
+                  className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
                   aria-label={social.label}
                 >
                   <social.icon className="w-4 h-4" />
@@ -166,11 +166,11 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
             <FooterColumn title="Mon Compte" icon={LayoutDashboard} links={accountLinks} />
           ) : (
             <div>
-              <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+              <h4 className="font-display font-semibold mb-3 flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4 text-primary" />
                 Commencer
               </h4>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 <li>
                   <Link to="/auth" className="text-sm text-white/70 hover:text-primary transition-colors inline-flex items-center gap-1 group">
                     Se connecter
@@ -207,14 +207,14 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
         </div>
 
         {/* Bottom */}
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-8 pt-5 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-3">
           <div className="text-center md:text-left">
             <p className="text-sm text-white/50">
               © 2026 MIYASHI by ASHIZAN Group. Tous droits réservés.
             </p>
             <PhotoCredits />
           </div>
-          <div className="flex items-center gap-6 flex-wrap justify-center">
+          <div className="flex items-center gap-x-5 gap-y-2 flex-wrap justify-center">
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
               {t("Conditions d'utilisation")}
             </Link>
@@ -248,11 +248,11 @@ const FooterColumn = ({ title, icon: Icon, links }: {
   const { t } = useT();
   return (
   <div>
-    <h4 className="font-display font-semibold mb-4 flex items-center gap-2">
+    <h4 className="font-display font-semibold mb-3 flex items-center gap-2">
       <Icon className="w-4 h-4 text-primary" />
       {t(title)}
     </h4>
-    <ul className="space-y-3">
+    <ul className="space-y-2">
       {links.map((link) => (
         <li key={link.href}>
           <Link

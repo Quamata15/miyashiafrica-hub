@@ -129,7 +129,7 @@ export function SellerStats({ sellerId }: { sellerId: string }) {
   const conv = s.visitors ? ((s.buyers / s.visitors) * 100).toFixed(1) : "—";
   const kpis = [["Vues", s.views], ["Visiteurs", s.visitors], ["Commandes", s.orders], ["Chiffre d'affaires", fcfa(s.revenue)], ["Conversion", conv === "—" ? conv : `${conv} %`]];
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex gap-2">{[7, 30, 90].map((d) => <Button key={d} size="sm" variant={days === d ? "default" : "outline"} onClick={() => setDays(d)}>{d} jours</Button>)}</div>
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">{kpis.map(([k, v]) => <Card key={k as string}><CardContent className="p-4"><p className="text-xs text-muted-foreground">{k}</p><p className="text-xl font-bold mt-1">{v}</p></CardContent></Card>)}</div>
       <Card><CardHeader><CardTitle className="text-base">Vues et commandes par jour</CardTitle></CardHeader><CardContent className="h-64">

@@ -38,15 +38,14 @@ const HeroSection = () => {
   const go = (q: string) => navigate(q.trim() ? `/marketplace?q=${encodeURIComponent(q.trim())}` : "/marketplace");
 
   return (
-    <section className="relative overflow-hidden pt-28 md:pt-32 pb-14">
+    <section className="relative overflow-hidden pt-20 md:pt-28 pb-12">
       <div className="absolute inset-0 bg-gradient-warm" />
       {/* Baobabs at dusk: the market gathers under them */}
       <img src={photoUrl(PHOTOS.baobabSunset, 1800, 900)} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-bottom opacity-[0.22] mix-blend-luminosity dark:mix-blend-normal [mask-image:linear-gradient(to_bottom,transparent,black_30%,black_70%,transparent)]" />
-      <div className="absolute inset-0 bg-grid mask-radial opacity-70" />
       <div className="absolute -top-48 right-[-10%] w-[640px] h-[640px] rounded-full bg-primary/15 blur-[130px]" />
 
       <div className="container relative">
-        <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-14 items-center">
+        <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-12 items-center">
           {/* Copy + search */}
           <div className="text-center lg:text-left">
             <motion.div
@@ -212,7 +211,7 @@ const HeroSection = () => {
         </div>
 
         {/* Ticker: what you can find */}
-        <div className="relative mt-12 overflow-hidden rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] py-3" aria-label="Ce qu'on trouve sur MIYASHI">
+        <div className="relative mt-8 overflow-hidden rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] py-3" aria-label="Ce qu'on trouve sur MIYASHI">
           <div className="flex w-max animate-marquee gap-8 px-6">
             {[...TICKER, ...TICKER].map((t, i) => (
               <span key={i} className="inline-flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">

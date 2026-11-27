@@ -201,69 +201,71 @@ const Boost = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             {/* Header */}
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-hero flex items-center justify-center">
-                <Zap className="w-8 h-8 text-primary-foreground" />
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-3 mb-4">
+              <div className="flex items-center gap-3 min-w-0 mr-auto">
+                <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-hero flex items-center justify-center">
+                  <Zap className="w-5 h-5 text-primary-foreground" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-xl md:text-2xl font-display font-bold leading-tight">Booster votre visibilité</h1>
+                  <p className="text-xs sm:text-sm text-muted-foreground">Produits, services, profils, offres d'emploi</p>
+                </div>
               </div>
-              <h1 className="text-3xl font-display font-bold">Booster votre visibilité</h1>
-              <p className="text-muted-foreground mt-2">Produits, services, profils, offres d'emploi — boostez ce qui compte</p>
-
-              {/* Steps */}
-              <div className="flex items-center justify-center gap-2 mt-6">
-                {[1, 2, 3, 4].map(s => (
-                  <div key={s} className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                      step >= s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>{s}</div>
-                    {s < 4 && <div className={`w-8 h-0.5 ${step > s ? "bg-primary" : "bg-muted"}`} />}
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-center gap-4 mt-2 text-xs text-muted-foreground">
-                <span>Type</span>
-                <span>Cible</span>
-                <span>Config</span>
-                <span>Confirmer</span>
-              </div>
+              <ol className="flex items-start gap-1" aria-label="Étapes">
+                {["Type", "Cible", "Réglages", "Confirmer"].map((label, i) => {
+                  const s = i + 1;
+                  return (
+                    <li key={label} className="flex items-start gap-1" aria-current={step === s ? "step" : undefined}>
+                      <div className="flex flex-col items-center w-14">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${step >= s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>{s}</div>
+                        <span className={`mt-1 text-[11px] ${step === s ? "text-foreground font-medium" : "text-muted-foreground"}`}>{label}</span>
+                      </div>
+                      {s < 4 && <div className={`mt-3.5 w-3 h-0.5 ${step > s ? "bg-primary" : "bg-muted"}`} aria-hidden />}
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
 
             <AnimatePresence mode="wait">
               {/* Step 1: Choose boost type */}
               {step === 1 && (
                 <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                  <Card className="border-0 shadow-elevated mb-6">
-                    <CardHeader>
+                  <Card className="border-0 shadow-elevated mb-3">
+                    <CardHeader className="pb-3">
                       <CardTitle className="text-lg">Que souhaitez-vous booster ?</CardTitle>
                       <CardDescription>Choisissez le type de contenu à mettre en avant</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-3">
+                    <CardContent className="grid sm:grid-cols-2 gap-2">
                       {allowedTypes.map(type => {
                         const Icon = type.icon;
                         return (
-                          <div
+                          <button
+                            type="button"
                             key={type.id}
                             onClick={() => { setBoostType(type.id); setTargetId(""); }}
-                            className={`flex items-center gap-4 p-4 rounded-xl cursor-pointer transition-all border-2 ${
+                            aria-pressed={boostType === type.id}
+                            className={`flex items-center gap-3 p-3 rounded-xl text-left cursor-pointer transition-all border-2 ${
                               boostType === type.id
                                 ? "border-primary bg-primary/5 shadow-sm"
                                 : "border-transparent hover:bg-muted/50 hover:border-muted"
                             }`}
                           >
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                            <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center ${
                               boostType === type.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                             }`}>
-                              <Icon className="w-6 h-6" />
+                              <Icon className="w-5 h-5" />
                             </div>
-                            <div className="flex-1">
-                              <p className="font-semibold">{type.label}</p>
-                              <p className="text-sm text-muted-foreground">{type.desc}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm">{type.label}</p>
+                              <p className="text-xs text-muted-foreground line-clamp-2">{type.desc}</p>
                             </div>
-                            {boostType === type.id && <CheckCircle className="w-5 h-5 text-primary" />}
-                          </div>
+                            {boostType === type.id && <CheckCircle className="w-5 h-5 shrink-0 text-primary" />}
+                          </button>
                         );
                       })}
                     </CardContent>
@@ -272,7 +274,7 @@ const Boost = () => {
                   <Button
                     onClick={() => setStep(2)}
                     disabled={!boostType}
-                    className="w-full h-12 bg-gradient-hero"
+                    className="w-full h-11 bg-gradient-hero"
                   >
                     Continuer →
                   </Button>
@@ -293,7 +295,7 @@ const Boost = () => {
                     )}
                   </div>
 
-                  <Card className="border-0 shadow-elevated mb-6">
+                  <Card className="border-0 shadow-elevated mb-3">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Target className="w-5 h-5" />
@@ -368,7 +370,7 @@ const Boost = () => {
                   <Button
                     onClick={() => setStep(3)}
                     disabled={!targetId}
-                    className="w-full h-12 bg-gradient-hero"
+                    className="w-full h-11 bg-gradient-hero"
                   >
                     Continuer →
                   </Button>
@@ -390,7 +392,7 @@ const Boost = () => {
                   </div>
 
                   {/* Creative / Visual publicitaire */}
-                  <Card className="border-0 shadow-elevated mb-6">
+                  <Card className="border-0 shadow-elevated mb-3">
                     <CardHeader>
                       <div className="flex items-center justify-between">
                         <CardTitle className="flex items-center gap-2 text-base">
@@ -465,7 +467,7 @@ const Boost = () => {
                   </Card>
 
                   {/* Description du boost */}
-                  <Card className="border-0 shadow-card mb-6">
+                  <Card className="border-0 shadow-card mb-3">
                     <CardHeader>
                       <CardTitle className="text-base">Message promotionnel</CardTitle>
                       <CardDescription>Optionnel — Un texte accrocheur pour accompagner votre boost</CardDescription>
@@ -483,7 +485,7 @@ const Boost = () => {
                   </Card>
 
                   {/* Duration */}
-                  <Card className="border-0 shadow-elevated mb-6">
+                  <Card className="border-0 shadow-elevated mb-3">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Clock className="w-5 h-5" /> Durée du boost
@@ -516,7 +518,7 @@ const Boost = () => {
                   </Card>
 
                   {/* Zone */}
-                  <Card className="border-0 shadow-card mb-6">
+                  <Card className="border-0 shadow-card mb-3">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-base">
                         <Globe className="w-5 h-5" /> Zone de couverture
@@ -540,7 +542,7 @@ const Boost = () => {
 
                   {/* Campaign */}
                   {campaigns.length > 0 && (
-                    <Card className="border-0 shadow-card mb-6">
+                    <Card className="border-0 shadow-card mb-3">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                           <Megaphone className="w-5 h-5" /> Rattacher à une campagne
@@ -577,8 +579,8 @@ const Boost = () => {
                   )}
 
                   <div className="flex gap-3">
-                    <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-12">← Retour</Button>
-                    <Button onClick={() => setStep(4)} className="flex-[2] h-12 bg-gradient-hero">Continuer →</Button>
+                    <Button variant="outline" onClick={() => setStep(2)} className="flex-1 h-11">← Retour</Button>
+                    <Button onClick={() => setStep(4)} className="flex-[2] h-11 bg-gradient-hero">Continuer →</Button>
                   </div>
                 </motion.div>
               )}
@@ -586,7 +588,7 @@ const Boost = () => {
               {/* Step 4: Confirm */}
               {step === 4 && (
                 <motion.div key="step4" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                  <Card className="border-0 shadow-elevated mb-6">
+                  <Card className="border-0 shadow-elevated mb-3">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <CheckCircle className="w-5 h-5 text-primary" /> Récapitulatif

@@ -36,7 +36,7 @@ export function AdminRevenue() {
     ["Soldes portefeuilles", fcfa(r.wallets_total), "dû aux utilisateurs"], ["Recharges FedaPay", fcfa(r.topups)],
   ];
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex gap-2">{[7, 30, 90, 365].map((d) => <Button key={d} size="sm" variant={days === d ? "default" : "outline"} onClick={() => setDays(d)}>{d} j</Button>)}</div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{kpi.map(([k, v, h]) => <Card key={k}><CardContent className="p-4"><p className="text-xs text-muted-foreground">{k}</p><p className="text-lg font-bold mt-1">{v}</p>{h && <p className="text-xs text-muted-foreground">{h}</p>}</CardContent></Card>)}</div>
       <Card><CardHeader><CardTitle className="text-base">Revenus de la plateforme par jour</CardTitle></CardHeader><CardContent className="h-64">
@@ -176,7 +176,7 @@ export function AdminContent() {
     if (error) toast.error(error.message); else toast.success("Publié");
   };
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {ann && <Card><CardHeader><CardTitle className="text-base">Bandeau d'annonce (haut du site)</CardTitle></CardHeader><CardContent className="space-y-3">
         <label className="flex items-center justify-between"><span className="text-sm">Afficher</span><Switch checked={!!ann.enabled} onCheckedChange={(v) => setAnn({ ...ann, enabled: v })} /></label>
         <Input value={ann.text} onChange={(e) => setAnn({ ...ann, text: e.target.value })} placeholder="Livraison offerte ce week-end à Lomé" aria-label="Texte" />

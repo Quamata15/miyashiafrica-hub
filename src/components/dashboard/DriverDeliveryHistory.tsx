@@ -61,7 +61,7 @@ const DriverDeliveryHistory = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Daily earnings summary */}
       <Card className="border-0 shadow-card">
         <CardHeader className="pb-2">

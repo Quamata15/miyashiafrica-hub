@@ -144,7 +144,7 @@ const PublicProfile = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <div className="flex-1 flex items-center justify-center pt-20">
+        <div className="flex-1 flex items-center justify-center pt-header">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </div>
@@ -155,7 +155,7 @@ const PublicProfile = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <div className="flex-1 flex flex-col items-center justify-center pt-20 gap-4">
+        <div className="flex-1 flex flex-col items-center justify-center pt-header gap-4">
           <UserX className="h-16 w-16 text-muted-foreground" />
           <h2 className="text-xl font-bold">Profil introuvable</h2>
           <p className="text-muted-foreground">Cet utilisateur n'existe pas ou a été supprimé.</p>
@@ -178,8 +178,8 @@ const PublicProfile = () => {
         canonical={`/user/${userId}`}
       />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
-        <div className="container mx-auto px-4 max-w-4xl">
+      <main className="flex-1 pt-header pb-10">
+        <div className="container mx-auto px-4 max-w-6xl">
           {/* Profile header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -298,7 +298,7 @@ const PublicProfile = () => {
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             {userId && <div className="mb-8"><PortfolioGridOwner userId={userId} /></div>}
             <Tabs defaultValue={products.length > 0 ? "products" : services.length > 0 ? "services" : "reviews"}>
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-3 mb-4">
                 <TabsTrigger value="products">
                   <Package className="h-4 w-4 mr-1.5" />
                   Produits ({products.length})
@@ -317,7 +317,7 @@ const PublicProfile = () => {
                 {products.length === 0 ? (
                   <EmptyState icon={Package} text="Aucun produit en vente" />
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
                     {products.map((p) => (
                       <Link key={p.id} to={`/product/${p.id}`}>
                         <Card className="border-0 shadow-soft hover:shadow-card transition-shadow overflow-hidden group">
@@ -345,7 +345,7 @@ const PublicProfile = () => {
                 {services.length === 0 ? (
                   <EmptyState icon={Briefcase} text="Aucun service proposé" />
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {services.map((s) => (
                       <Link key={s.id} to={`/service/${s.id}`}>
                         <Card className="border-0 shadow-soft hover:shadow-card transition-shadow overflow-hidden group">

@@ -46,7 +46,7 @@ const SellerOverview = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <QuickStatsGrid stats={stats} loading={loading} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -35,6 +35,7 @@ const Auth = () => {
   const [signupFullName, setSignupFullName] = useState("");
   const [signupRole, setSignupRole] = useState<"buyer" | "seller" | "provider">("buyer");
   const [referralCode, setReferralCode] = useState("");
+  const [showReferral, setShowReferral] = useState(false);
   const [searchParams] = useSearchParams();
   const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
@@ -46,7 +47,7 @@ const Auth = () => {
   // Pre-fill referral code from URL
   useEffect(() => {
     const ref = searchParams.get("ref");
-    if (ref) setReferralCode(ref);
+    if (ref) { setReferralCode(ref); setShowReferral(true); }
   }, [searchParams]);
 
   // Redirect if already logged in
@@ -177,10 +178,10 @@ const Auth = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Connexion" description="Connectez-vous ou créez votre compte MIYASHI pour acheter, vendre et proposer vos services." canonical="/auth" />
       <Header />
-      <main className="flex-1 flex items-center justify-center py-12 px-4 pt-24">
-        <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-stretch">
+      <main className="flex-1 flex items-center justify-center pb-10 px-4 pt-header">
+        <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-6 items-stretch">
         {/* Photo side (desktop) */}
-        <div className="relative hidden lg:flex overflow-hidden rounded-3xl border border-foreground/10 min-h-[560px]">
+        <div className="relative hidden lg:flex overflow-hidden rounded-3xl border border-foreground/10 min-h-[440px]">
           <img
             src={photoUrl(PHOTOS.senegalMarket, 900, 1100)}
             alt={PHOTOS.senegalMarket.alt}
@@ -203,12 +204,12 @@ const Auth = () => {
           className="w-full max-w-md mx-auto self-center"
         >
           <Card className="border-0 shadow-elevated">
-            <CardHeader className="text-center pb-2">
-              <BrandMark className="w-16 h-16 mx-auto mb-4" />
-              <CardTitle className="text-2xl font-display font-bold">MIYASHI</CardTitle>
-              <CardDescription>
-                Un marché de tous les jours
-              </CardDescription>
+            <CardHeader className="flex-row items-center justify-center gap-3 space-y-0 pb-3">
+              <BrandMark className="w-10 h-10 shrink-0" />
+              <div>
+                <CardTitle className="text-xl font-display font-bold leading-tight">MIYASHI</CardTitle>
+                <CardDescription className="text-xs">Un marché de tous les jours</CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
               {showForgotPassword ? (
@@ -239,7 +240,7 @@ const Auth = () => {
                       <p className="text-sm text-muted-foreground">
                         Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
                       </p>
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         <Label htmlFor="forgot-email">Email</Label>
                         <Input
                           id="forgot-email"
@@ -248,10 +249,9 @@ const Auth = () => {
                           value={forgotEmail}
                           onChange={(e) => setForgotEmail(e.target.value)}
                           required
-                          className="h-12"
                         />
                       </div>
-                      <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
+                      <Button type="submit" className="w-full h-11 bg-gradient-hero text-base" disabled={isLoading}>
                         {isLoading ? (
                           <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Envoi...</>
                         ) : (
@@ -263,14 +263,14 @@ const Auth = () => {
                 </div>
               ) : (
               <Tabs defaultValue="login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsList className="grid w-full grid-cols-2 mb-3">
                   <TabsTrigger value="login">Connexion</TabsTrigger>
                   <TabsTrigger value="signup">Inscription</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="login">
-                  <form onSubmit={handleLogin} className="space-y-4">
-                    <div className="space-y-2">
+                  <form onSubmit={handleLogin} className="space-y-3">
+                    <div className="space-y-1.5">
                       <Label htmlFor="login-email">Email</Label>
                       <Input
                         id="login-email"
@@ -279,10 +279,9 @@ const Auth = () => {
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
                         required
-                        className="h-12"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="login-password">Mot de passe</Label>
                         <button
@@ -300,10 +299,9 @@ const Auth = () => {
                         value={loginPassword}
                         onChange={(e) => setLoginPassword(e.target.value)}
                         required
-                        className="h-12"
                       />
                     </div>
-                    <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
+                    <Button type="submit" className="w-full h-11 bg-gradient-hero text-base" disabled={isLoading}>
                       {isLoading ? (
                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Connexion...</>
                       ) : (
@@ -314,8 +312,9 @@ const Auth = () => {
                 </TabsContent>
                 
                 <TabsContent value="signup">
-                  <form onSubmit={handleSignup} className="space-y-4">
-                    <div className="space-y-2">
+                  <form onSubmit={handleSignup} className="space-y-3">
+                    <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
                       <Label htmlFor="signup-name">Nom complet</Label>
                       <Input
                         id="signup-name"
@@ -324,10 +323,9 @@ const Auth = () => {
                         value={signupFullName}
                         onChange={(e) => setSignupFullName(e.target.value)}
                         required
-                        className="h-12"
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor="signup-email">Email</Label>
                       <Input
                         id="signup-email"
@@ -336,12 +334,12 @@ const Auth = () => {
                         value={signupEmail}
                         onChange={(e) => setSignupEmail(e.target.value)}
                         required
-                        className="h-12"
                       />
+                    </div>
                     </div>
 
                     {/* Role Selection */}
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label>Je suis</Label>
                       <RadioGroup
                         value={signupRole}
@@ -350,37 +348,37 @@ const Auth = () => {
                       >
                         <Label
                           htmlFor="role-buyer"
-                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                          className={`flex items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2 cursor-pointer transition-colors ${
                             signupRole === "buyer" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                           }`}
                         >
                           <RadioGroupItem value="buyer" id="role-buyer" className="sr-only" />
-                          <ShoppingBag className="w-5 h-5 text-primary" />
+                          <ShoppingBag className="w-4 h-4 text-primary shrink-0" />
                           <span className="text-xs font-medium">Acheteur</span>
                         </Label>
                         <Label
                           htmlFor="role-seller"
-                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                          className={`flex items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2 cursor-pointer transition-colors ${
                             signupRole === "seller" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                           }`}
                         >
                           <RadioGroupItem value="seller" id="role-seller" className="sr-only" />
-                          <Store className="w-5 h-5 text-primary" />
+                          <Store className="w-4 h-4 text-primary shrink-0" />
                           <span className="text-xs font-medium">Vendeur</span>
                         </Label>
                         <Label
                           htmlFor="role-provider"
-                          className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 cursor-pointer transition-colors ${
+                          className={`flex items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2 cursor-pointer transition-colors ${
                             signupRole === "provider" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
                           }`}
                         >
                           <RadioGroupItem value="provider" id="role-provider" className="sr-only" />
-                          <Briefcase className="w-5 h-5 text-primary" />
+                          <Briefcase className="w-4 h-4 text-primary shrink-0" />
                           <span className="text-xs font-medium">Prestataire</span>
                         </Label>
                       </RadioGroup>
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label htmlFor="signup-password">Mot de passe</Label>
                       <Input
                         id="signup-password"
@@ -390,7 +388,6 @@ const Auth = () => {
                         onChange={(e) => setSignupPassword(e.target.value)}
                         required
                         minLength={8}
-                        className="h-12"
                         aria-describedby="pw-rules"
                       />
                       <p id="pw-rules" className={`text-xs ${signupPassword && passwordProblems(signupPassword).length ? "text-destructive" : "text-muted-foreground"}`}>
@@ -398,7 +395,12 @@ const Auth = () => {
                       </p>
                     </div>
                     {/* Referral code */}
-                    <div className="space-y-2">
+                    {!showReferral ? (
+                      <button type="button" onClick={() => setShowReferral(true)} className="text-xs text-primary hover:underline font-medium">
+                        J'ai un code de parrainage
+                      </button>
+                    ) : (
+                    <div className="space-y-1.5">
                       <Label htmlFor="referral-code">Code de parrainage (optionnel)</Label>
                       <Input
                         id="referral-code"
@@ -406,13 +408,14 @@ const Auth = () => {
                         placeholder="MYS-XXXXXX"
                         value={referralCode}
                         onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                        className="h-12 font-mono tracking-wider"
+                        className="font-mono tracking-wider"
                       />
                       {referralCode && (
-                        <p className="text-[10px] text-accent">🎁 Bonus de 500 FCFA à l'inscription !</p>
+                        <p className="text-xs text-accent">🎁 Bonus de 500 FCFA à l'inscription !</p>
                       )}
                     </div>
-                    <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
+                    )}
+                    <Button type="submit" className="w-full h-11 bg-gradient-hero text-base" disabled={isLoading}>
                       {isLoading ? (
                         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Inscription...</>
                       ) : (
@@ -438,7 +441,7 @@ const Auth = () => {
                   </div>
                   {SOCIAL_PROVIDERS.includes("google") && <Button
                     variant="outline"
-                    className="w-full h-12 text-base gap-2"
+                    className="w-full gap-2"
                     onClick={handleGoogleSignIn}
                     disabled={isLoading}
                   >
@@ -447,7 +450,7 @@ const Auth = () => {
                   </Button>}
                   {SOCIAL_PROVIDERS.includes("apple") && <Button
                     variant="outline"
-                    className="w-full h-12 text-base gap-2 mt-2"
+                    className="w-full gap-2 mt-2"
                     onClick={handleAppleSignIn}
                     disabled={isLoading}
                   >
@@ -458,10 +461,10 @@ const Auth = () => {
               )}
 
               {/* Driver CTA */}
-              <div className="mt-6 pt-6 border-t border-border text-center">
-                <p className="text-sm text-muted-foreground mb-3">Vous êtes livreur ?</p>
-                <Button variant="outline" className="w-full" onClick={() => navigate("/driver-registration")}>
-                  <Truck className="w-4 h-4 mr-2" />
+              <div className="mt-4 pt-3 border-t border-border flex items-center justify-center gap-2 text-sm">
+                <span className="text-muted-foreground">Vous êtes livreur ?</span>
+                <Button variant="link" size="sm" className="h-auto p-0" onClick={() => navigate("/driver-registration")}>
+                  <Truck className="w-4 h-4 mr-1" />
                   S'inscrire comme livreur
                 </Button>
               </div>

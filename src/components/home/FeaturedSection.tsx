@@ -94,15 +94,15 @@ const FeaturedSection = () => {
   if (!showProducts && !showServices) return <section ref={sectionRef} aria-hidden />;
 
   return (
-    <section ref={sectionRef} className="py-16 md:py-24">
+    <section ref={sectionRef} className="py-10 md:py-14">
       <div className="container">
         {/* Featured Products */}
-        {showProducts && <div className="mb-16">
+        {showProducts && <div className="mb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+            className="flex items-end justify-between mb-4 md:mb-6 gap-4"
           >
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -122,6 +122,7 @@ const FeaturedSection = () => {
           </motion.div>
 
           <motion.div
+            key={loading ? "loading" : "ready"}
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -191,7 +192,7 @@ const FeaturedSection = () => {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+            className="flex items-end justify-between mb-4 md:mb-6 gap-4"
           >
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -211,6 +212,7 @@ const FeaturedSection = () => {
           </motion.div>
 
           <motion.div
+            key={loading ? "loading" : "ready"}
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"

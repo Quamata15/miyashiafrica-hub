@@ -41,7 +41,7 @@ export default function CheckoutReturn() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12 flex items-center justify-center px-4">
+      <main className="flex-1 pt-header pb-10 flex items-center justify-center px-4">
         <Card className="max-w-md w-full text-center"><CardContent className="p-8 space-y-4">
           {state === "checking" && (<><Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" /><h1 className="text-2xl font-display font-bold">Confirmation du paiement…</h1><p className="text-muted-foreground">Nous vérifions votre paiement auprès de FedaPay.</p></>)}
           {state === "done" && (<><CheckCircle2 className="w-14 h-14 mx-auto text-accent" /><h1 className="text-2xl font-display font-bold">Commande payée</h1>

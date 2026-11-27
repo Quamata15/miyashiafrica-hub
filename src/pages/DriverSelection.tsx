@@ -119,7 +119,7 @@ const DriverSelection = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
             <h1 className="text-3xl font-display font-bold mb-2">Choisir un livreur</h1>
@@ -148,7 +148,7 @@ const DriverSelection = () => {
             <div className="text-center py-12"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
           ) : filteredDrivers.length === 0 ? (
             <Card className="border-0 shadow-card">
-              <CardContent className="p-12 text-center">
+              <CardContent className="p-6 sm:p-8 text-center">
                 <Truck className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="text-xl font-semibold mb-2">Aucun livreur disponible</h3>
                 <p className="text-muted-foreground">Essayez un autre type de véhicule</p>

@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, MapPin, Clock, Star, Users } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 
 type FreelanceProfile = Tables<"freelance_profiles">;
@@ -82,9 +84,16 @@ const FreelanceProfiles = () => {
 
       {/* Freelancers Grid */}
       {filteredFreelancers.length === 0 ? (
-        <div className="text-center py-12">
-          <Users className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Aucun freelance trouvé</p>
+        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 rounded-2xl border border-dashed border-foreground/15 p-4 sm:p-5 text-center sm:text-left">
+          <Users className="h-9 w-9 shrink-0 text-muted-foreground" />
+          <div className="flex-1 min-w-0">
+            <p className="font-medium">Aucun freelance trouvé</p>
+            <p className="text-sm text-muted-foreground">Les profils apparaissent ici dès leur publication. En attendant, consultez les offres en cours.</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button asChild size="sm"><Link to="/freelance?onglet=offres">Voir les offres et missions</Link></Button>
+            <Button asChild size="sm" variant="outline"><Link to="/create?type=freelance">Créer mon profil</Link></Button>
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

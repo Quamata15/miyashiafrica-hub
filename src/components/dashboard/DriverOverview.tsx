@@ -109,7 +109,7 @@ const DriverOverview = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Driver header with availability toggle */}
       <Card className="border-0 shadow-card">
         <CardContent className="p-4">

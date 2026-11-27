@@ -206,7 +206,7 @@ export default function Checkout() {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12 flex items-center justify-center px-4">
+        <main className="flex-1 pt-header pb-10 flex items-center justify-center px-4">
           <Card className="max-w-md text-center"><CardContent className="p-8">
             <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
             <h1 className="text-2xl font-display font-bold mb-2">Rien à payer</h1>
@@ -230,7 +230,7 @@ export default function Checkout() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-2xl space-y-6">
           <div className="text-center">
             <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-primary/15 flex items-center justify-center"><Lock className="w-7 h-7 text-primary" /></div>
@@ -292,7 +292,7 @@ export default function Checkout() {
                   codAllowed ? "Payez en espèces au livreur ou au vendeur, contre votre code de remise" : allProducts ? `Non disponible pour cette commande (vendeur ou montant > ${fcfa(COD_LIMIT)})` : "Réservé aux produits", !codAllowed)}
               </RadioGroup>
               {pay === "mobile" && (
-                <div><Label htmlFor="mm-phone">Numéro mobile money</Label><Input id="mm-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="90 00 00 00" className="h-12" /></div>
+                <div><Label htmlFor="mm-phone">Numéro mobile money</Label><Input id="mm-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="90 00 00 00" /></div>
               )}
               {balance < total && pay === "wallet" && <Link to="/wallet" className="text-sm text-primary underline">Recharger le portefeuille</Link>}
             </CardContent>

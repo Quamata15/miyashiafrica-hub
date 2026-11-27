@@ -63,51 +63,66 @@ export default function ShopSettings({ shop, onSaved }: { shop: Shop | null; onS
   const setTime = (d: keyof Hours, i: 0 | 1, v: string) => setHours((h) => ({ ...h, [d]: [[i === 0 ? v : h[d]![0][0], i === 1 ? v : h[d]![0][1]]] }));
 
   return (
-    <div className="space-y-6">
+    <div>
+    <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+      <div className="space-y-4 min-w-0">
       <Card>
-        <CardHeader><CardTitle className="text-lg">Identité</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid sm:grid-cols-2 gap-4">
+        <CardHeader className="pb-3"><CardTitle className="text-lg">Identité</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid sm:grid-cols-2 gap-3">
             <div><Label htmlFor="s-name">Nom de la boutique</Label><Input id="s-name" value={f.name ?? ""} onChange={(e) => { set("name", e.target.value); if (!shop) set("slug", slugify(e.target.value)); }} /></div>
             <div>
               <Label htmlFor="s-slug">Adresse de la boutique</Label>
-              <div className="flex items-center rounded-md border border-input bg-background pl-3 text-sm"><span className="text-muted-foreground whitespace-nowrap">…/boutique/</span><input id="s-slug" className="flex-1 h-10 bg-transparent outline-none px-1 min-w-0" value={f.slug ?? ""} onChange={(e) => set("slug", slugify(e.target.value))} /></div>
+              <div className="flex items-center rounded-xl border border-foreground/10 bg-foreground/[0.04] pl-3 text-sm"><span className="text-muted-foreground whitespace-nowrap">…/boutique/</span><input id="s-slug" className="flex-1 h-10 bg-transparent outline-none px-1 min-w-0" value={f.slug ?? ""} onChange={(e) => set("slug", slugify(e.target.value))} /></div>
               {shop && <Link to={`/boutique/${shop.slug}`} className="text-xs text-primary inline-flex items-center gap-1 mt-1">Voir ma boutique <ExternalLink className="w-3 h-3" /></Link>}
             </div>
           </div>
-          <div><Label htmlFor="s-desc">Présentation</Label><Textarea id="s-desc" rows={4} maxLength={2000} value={f.description ?? ""} onChange={(e) => set("description", e.target.value)} /></div>
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div><Label htmlFor="s-desc">Présentation</Label><Textarea id="s-desc" rows={3} maxLength={2000} value={f.description ?? ""} onChange={(e) => set("description", e.target.value)} /></div>
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <Label>Logo</Label>
-              <label className="mt-1 flex items-center gap-3 cursor-pointer"><span className="w-14 h-14 rounded-xl bg-muted overflow-hidden flex items-center justify-center">{f.logo_url ? <img src={f.logo_url} alt="" className="w-full h-full object-cover" /> : <Upload className="w-5 h-5 text-muted-foreground" />}</span><span className="text-sm text-primary">Choisir</span>
+              <label className="mt-1 flex items-center gap-2 cursor-pointer"><span className="w-11 h-11 shrink-0 rounded-xl bg-muted overflow-hidden flex items-center justify-center">{f.logo_url ? <img src={f.logo_url} alt="" className="w-full h-full object-cover" /> : <Upload className="w-5 h-5 text-muted-foreground" />}</span><span className="text-sm text-primary">Choisir</span>
                 <input type="file" accept="image/*" className="sr-only" onChange={(e) => upload("logo_url", e.target.files?.[0])} /></label>
             </div>
             <div>
               <Label>Bannière</Label>
-              <label className="mt-1 flex items-center gap-3 cursor-pointer"><span className="w-24 h-14 rounded-xl bg-muted overflow-hidden flex items-center justify-center">{f.banner_url ? <img src={f.banner_url} alt="" className="w-full h-full object-cover" /> : <Upload className="w-5 h-5 text-muted-foreground" />}</span><span className="text-sm text-primary">Choisir</span>
+              <label className="mt-1 flex items-center gap-2 cursor-pointer"><span className="w-16 h-11 shrink-0 rounded-xl bg-muted overflow-hidden flex items-center justify-center">{f.banner_url ? <img src={f.banner_url} alt="" className="w-full h-full object-cover" /> : <Upload className="w-5 h-5 text-muted-foreground" />}</span><span className="text-sm text-primary">Choisir</span>
                 <input type="file" accept="image/*" className="sr-only" onChange={(e) => upload("banner_url", e.target.files?.[0])} /></label>
             </div>
-            <div><Label htmlFor="s-color">Couleur</Label><Input id="s-color" type="color" value={f.theme_color ?? "#1a1826"} onChange={(e) => set("theme_color", e.target.value)} className="h-14 w-24 p-1" /></div>
+            <div><Label htmlFor="s-color">Couleur</Label><Input id="s-color" type="color" value={f.theme_color ?? "#1a1826"} onChange={(e) => set("theme_color", e.target.value)} className="mt-1 h-11 w-full max-w-[96px] p-1" /></div>
           </div>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div><Label htmlFor="s-country">Pays</Label>
-              <select id="s-country" value={f.country ?? "TG"} onChange={(e) => set("country", e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3">{COUNTRY_OPTIONS.map(([c, n]) => <option key={c} value={c}>{n}</option>)}</select></div>
+              <select id="s-country" value={f.country ?? "TG"} onChange={(e) => set("country", e.target.value)} className="w-full h-10 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-sm">{COUNTRY_OPTIONS.map(([c, n]) => <option key={c} value={c}>{n}</option>)}</select></div>
             <div><Label htmlFor="s-city">Ville</Label><Input id="s-city" value={f.city ?? ""} onChange={(e) => set("city", e.target.value)} /></div>
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-lg">Horaires d'ouverture</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
+        <CardHeader className="pb-3"><CardTitle className="text-lg">Ventes et retrait</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Paiement à la livraison</span><span className="text-sm text-muted-foreground">Jusqu'à 150 000 F. Vous encaissez en espèces ; la commission de 10 % est retenue sur votre portefeuille.</span></span>
+            <Switch checked={f.accepts_cod ?? true} onCheckedChange={(v) => set("accepts_cod", v)} /></label>
+          <div><Label htmlFor="s-pickup">Adresse de retrait en boutique (facultatif)</Label><Input id="s-pickup" value={f.store_pickup_address ?? ""} onChange={(e) => set("store_pickup_address", e.target.value)} placeholder="Grand Marché de Lomé, allée 4, stand 12" /></div>
+          <div><Label htmlFor="s-vat">Numéro fiscal / TVA (si assujetti)</Label><Input id="s-vat" value={f.vat_number ?? ""} onChange={(e) => set("vat_number", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">Rempli : vos factures affichent la TVA de votre pays.</p></div>
+        </CardContent>
+      </Card>
+
+      </div>
+
+      <div className="space-y-4 min-w-0">
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-lg">Horaires d'ouverture</CardTitle></CardHeader>
+        <CardContent className="space-y-1.5">
           {DAYS.map(([d, label]) => (
-            <div key={d} className="flex items-center gap-3 flex-wrap">
+            <div key={d} className="flex items-center gap-2 sm:gap-3 min-h-9">
               <Switch checked={!!hours[d]} onCheckedChange={(v) => toggleDay(d, v)} aria-label={`Ouvert le ${label}`} />
-              <span className="w-24 text-sm">{label}</span>
+              <span className="w-20 text-sm">{label}</span>
               {hours[d] ? (<>
-                <Input type="time" value={hours[d]![0][0]} onChange={(e) => setTime(d, 0, e.target.value)} className="w-32" aria-label={`Ouverture ${label}`} />
-                <span>à</span>
-                <Input type="time" value={hours[d]![0][1]} onChange={(e) => setTime(d, 1, e.target.value)} className="w-32" aria-label={`Fermeture ${label}`} />
+                <Input type="time" value={hours[d]![0][0]} onChange={(e) => setTime(d, 0, e.target.value)} className="h-9 w-[6.5rem] px-2" aria-label={`Ouverture ${label}`} />
+                <span className="text-sm text-muted-foreground">à</span>
+                <Input type="time" value={hours[d]![0][1]} onChange={(e) => setTime(d, 1, e.target.value)} className="h-9 w-[6.5rem] px-2" aria-label={`Fermeture ${label}`} />
               </>) : <span className="text-sm text-muted-foreground">Fermé</span>}
             </div>
           ))}
@@ -115,7 +130,7 @@ export default function ShopSettings({ shop, onSaved }: { shop: Shop | null; onS
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-lg">Réponses rapides</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-lg">Réponses rapides</CardTitle></CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-muted-foreground">Proposées en un clic dans la messagerie.</p>
           {replies.map((r, i) => (
@@ -127,17 +142,7 @@ export default function ShopSettings({ shop, onSaved }: { shop: Shop | null; onS
       </Card>
 
       <Card>
-        <CardHeader><CardTitle className="text-lg">Ventes et retrait</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Paiement à la livraison</span><span className="text-sm text-muted-foreground">Jusqu'à 150 000 F. Vous encaissez en espèces ; la commission de 10 % est retenue sur votre portefeuille.</span></span>
-            <Switch checked={f.accepts_cod ?? true} onCheckedChange={(v) => set("accepts_cod", v)} /></label>
-          <div><Label htmlFor="s-pickup">Adresse de retrait en boutique (facultatif)</Label><Input id="s-pickup" value={f.store_pickup_address ?? ""} onChange={(e) => set("store_pickup_address", e.target.value)} placeholder="Grand Marché de Lomé, allée 4, stand 12" /></div>
-          <div><Label htmlFor="s-vat">Numéro fiscal / TVA (si assujetti)</Label><Input id="s-vat" value={f.vat_number ?? ""} onChange={(e) => set("vat_number", e.target.value)} /><p className="text-xs text-muted-foreground mt-1">Rempli : vos factures affichent la TVA de votre pays.</p></div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-lg">Mode vacances</CardTitle></CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-lg">Mode vacances</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Mettre la boutique en pause</span><span className="text-sm text-muted-foreground">Les clients voient vos produits mais ne peuvent plus commander.</span></span>
             <Switch checked={!!f.vacation_mode} onCheckedChange={(v) => set("vacation_mode", v)} /></label>
@@ -150,7 +155,11 @@ export default function ShopSettings({ shop, onSaved }: { shop: Shop | null; onS
         </CardContent>
       </Card>
 
-      <div className="flex justify-end"><Button size="lg" onClick={save} disabled={busy}>{busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}{shop ? "Enregistrer" : "Créer ma boutique"}</Button></div>
+      </div>
+    </div>
+      <div className="sticky bottom-0 z-10 mt-4 -mx-4 px-4 py-3 bg-background/90 backdrop-blur border-t border-foreground/10 flex justify-end">
+        <Button onClick={save} disabled={busy} className="w-full sm:w-auto">{busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}{shop ? "Enregistrer" : "Créer ma boutique"}</Button>
+      </div>
     </div>
   );
 }

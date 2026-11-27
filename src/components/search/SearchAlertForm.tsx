@@ -172,7 +172,7 @@ const SearchAlertForm = () => {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         <AnimatePresence>
           {showForm && (
             <motion.form
@@ -180,10 +180,10 @@ const SearchAlertForm = () => {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               onSubmit={handleSubmit}
-              className="space-y-4 p-4 bg-muted/50 rounded-lg border"
+              className="space-y-3 p-3 sm:p-4 bg-muted/50 rounded-lg border"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
                   <Label>Nom de l'alerte *</Label>
                   <Input
                     placeholder="Ex: Téléphones moins de 100 000 FCFA"
@@ -191,7 +191,7 @@ const SearchAlertForm = () => {
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label>Type</Label>
                   <Select
                     value={formData.type}
@@ -209,7 +209,7 @@ const SearchAlertForm = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label>Mots-clés</Label>
                 <Input
                   placeholder="Ex: smartphone, iPhone, Samsung..."
@@ -218,8 +218,8 @@ const SearchAlertForm = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
                   <Label>Catégorie</Label>
                   <Select
                     value={formData.category_id}
@@ -236,7 +236,7 @@ const SearchAlertForm = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <Label>Localisation</Label>
                   <Input
                     placeholder="Ex: Lomé, Kara..."

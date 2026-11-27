@@ -80,7 +80,7 @@ export default function PickupProgramInfo({ program }: { program: Program }) {
   ];
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-10">
       <section aria-labelledby="pp-why">
         <h2 id="pp-why" className="text-2xl md:text-3xl font-display font-bold mb-6">Pourquoi devenir point relais</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -95,7 +95,7 @@ export default function PickupProgramInfo({ program }: { program: Program }) {
         <p className="text-xs text-muted-foreground mt-3">Rémunérations indicatives du programme, confirmées dans la convention de partenariat.</p>
       </section>
 
-      <section aria-labelledby="pp-who" className="grid lg:grid-cols-2 gap-8 items-center">
+      <section aria-labelledby="pp-who" className="grid lg:grid-cols-2 gap-6 items-center">
         <div>
           <h2 id="pp-who" className="text-2xl md:text-3xl font-display font-bold mb-4">Qui peut candidater</h2>
           <p className="text-muted-foreground mb-5">Toute entreprise disposant d'un local ouvert au public, en particulier :</p>
@@ -104,8 +104,8 @@ export default function PickupProgramInfo({ program }: { program: Program }) {
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3" aria-hidden>
-          <img src={photoUrl(PHOTOS.lagosFruit, 600, 760)} alt="" loading="lazy" className="rounded-2xl aspect-[4/5] object-cover w-full" />
-          <img src={photoUrl(PHOTOS.parcels, 600, 760)} alt="" loading="lazy" className="rounded-2xl aspect-[4/5] object-cover w-full mt-8" />
+          <img src={photoUrl(PHOTOS.lagosFruit, 600, 760)} alt="" loading="lazy" className="rounded-2xl aspect-[4/3] object-cover w-full" />
+          <img src={photoUrl(PHOTOS.parcels, 600, 760)} alt="" loading="lazy" className="rounded-2xl aspect-[4/3] object-cover w-full" />
         </div>
       </section>
 

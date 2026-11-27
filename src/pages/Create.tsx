@@ -25,11 +25,11 @@ const Create = () => {
   const [searchParams] = useSearchParams();
   const sp = useSpaces();
   // Only what the account's spaces publish.
-  const TABS: { value: string; feature: Feature; label: string; icon: React.ElementType; tone: string }[] = [
-    { value: "product", feature: "sell", label: "Produit", icon: Package, tone: "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" },
-    { value: "service", feature: "provide", label: "Service", icon: Briefcase, tone: "data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground" },
-    { value: "job", feature: "recruit", label: "Offre d'emploi ou mission", icon: Users, tone: "data-[state=active]:bg-accent data-[state=active]:text-accent-foreground" },
-    { value: "freelance", feature: "apply", label: "Profil Freelance", icon: User, tone: "data-[state=active]:bg-accent data-[state=active]:text-accent-foreground" },
+  const TABS: { value: string; feature: Feature; label: string; short: string; icon: React.ElementType; tone: string }[] = [
+    { value: "product", feature: "sell", label: "Produit", short: "Produit", icon: Package, tone: "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground" },
+    { value: "service", feature: "provide", label: "Service", short: "Service", icon: Briefcase, tone: "data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground" },
+    { value: "job", feature: "recruit", label: "Offre d'emploi ou mission", short: "Emploi / mission", icon: Users, tone: "data-[state=active]:bg-accent data-[state=active]:text-accent-foreground" },
+    { value: "freelance", feature: "apply", label: "Profil Freelance", short: "Profil freelance", icon: User, tone: "data-[state=active]:bg-accent data-[state=active]:text-accent-foreground" },
   ];
   const tabs = TABS.filter((t) => sp.can(t.feature));
   const wantedTab = searchParams.get("type");
@@ -70,7 +70,7 @@ const Create = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-24">
+        <main className="flex-1 flex items-center justify-center pt-header">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -96,42 +96,37 @@ const Create = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-28">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="mb-8"
-        >
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
-          </Button>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            Créer une publication
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {tabs.length > 1 ? "Choisissez le type de publication" : tabs.length === 1 ? `Nouvelle publication : ${tabs[0].label.toLowerCase()}` : "Ouvrez l'espace qui correspond à ce que vous voulez publier"}
-          </p>
-        </motion.div>
+      <main className="flex-1 container mx-auto max-w-5xl px-4 pb-8 pt-header">
+        <Tabs defaultValue={initialTab} className="space-y-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+            <div className="flex items-center gap-2 min-w-0 mr-auto">
+              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Retour" className="shrink-0 -ml-2">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div className="min-w-0">
+                <h1 className="text-xl md:text-2xl font-display font-bold text-foreground leading-tight">Créer une publication</h1>
+                {tabs.length <= 1 && (
+                  <p className="text-sm text-muted-foreground">
+                    {tabs.length === 1 ? `Nouvelle publication : ${tabs[0].label.toLowerCase()}` : "Ouvrez l'espace qui correspond à ce que vous voulez publier"}
+                  </p>
+                )}
+              </div>
+            </div>
+            {tabs.length > 1 && (
+              <TabsList className="grid w-full md:w-auto h-auto p-1 bg-card shadow-card rounded-xl" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
+                {tabs.map((t) => (
+                  <TabsTrigger key={t.value} value={t.value} className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg ${t.tone}`}>
+                    <t.icon className="w-4 h-4 shrink-0" />
+                    <span className="truncate text-xs sm:text-sm">{t.short}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            )}
+          </div>
 
-        {tabs.length === 0 ? (
-          <SpaceLocked feature={wantedTab === "service" ? "provide" : wantedTab === "job" ? "recruit" : wantedTab === "freelance" ? "apply" : "publish"}
-            title="Aucun de vos espaces ne publie d'annonces" />
-        ) : (
-        <Tabs defaultValue={initialTab} className="space-y-8">
-          {tabs.length > 1 && (
-            <TabsList className="grid w-full h-auto p-1 bg-card shadow-card rounded-xl" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
-              {tabs.map((t) => (
-                <TabsTrigger key={t.value} value={t.value} className={`flex items-center justify-center gap-2 py-3 rounded-lg ${t.tone}`}>
-                  <t.icon className="w-4 h-4 shrink-0" />
-                  <span className="hidden sm:inline truncate">{t.label}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          {tabs.length === 0 && (
+            <SpaceLocked feature={wantedTab === "service" ? "provide" : wantedTab === "job" ? "recruit" : wantedTab === "freelance" ? "apply" : "publish"}
+              title="Aucun de vos espaces ne publie d'annonces" />
           )}
 
           {sp.can("sell") && (
@@ -152,11 +147,7 @@ const Create = () => {
 
           {sp.can("recruit") && (
             <TabsContent value="job">
-              <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/[0.06] p-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                <p className="flex-1 text-sm">Pour trier automatiquement les candidatures (compétences pondérées, questions éliminatoires) et faire passer des entretiens vidéo ou enregistrés, utilisez l'éditeur complet de l'espace Recruteur.</p>
-                <Button size="sm" onClick={() => navigate("/dashboard?espace=recruteur&onglet=offres&nouvelle=1")}>Éditeur complet</Button>
-              </div>
-              <JobForm categories={jobCategories} />
+              <JobForm categories={jobCategories} onFullEditor={() => navigate("/dashboard?espace=recruteur&onglet=offres&nouvelle=1")} />
             </TabsContent>
           )}
 
@@ -166,7 +157,6 @@ const Create = () => {
             </TabsContent>
           )}
         </Tabs>
-        )}
       </main>
       <Footer />
     </div>

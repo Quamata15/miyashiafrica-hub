@@ -45,44 +45,49 @@ const Contact = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Contact" description="Contactez l'équipe MIYASHI pour toute question ou assistance." canonical="/contact" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-5xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-            <h1 className="text-4xl font-display font-bold mb-3">Nous Contacter</h1>
-            <p className="text-muted-foreground">Notre équipe est là pour vous aider</p>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+            <h1 className="text-2xl md:text-3xl font-display font-bold">Nous contacter</h1>
+            <p className="text-sm text-muted-foreground">Notre équipe est là pour vous aider</p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="space-y-4">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-3 md:grid-cols-1 gap-2 md:gap-3 md:content-start">
               {[
-                { icon: Mail, title: "Email", value: "contact@miyashi.africa" },
-                { icon: Phone, title: "Téléphone", value: "+228 97 09 56 85" },
+                { icon: Mail, title: "Email", value: "contact@miyashi.africa", href: "mailto:contact@miyashi.africa" },
+                { icon: Phone, title: "Téléphone", value: "+228 97 09 56 85", href: "tel:+22897095685" },
                 { icon: MapPin, title: "Adresse", value: "Lomé, Togo" },
-              ].map(info => (
-                <Card key={info.title} className="border-0 shadow-card">
-                  <CardContent className="p-4 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              ].map(info => {
+                const body = (
+                  <>
+                    <div className="w-9 h-9 md:w-10 md:h-10 shrink-0 rounded-xl bg-primary/10 flex items-center justify-center">
                       <info.icon className="w-5 h-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{info.title}</p>
-                      <p className="font-medium">{info.value}</p>
+                    <div className="min-w-0 text-center md:text-left">
+                      <p className="text-xs text-muted-foreground">{info.title}</p>
+                      <p className="hidden md:block font-medium text-sm break-words">{info.value}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </>
+                );
+                const cls = "flex flex-col md:flex-row items-center gap-1.5 md:gap-3 rounded-xl border border-foreground/10 bg-card/80 p-2.5 md:p-3 shadow-card hover:border-primary/40 transition-colors min-w-0";
+                return info.href
+                  ? <a key={info.title} href={info.href} className={cls} aria-label={`${info.title} : ${info.value}`}>{body}</a>
+                  : <div key={info.title} className={cls} aria-label={`${info.title} : ${info.value}`}>{body}</div>;
+              })}
             </div>
 
             <Card className="md:col-span-2 border-0 shadow-elevated">
-              <CardHeader>
-                <CardTitle>Envoyer un message</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Envoyer un message</CardTitle>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Catégorie</Label>
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="contact-category">Catégorie</Label>
                     <Select value={form.category} onValueChange={v => setForm({ ...form, category: v })}>
-                      <SelectTrigger aria-label="Catégorie"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="contact-category"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="general">Général</SelectItem>
                         <SelectItem value="order">Commande</SelectItem>
@@ -93,13 +98,14 @@ const Contact = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Sujet</Label>
-                    <Input placeholder="Sujet de votre message" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} required />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="contact-subject">Sujet</Label>
+                    <Input id="contact-subject" placeholder="Sujet de votre message" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} required />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Message</Label>
-                    <Textarea placeholder="Décrivez votre problème..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} rows={5} required />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="contact-message">Message</Label>
+                    <Textarea id="contact-message" placeholder="Décrivez votre problème..." value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} rows={4} required />
                   </div>
                   <Button type="submit" className="w-full bg-gradient-hero" disabled={loading}>
                     {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}

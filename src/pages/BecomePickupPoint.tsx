@@ -55,7 +55,7 @@ export default function BecomePickupPoint() {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Devenir point relais" description="Entreprises de logistique, boutiques, stations : devenez point relais MIYASHI. Conditions, pièces à fournir, vérifications et candidature en ligne." canonical="/devenir-point-relais" />
       <Header />
-      <main className="flex-1 pt-20 pb-16">
+      <main className="flex-1 pt-header pb-16">
         <div className="container mx-auto px-4">
           <PageHero eyebrow="Partenaires logistiques" title="Devenez point relais MIYASHI" photo={PHOTOS.parcels}
             description="Recevez les colis du quartier dans votre commerce, remettez-les aux clients contre leur code, et soyez rémunéré à chaque colis.">
@@ -67,7 +67,7 @@ export default function BecomePickupPoint() {
           </PageHero>
 
           {app && st && !["draft"].includes(app.status) && (
-            <section className="mt-10 rounded-2xl border border-foreground/10 bg-card/80 p-6" aria-label="Suivi de ma candidature">
+            <section className="mt-6 rounded-2xl border border-foreground/10 bg-card/80 p-5" aria-label="Suivi de ma candidature">
               <div className="flex flex-wrap items-center gap-3 mb-4"><st.icon className="w-6 h-6 text-primary" /><h2 className="text-xl font-display font-bold">{app.company_name} — {st.label}</h2></div>
               <p className="text-muted-foreground mb-4">{st.text}{app.status === "visit_scheduled" && app.site_visit_at ? ` Visite le ${new Date(app.site_visit_at).toLocaleString("fr-FR", { dateStyle: "full", timeStyle: "short", timeZone: "Africa/Abidjan" })}.` : ""}</p>
               {app.status === "rejected" && app.decision_reason && <p className="text-sm rounded-xl bg-destructive/10 p-3 mb-4">Motif : {app.decision_reason}</p>}
@@ -83,9 +83,9 @@ export default function BecomePickupPoint() {
             </section>
           )}
 
-          <div className="mt-14"><PickupProgramInfo program={program} /></div>
+          <div className="mt-8"><PickupProgramInfo program={program} /></div>
 
-          <div ref={formRef} className="mt-16 scroll-mt-24">
+          <div ref={formRef} className="mt-10 scroll-mt-24">
             {showForm && user && (!app || ["draft", "info_requested"].includes(app.status)) ? (
               <>
                 <h2 className="text-2xl md:text-3xl font-display font-bold mb-2">Votre candidature</h2>
@@ -93,10 +93,10 @@ export default function BecomePickupPoint() {
                 <PartnerApplicationForm initial={app ?? null} onSubmitted={(a) => { setApp(a); setShowForm(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
               </>
             ) : !app || app.status === "rejected" ? (
-              <div className="rounded-2xl border border-primary/30 bg-primary/[0.06] p-8 text-center">
+              <div className="rounded-2xl border border-primary/30 bg-primary/[0.06] p-4 sm:p-6 text-center">
                 <h2 className="text-2xl font-display font-bold mb-2">Prêt à rejoindre le réseau ?</h2>
                 <p className="text-muted-foreground mb-5">Préparez vos pièces : 15 minutes suffisent pour déposer le dossier.</p>
-                {user ? <Button size="lg" onClick={start}>Commencer ma candidature</Button> : <Button size="lg" asChild><Link to="/auth?next=/devenir-point-relais">Créer un compte ou se connecter</Link></Button>}
+                {user ? <Button size="lg" onClick={start}>Commencer ma candidature</Button> : <Button size="lg" asChild className="h-auto min-h-11 py-2 whitespace-normal"><Link to="/auth?next=/devenir-point-relais">Créer un compte ou se connecter</Link></Button>}
               </div>
             ) : null}
           </div>

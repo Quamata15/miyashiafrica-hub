@@ -16,7 +16,7 @@ export default function FreelanceHome({ onTab }: { onTab: (tab: string) => void 
   const active = (apps ?? []).filter((a) => !["rejected", "withdrawn", "hired"].includes(a.stage));
   const upcoming = (ivs ?? []).filter((i) => ["scheduled", "in_progress"].includes(i.status));
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <GuideProgressCard space="freelance" onTab={onTab} />
       <StatGrid loading={loading}>
         <Stat label="Candidatures en cours" value={active.length} icon={FileText} onClick={() => onTab("candidatures")} />

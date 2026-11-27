@@ -23,7 +23,7 @@ const SearchAlerts = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-24">
+        <main className="flex-1 flex items-center justify-center pt-header">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -49,7 +49,7 @@ const SearchAlerts = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-28">
+      <main className="flex-1 container mx-auto px-4 pb-8 pt-header">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}

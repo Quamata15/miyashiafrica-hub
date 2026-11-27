@@ -94,7 +94,7 @@ const UserFollows = () => {
   );
 
   const EmptyList = ({ text }: { text: string }) => (
-    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
       <Users className="w-10 h-10 mb-3 opacity-40" />
       <p className="text-sm">{text}</p>
     </div>
@@ -108,7 +108,7 @@ const UserFollows = () => {
         canonical={`/user/${userId}/follows`}
       />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-2xl">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-6">

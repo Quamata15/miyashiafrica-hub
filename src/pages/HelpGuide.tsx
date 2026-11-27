@@ -146,7 +146,7 @@ const HelpGuide = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12 flex flex-col items-center justify-center gap-4">
+        <main className="flex-1 pt-header pb-10 flex flex-col items-center justify-center gap-4">
           <BookOpen className="h-16 w-16 text-muted-foreground/30" />
           <h2 className="text-xl font-bold">Guide introuvable</h2>
           <Button asChild variant="outline"><Link to="/help">Retour au Centre d'aide</Link></Button>
@@ -162,7 +162,7 @@ const HelpGuide = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title={`${guide.title} — Centre d'Aide MIYASHI`} description={guide.description} canonical={`/help/${slug}`} />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-6">

@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { FormHead, StickySubmit } from "./FormBits";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Briefcase, Clock, DollarSign, Loader2 } from "lucide-react";
@@ -96,25 +97,15 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       <Card className="shadow-elevated border-0">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center">
-              <Briefcase className="w-6 h-6 text-secondary" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl font-display">Nouveau Service</CardTitle>
-              <CardDescription>Proposez vos services aux clients</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+        <CardContent className="pt-4 sm:pt-5">
+          <FormHead icon={Briefcase} title="Nouveau service" hint="Proposez vos services aux clients" tone="bg-secondary/10 text-secondary" />
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1.5">
               <Label htmlFor="title">Titre du service *</Label>
               <Input
                 id="title"
@@ -126,20 +117,20 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
               {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
                 placeholder="Décrivez votre service en détail, vos compétences, ce que vous proposez..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="min-h-[120px]"
+                className="min-h-[88px]"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price" className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="price" className="flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4" /> Prix (FCFA)
                 </Label>
                 <Input
@@ -153,7 +144,7 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
                 {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="price_type">Type de prix</Label>
                 <Select
                   value={formData.price_type}
@@ -172,10 +163,10 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="delivery_days" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" /> Délai de livraison (jours)
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="delivery_days" className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" /> Délai (jours)
                 </Label>
                 <Input
                   id="delivery_days"
@@ -186,14 +177,14 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="category">Catégorie</Label>
                 <Select
                   value={formData.category_id}
                   onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
+                    <SelectValue placeholder="Choisir" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
@@ -206,16 +197,18 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
               </div>
             </div>
 
-            <Button type="submit" variant="secondary" size="lg" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Création en cours...
-                </>
-              ) : (
-                "Publier le service"
-              )}
-            </Button>
+            <StickySubmit>
+              <Button type="submit" variant="secondary" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Création en cours...
+                  </>
+                ) : (
+                  "Publier le service"
+                )}
+              </Button>
+            </StickySubmit>
           </form>
         </CardContent>
       </Card>

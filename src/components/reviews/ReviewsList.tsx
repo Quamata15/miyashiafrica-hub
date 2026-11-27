@@ -142,17 +142,17 @@ const ReviewsList = ({ productId, serviceId, userId, sellerId }: ReviewsListProp
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Stats Summary */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="flex flex-col md:flex-row items-center gap-8">
+        <CardContent className="pt-4 sm:pt-5">
+          <div className="flex flex-row items-center gap-5 md:gap-8">
             <div className="text-center">
-              <div className="text-5xl font-bold text-foreground">{stats.average.toFixed(1)}</div>
+              <div className="text-4xl md:text-5xl font-bold text-foreground">{stats.average.toFixed(1)}</div>
               <div className="flex items-center justify-center mt-2">{renderStars(Math.round(stats.average))}</div>
               <p className="text-sm text-muted-foreground mt-1">{stats.total} avis</p>
             </div>
-            <div className="flex-1 space-y-2 w-full max-w-md">
+            <div className="flex-1 space-y-1.5 w-full max-w-md">
               {[5, 4, 3, 2, 1].map((rating) => {
                 const count = stats.distribution[rating - 1];
                 const percentage = stats.total > 0 ? (count / stats.total) * 100 : 0;
@@ -174,10 +174,9 @@ const ReviewsList = ({ productId, serviceId, userId, sellerId }: ReviewsListProp
 
       {/* Reviews List */}
       {reviews.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Aucun avis pour le moment</p>
-          <p className="text-sm mt-2">Soyez le premier à laisser un avis</p>
+        <div className="flex items-center gap-3 rounded-xl border border-dashed border-foreground/15 px-4 py-3 text-muted-foreground">
+          <MessageSquare className="h-6 w-6 shrink-0 opacity-50" />
+          <p className="text-sm">Aucun avis pour le moment. Soyez le premier à laisser un avis.</p>
         </div>
       ) : (
         <div className="space-y-4">

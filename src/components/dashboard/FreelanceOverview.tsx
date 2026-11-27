@@ -53,7 +53,7 @@ const FreelanceOverview = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Profile completion */}
       {completionPct < 100 && (
         <Card className="border-0 shadow-card border-l-4 border-l-primary">

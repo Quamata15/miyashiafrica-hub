@@ -15,7 +15,7 @@ const OrderSuccess = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12 flex items-center justify-center">
+      <main className="flex-1 pt-header pb-10 flex items-center justify-center">
         <div className="container mx-auto px-4 max-w-lg">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -76,7 +76,7 @@ const OrderSuccess = () => {
                 <div className="flex flex-col gap-3 pt-2">
                   <Button
                     onClick={() => navigate("/select-driver?order=" + (orderId || "latest"))}
-                    className="h-12 bg-gradient-hero text-lg"
+                    className="h-11 bg-gradient-hero text-base"
                   >
                     <Truck className="w-5 h-5 mr-2" />
                     Choisir un livreur
@@ -84,7 +84,7 @@ const OrderSuccess = () => {
                   <Button
                     variant="outline"
                     onClick={() => navigate("/dashboard")}
-                    className="h-12"
+                    className="h-11"
                   >
                     <Home className="w-5 h-5 mr-2" />
                     Voir mes commandes

@@ -122,7 +122,7 @@ function AisleRibbon() {
   const loop = reduce ? items : [...items, ...items];
   const seconds = items.length * 4;
   return (
-    <div className="mt-10">
+    <div className="mt-6">
       <div className="flex gap-2 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-none" role="tablist" aria-label={t("Choisir une allée")}>
         {[{ key: "all" as const, name: "Tout le marché" }, ...TILES].map((x) => (
           <button
@@ -180,9 +180,9 @@ function AisleRibbon() {
 const CategoriesSection = () => {
   const { t } = useT();
   return (
-    <section className="relative py-20">
+    <section className="relative py-10 md:py-14">
       <div className="container">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6">
           <div>
             <p className="text-xs font-semibold tracking-[0.3em] uppercase text-primary mb-3">{t("Les allées du marché")}</p>
             <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight">

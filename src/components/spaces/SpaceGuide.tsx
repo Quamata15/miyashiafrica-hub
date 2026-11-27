@@ -52,7 +52,7 @@ export default function SpaceGuide({ space, onTab }: { space: SpaceKey; onTab: (
   const g = GUIDES[space];
   const { flags, loading, done, total, pct } = useSpaceProgress(space);
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Section title="Votre guide" description={g.intro}>
         {loading ? <Skeleton className="h-40 rounded-xl" /> : (
           <>

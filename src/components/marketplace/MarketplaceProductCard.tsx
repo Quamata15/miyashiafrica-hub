@@ -84,7 +84,7 @@ const MarketplaceProductCard = ({
         </div>
 
         <div className={cn("flex-1", viewMode === "list" && "p-4")}>
-          <CardContent className={cn(viewMode === "grid" && "p-4")}>
+          <CardContent className={cn(viewMode === "grid" && "p-3 sm:p-4")}>
             <div className="flex items-center gap-1 mb-2">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star key={star} className={`h-3 w-3 ${star <= Math.round(rating) ? "fill-primary text-primary" : "text-muted"}`} />
@@ -92,16 +92,16 @@ const MarketplaceProductCard = ({
               <span className="text-xs text-muted-foreground ml-1">({rating > 0 ? rating.toFixed(1) : "0"})</span>
             </div>
             <div className="flex items-center gap-1.5 mb-1">
-              <h3 className="font-semibold text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+              <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                 {product.title}
               </h3>
               {isVerified && (
-                <Badge variant="secondary" className="shrink-0 gap-0.5 text-[10px] px-1.5 py-0 h-5">
-                  <CheckCircle className="h-3 w-3 text-primary" /> Vérifié
+                <Badge variant="secondary" className="shrink-0 gap-0.5 text-[10px] px-1 sm:px-1.5 py-0 h-5" aria-label="Vendeur vérifié">
+                  <CheckCircle className="h-3 w-3 text-primary" /><span className="hidden sm:inline">Vérifié</span>
                 </Badge>
               )}
             </div>
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{product.description}</p>
+            <p className={cn("text-sm text-muted-foreground line-clamp-2 mb-3", viewMode === "grid" && "hidden sm:block")}>{product.description}</p>
             {product.location && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MapPin className="h-3 w-3" /> {product.location}
@@ -109,15 +109,15 @@ const MarketplaceProductCard = ({
             )}
           </CardContent>
           <CardFooter className={cn(
-            "flex justify-between items-center",
-            viewMode === "grid" ? "px-4 pb-4" : "p-0"
+            "flex flex-wrap justify-between items-center gap-x-2 gap-y-1",
+            viewMode === "grid" ? "px-3 pb-3 sm:px-4 sm:pb-4" : "p-0"
           )}>
             {promotion ? (
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground line-through">
                   {product.price.toLocaleString()} FCFA
                 </span>
-                <span className="text-xl font-bold text-destructive">
+                <span className="text-base sm:text-xl font-bold text-destructive">
                   {(promotion.discount_type === "percentage"
                     ? Math.round(product.price * (1 - promotion.discount_value / 100))
                     : Math.max(0, product.price - promotion.discount_value)
@@ -125,11 +125,11 @@ const MarketplaceProductCard = ({
                 </span>
               </div>
             ) : (
-              <span className="text-xl font-bold text-primary">
+              <span className="text-base sm:text-xl font-bold text-primary">
                 {product.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
               </span>
             )}
-            <Badge variant="outline" className="text-xs">Stock: {product.stock}</Badge>
+            <Badge variant="outline" className="text-[11px] sm:text-xs">Stock : {product.stock}</Badge>
           </CardFooter>
         </div>
       </Card>

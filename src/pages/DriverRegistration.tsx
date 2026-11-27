@@ -24,6 +24,7 @@ import {
   CheckCircle, ArrowRight, Loader2, DollarSign 
 } from "lucide-react";
 import DriverContract from "@/components/driver/DriverContract";
+import { StickySubmit } from "@/components/forms/FormBits";
 import PageHero from "@/components/layout/PageHero";
 import { PHOTOS } from "@/lib/photos";
 import { useSpaces } from "@/hooks/useSpaces";
@@ -87,92 +88,50 @@ const DriverRegistration = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-5xl">
-          {/* Hero */}
-          <PageHero eyebrow="Livreurs" title="Devenez livreur MIYASHI" photo={PHOTOS.motoGoods}
+          <PageHero compact eyebrow="Livreurs" title="Devenez livreur MIYASHI" photo={PHOTOS.motoGoods}
             description="Livrez dans votre zone, choisissez vos horaires, soyez payé dès que le client confirme la réception." />
 
-          {/* Benefits */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
-          >
-            {benefits.map((b, i) => (
-              <Card key={i} className="border-0 shadow-card text-center">
-                <CardContent className="p-6">
-                  <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <b.icon className="w-6 h-6 text-primary" />
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] lg:items-start">
+          <div className="space-y-4 min-w-0 order-last lg:order-first">
+            <div className="grid grid-cols-2 gap-2">
+              {benefits.map((b, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-xl border border-foreground/10 bg-card/70 p-3 min-w-0">
+                  <div className="w-9 h-9 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <b.icon className="w-[18px] h-[18px] text-primary" />
                   </div>
-                  <h3 className="font-display font-bold text-lg">{b.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">{b.desc}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
-
-          {/* Pricing Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-12"
-          >
-            <Card className="border-0 shadow-card overflow-hidden">
-              <div className="bg-gradient-hero p-6 text-primary-foreground">
-                <h2 className="text-2xl font-display font-bold mb-2">Tarification</h2>
-                <p className="opacity-90">Transparente et avantageuse</p>
-              </div>
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-bold text-primary">550F</p>
-                    <p className="text-xs text-muted-foreground">Moto /km</p>
-                  </div>
-                  <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-bold text-primary">1000F</p>
-                    <p className="text-xs text-muted-foreground">Tricycle /km</p>
-                  </div>
-                  <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-bold text-primary">1500F</p>
-                    <p className="text-xs text-muted-foreground">Voiture /km</p>
-                  </div>
-                  <div className="text-center p-4 rounded-xl bg-muted/50">
-                    <p className="text-2xl font-bold text-primary">2000F</p>
-                    <p className="text-xs text-muted-foreground">Camionnette /km</p>
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold text-sm leading-tight">{b.title}</h3>
+                    <p className="text-xs text-muted-foreground leading-snug">{b.desc}</p>
                   </div>
                 </div>
-                <p className="text-center text-sm text-muted-foreground mt-4">Commission plateforme : 18% fixe • Majoration +25% après 19H GMT</p>
+              ))}
+            </div>
+
+            <Card className="border-0 shadow-card overflow-hidden">
+              <div className="bg-gradient-hero px-4 py-2.5 text-primary-foreground flex items-baseline justify-between gap-2">
+                <h2 className="font-display font-bold">Tarification</h2>
+                <p className="text-xs opacity-90">Transparente et avantageuse</p>
+              </div>
+              <CardContent className="p-3 sm:p-3">
+                <div className="grid grid-cols-4 gap-2">
+                  {[["550F", "Moto"], ["1000F", "Tricycle"], ["1500F", "Voiture"], ["2000F", "Camionnette"]].map(([price, label]) => (
+                    <div key={label} className="text-center p-2 rounded-lg bg-muted/50 min-w-0">
+                      <p className="text-base sm:text-lg font-bold text-primary">{price}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{label} /km</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-center text-xs text-muted-foreground mt-2">Commission plateforme : 18 % fixe · majoration de 25 % après 19 h GMT</p>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
-          {/* Contract & Badge */}
-          {user && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="mb-12"
-            >
-              <DriverContract />
-            </motion.div>
-          )}
-
-          {/* Registration Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
-            <Card className="border-0 shadow-elevated">
-              <CardHeader>
-                <CardTitle className="text-2xl font-display">Formulaire d'inscription</CardTitle>
-                <CardDescription>
-                  Remplissez vos informations pour rejoindre l'équipe
-                </CardDescription>
+          <Card className="border-0 shadow-elevated min-w-0">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-display">Formulaire d'inscription</CardTitle>
+                <CardDescription>Remplissez vos informations pour rejoindre l'équipe</CardDescription>
               </CardHeader>
               <CardContent>
                 {sp.has("driver") && !sp.isAdmin ? (
@@ -186,9 +145,9 @@ const DriverRegistration = () => {
                     <Button variant="outline" size="sm" onClick={() => navigate("/dashboard?gerer=1")}>Gérer mes espaces</Button>
                   </div>
                 ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
                       <Label>Zone de livraison</Label>
                       <Select value={form.zone} onValueChange={(v) => setForm({ ...form, zone: v })}>
                         <SelectTrigger>
@@ -206,7 +165,7 @@ const DriverRegistration = () => {
                       </Select>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label>Type de véhicule</Label>
                       <Select value={form.vehicle_type} onValueChange={(v) => setForm({ ...form, vehicle_type: v })}>
                         <SelectTrigger>
@@ -238,16 +197,16 @@ const DriverRegistration = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Numéro de permis (optionnel)</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label>Permis (optionnel)</Label>
                       <Input
-                        placeholder="Votre numéro de permis"
+                        placeholder="N° de permis"
                         value={form.license_number}
                         onChange={(e) => setForm({ ...form, license_number: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <Label>Téléphone</Label>
                       <Input
                         placeholder="+228 XX XX XX XX"
@@ -258,28 +217,37 @@ const DriverRegistration = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <Label>Présentation (optionnel)</Label>
                     <Textarea
                       placeholder="Décrivez votre expérience en livraison..."
                       value={form.bio}
                       onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                      rows={3}
+                      rows={2}
+                      className="min-h-[64px]"
                     />
                   </div>
 
-                  <Button type="submit" className="w-full h-12 text-lg bg-gradient-hero" disabled={loading}>
+                  <StickySubmit>
+                  <Button type="submit" className="w-full h-11 text-base bg-gradient-hero" disabled={loading}>
                     {loading ? (
                       <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Inscription en cours...</>
                     ) : (
                       <>S'inscrire comme livreur <ArrowRight className="ml-2 h-5 w-5" /></>
                     )}
                   </Button>
+                  </StickySubmit>
                 </form>
                 )}
               </CardContent>
-            </Card>
-          </motion.div>
+          </Card>
+          </div>
+
+          {user && (
+            <div className="mt-4">
+              <DriverContract />
+            </div>
+          )}
         </div>
       </main>
       <Footer />

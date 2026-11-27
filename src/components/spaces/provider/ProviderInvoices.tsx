@@ -66,7 +66,7 @@ export default function ProviderInvoices() {
   const valid = !!edit && (edit.client_name ?? "").trim().length >= 2 && (edit.items ?? []).some((i) => i.label.trim().length >= 2 && Number(i.qty) > 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <Stat label="À encaisser" value={fcfa(unpaid)} icon={Receipt} tone="warning" />
         <Stat label="Encaissé" value={fcfa(paid)} icon={CheckCircle2} tone="accent" />

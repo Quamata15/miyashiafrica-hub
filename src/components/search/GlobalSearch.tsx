@@ -151,7 +151,7 @@ const GlobalSearch = ({ className }: { className?: string }) => {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="absolute top-full mt-2 left-0 right-0 bg-card border border-border rounded-xl shadow-elevated z-50 overflow-hidden max-h-96 overflow-y-auto"
+            className="absolute top-full mt-2 left-0 right-0 max-md:fixed max-md:inset-x-3 max-md:top-14 bg-card border border-border rounded-xl shadow-elevated z-50 overflow-hidden max-h-96 overflow-y-auto"
           >
             {loading ? (
               <div className="flex items-center justify-center py-6">

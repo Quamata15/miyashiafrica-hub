@@ -119,7 +119,7 @@ export default function CrudTable({ table, fields, pk = "id", order, defaults = 
                       </div>
                       <p className="text-xs text-muted-foreground">Format large conseillé (1600 × 600 px). L'image est compressée automatiquement.</p>
                     </div>
-                  ) : f.type === "textarea" ? <Textarea id={`f-${f.key}`} rows={8} value={edit[f.key] ?? ""} placeholder={f.placeholder} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />
+                  ) : f.type === "textarea" ? <Textarea id={`f-${f.key}`} rows={5} value={edit[f.key] ?? ""} placeholder={f.placeholder} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />
                     : f.type === "select" ? <select id={`f-${f.key}`} value={edit[f.key] ?? ""} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} className="w-full h-10 rounded-md border border-input bg-background px-3">{f.options!.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
                     : <Input id={`f-${f.key}`} type={f.type === "number" ? "number" : f.type === "date" ? "date" : f.type === "datetime" ? "datetime-local" : "text"} placeholder={f.placeholder}
                         value={f.type === "datetime" && edit[f.key] ? String(edit[f.key]).slice(0, 16) : edit[f.key] ?? ""} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />}

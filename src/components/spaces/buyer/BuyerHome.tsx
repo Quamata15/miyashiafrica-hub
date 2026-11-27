@@ -43,7 +43,7 @@ export default function BuyerHome({ onTab }: { onTab: (tab: string) => void }) {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <GuideProgressCard space="acheteur" onTab={onTab} />
 
       <div className="rounded-2xl border border-emerald-500/25 bg-gradient-to-r from-emerald-500/[0.08] via-transparent to-transparent p-4 md:p-5 flex flex-col md:flex-row md:items-center gap-4">

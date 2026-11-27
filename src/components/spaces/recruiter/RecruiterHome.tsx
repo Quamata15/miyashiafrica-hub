@@ -12,7 +12,7 @@ export default function RecruiterHome({ onTab }: { onTab: (tab: string, extra?: 
   const funnel = STAGES.filter((x) => !["rejected", "withdrawn"].includes(x.key));
   const max = Math.max(1, ...funnel.map((f) => s?.by_stage?.[f.key] ?? 0));
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <GuideProgressCard space="recruteur" onTab={onTab} />
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => onTab("offres", { nouvelle: "1" })}><Plus className="w-4 h-4 mr-1" />Publier une offre</Button>

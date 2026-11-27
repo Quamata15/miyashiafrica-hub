@@ -25,7 +25,7 @@ export default function ReceivedInvoices() {
   }, [user?.id]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Section title="Factures reçues" description="Les factures que vos prestataires vous ont envoyées. Les reçus de vos commandes sont dans « Commandes ».">
         {rows === null ? <p className="text-sm text-muted-foreground">Chargement…</p> : rows.length === 0 ? (
           <Empty icon={FileText} title="Aucune facture pour l'instant" />

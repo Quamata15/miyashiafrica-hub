@@ -120,11 +120,11 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
       )}
     >
       <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16 md:h-18">
+        <div className="flex items-center justify-between h-14 md:h-16">
           {/* Logo */}
           <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
             <motion.div whileHover={{ scale: 1.06, rotate: -3 }} className="drop-shadow-[0_6px_18px_hsl(42_100%_55%/0.35)]">
-              <BrandMark className="w-10 h-10" />
+              <BrandMark className="w-9 h-9 md:w-10 md:h-10" />
             </motion.div>
             <span className="font-display font-black tracking-tight text-xl text-foreground hidden sm:block group-hover:text-primary transition-colors">
               MIYASHI
@@ -151,7 +151,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           </nav>
 
           {/* Search Bar */}
-          <GlobalSearch className="hidden md:block flex-1 max-w-sm mx-4" />
+          <GlobalSearch className="flex-1 min-w-0 mx-2 md:mx-4 md:max-w-sm" />
 
           {/* Actions */}
           <div className="hidden md:flex items-center gap-1">
@@ -347,7 +347,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-1 lg:hidden">
             {user && <CartDrawer />}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -372,11 +372,6 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
               </AnimatePresence>
             </button>
           </div>
-        </div>
-
-        {/* Mobile Search */}
-        <div className="md:hidden pb-3">
-          <GlobalSearch />
         </div>
       </div>
 

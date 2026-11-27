@@ -302,7 +302,7 @@ const DriverContract = () => {
               <Button
                 onClick={handleGenerateBadge}
                 disabled={generatingBadge}
-                className="w-full h-12 bg-gradient-hero text-lg"
+                className="w-full h-11 bg-gradient-hero text-base"
               >
                 {generatingBadge ? (
                   <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Génération...</>
@@ -355,8 +355,8 @@ const DriverContract = () => {
           </p>
         </div>
 
-        <ScrollArea className="h-[500px] pr-4">
-          <div className="space-y-6">
+        <ScrollArea className="h-[min(420px,55vh)] pr-4">
+          <div className="space-y-4">
             {CONTRACT_SECTIONS.map((section, sIdx) => (
               <div key={sIdx}>
                 {/* Section header */}
@@ -439,7 +439,7 @@ const DriverContract = () => {
           <Button
             onClick={handleSign}
             disabled={!allChecked || signing}
-            className="w-full h-12 text-lg bg-gradient-hero"
+            className="w-full h-11 text-base bg-gradient-hero"
           >
             {signing ? (
               <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Signature en cours...</>

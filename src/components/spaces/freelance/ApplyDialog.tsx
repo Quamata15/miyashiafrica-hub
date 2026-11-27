@@ -127,7 +127,7 @@ export default function ApplyDialog({ jobId, open, onOpenChange, onApplied }: { 
 
             <div>
               <Label>Votre message *</Label>
-              <Textarea rows={6} maxLength={5000} value={letter} onChange={(e) => setLetter(e.target.value)}
+              <Textarea rows={4} maxLength={5000} value={letter} onChange={(e) => setLetter(e.target.value)}
                 placeholder="Pourquoi ce poste ? Ce que vous avez déjà réalisé de similaire, avec un exemple concret." />
               <p className="text-xs text-muted-foreground mt-1">{letter.trim().length < 30 ? `Encore ${30 - letter.trim().length} caractères minimum` : `${letter.length}/5000`}</p>
             </div>

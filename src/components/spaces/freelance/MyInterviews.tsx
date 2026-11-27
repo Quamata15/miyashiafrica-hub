@@ -18,7 +18,7 @@ export default function MyInterviews() {
   const now = Date.now();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Section title="Mes entretiens" description="Entretien vidéo en direct à l'heure prévue, ou entretien enregistré à passer quand vous voulez avant l'échéance.">
         {loading ? <p className="text-sm text-muted-foreground">Chargement…</p> : !data?.length ? (
           <Empty icon={CalendarClock} title="Aucun entretien prévu" text="Quand un recruteur vous invite, l'entretien apparaît ici et vous recevez une notification." />

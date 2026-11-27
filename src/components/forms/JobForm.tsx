@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { FormHead, StickySubmit } from "./FormBits";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Users, DollarSign, Calendar, Loader2, Tag } from "lucide-react";
@@ -29,9 +30,11 @@ const jobSchema = z.object({
 interface JobFormProps {
   categories: Category[];
   onSuccess?: () => void;
+  /** Opens the recruiter space editor (CV sorting, interviews). */
+  onFullEditor?: () => void;
 }
 
-const JobForm = ({ categories, onSuccess }: JobFormProps) => {
+const JobForm = ({ categories, onSuccess, onFullEditor }: JobFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -120,25 +123,16 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       <Card className="shadow-elevated border-0">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-              <Users className="w-6 h-6 text-accent" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl font-display">Nouvelle Offre d'Emploi</CardTitle>
-              <CardDescription>Recrutez des talents pour votre projet</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+        <CardContent className="pt-4 sm:pt-5">
+          <FormHead icon={Users} title="Nouvelle offre d'emploi ou mission" hint="Tri des CV et entretiens vidéo : éditeur complet" tone="bg-accent/10 text-accent"
+            action={onFullEditor && <Button type="button" size="sm" variant="outline" onClick={onFullEditor}>Éditeur complet</Button>} />
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1.5">
               <Label htmlFor="title">Titre du poste *</Label>
               <Input
                 id="title"
@@ -150,20 +144,20 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
               {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label htmlFor="description">Description du poste</Label>
               <Textarea
                 id="description"
                 placeholder="Décrivez le poste, les responsabilités, les attentes..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="min-h-[150px]"
+                className="min-h-[88px]"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="budget_min" className="flex items-center gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="budget_min" className="flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4" /> Budget min (FCFA)
                 </Label>
                 <Input
@@ -175,8 +169,8 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="budget_max" className="flex items-center gap-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="budget_max" className="flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4" /> Budget max (FCFA)
                 </Label>
                 <Input
@@ -188,7 +182,7 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5 col-span-2 md:col-span-1">
                 <Label htmlFor="job_type">Type de travail</Label>
                 <Select
                   value={formData.job_type}
@@ -208,9 +202,9 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="deadline" className="flex items-center gap-2">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="deadline" className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4" /> Date limite
                 </Label>
                 <Input
@@ -221,14 +215,14 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="category">Catégorie</Label>
                 <Select
                   value={formData.category_id}
                   onValueChange={(value) => setFormData({ ...formData, category_id: value })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
+                    <SelectValue placeholder="Choisir" />
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
@@ -241,8 +235,8 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5">
                 <Tag className="w-4 h-4" /> Compétences requises
               </Label>
               <div className="flex gap-2">
@@ -271,16 +265,18 @@ const JobForm = ({ categories, onSuccess }: JobFormProps) => {
               )}
             </div>
 
-            <Button type="submit" variant="accent" size="lg" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Création en cours...
-                </>
-              ) : (
-                "Publier l'offre"
-              )}
-            </Button>
+            <StickySubmit>
+              <Button type="submit" variant="accent" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Création en cours...
+                  </>
+                ) : (
+                  "Publier l'offre"
+                )}
+              </Button>
+            </StickySubmit>
           </form>
         </CardContent>
       </Card>

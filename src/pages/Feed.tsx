@@ -223,7 +223,7 @@ const Feed = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Mon fil d'actualité — MIYASHI" description="Découvrez les derniers produits et services de vos abonnements." canonical="/feed" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-6">
@@ -237,12 +237,12 @@ const Feed = () => {
             </div>
 
             {loading ? (
-              <div className="flex justify-center py-16">
+              <div className="flex justify-center py-10">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : items.length === 0 ? (
               <Card className="border-0 shadow-soft">
-                <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <CardContent className="flex flex-col items-center justify-center py-8 text-center">
                   <Rss className="h-12 w-12 text-muted-foreground/30 mb-4" />
                   <h2 className="font-semibold text-lg mb-1">Rien à afficher</h2>
                   <p className="text-sm text-muted-foreground mb-4">

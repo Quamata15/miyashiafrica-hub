@@ -13,10 +13,9 @@ const steps = [
 const HowItWorksSection = () => {
   const { t } = useT();
   return (
-    <section className="relative py-20 md:py-28 overflow-hidden">
-      <div className="absolute inset-0 bg-grid mask-radial opacity-70" aria-hidden />
+    <section className="relative py-10 md:py-16 overflow-hidden">
       <div className="container relative">
-        <div className="text-center max-w-2xl mx-auto mb-14">
+        <div className="text-center max-w-2xl mx-auto mb-8">
           <p className="text-xs font-semibold tracking-[0.3em] uppercase text-accent mb-3">{t("Zéro arnaque")}</p>
           <h2 className="font-display text-3xl md:text-5xl font-extrabold leading-tight mb-4">
             {t("Acheter devient")} <span className="text-accent whitespace-nowrap">{t("sans risque")}</span>
@@ -26,7 +25,7 @@ const HowItWorksSection = () => {
           </p>
         </div>
 
-        <div className="relative grid md:grid-cols-4 gap-4">
+        <div className="relative grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <div
             className="hidden md:block absolute top-[52px] left-[12%] right-[12%] h-px bg-gradient-to-r from-primary/60 to-accent/60"
             aria-hidden
@@ -38,24 +37,24 @@ const HowItWorksSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className="relative glass rounded-2xl p-6 text-center"
+              className="relative glass rounded-2xl p-4 md:p-6 text-center"
             >
-              <div className="relative mx-auto mb-5 w-[72px] h-[72px]">
+              <div className="relative mx-auto mb-3 md:mb-5 w-14 h-14 md:w-[72px] md:h-[72px]">
                 <div className="absolute inset-0 rounded-2xl bg-primary/40 blur-xl opacity-30" aria-hidden />
                 <div className="relative w-full h-full rounded-2xl neon-border bg-background flex items-center justify-center">
-                  <step.icon className="w-7 h-7 text-primary" />
+                  <step.icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                 </div>
                 <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground font-display text-xs font-bold flex items-center justify-center">
                   {index + 1}
                 </span>
               </div>
-              <h3 className="font-display text-lg font-bold mb-2">{t(step.title)}</h3>
-              <p className="text-sm text-muted-foreground">{t(step.description)}</p>
+              <h3 className="font-display text-base md:text-lg font-bold mb-1 md:mb-2">{t(step.title)}</h3>
+              <p className="text-xs md:text-sm text-muted-foreground">{t(step.description)}</p>
             </motion.div>
           ))}
         </div>
 
-        <div className="mt-12 grid grid-cols-3 gap-3 md:gap-4" aria-hidden>
+        <div className="mt-6 grid grid-cols-3 gap-3 md:gap-4" aria-hidden>
           {[PHOTOS.pepperSeller, PHOTOS.grainsSeller, PHOTOS.spiceSeller].map((p) => (
             <div key={p.id} className="relative aspect-[4/3] md:aspect-[16/9] overflow-hidden rounded-2xl border border-foreground/10">
               <img src={photoUrl(p, 800, 500)} alt="" loading="lazy" className="h-full w-full object-cover hover:scale-105 transition-transform duration-700" />

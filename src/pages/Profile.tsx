@@ -178,10 +178,10 @@ const Profile = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Mon profil" description="Gérez votre profil MIYASHI" canonical="/profile" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Profile Header - Compact */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl shadow-card p-5 mb-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl shadow-card p-4 sm:p-5 mb-3">
             <div className="flex flex-wrap items-center gap-4">
               <div className="relative shrink-0">
                 <Avatar className="h-16 w-16 border-3 border-primary/20">
@@ -223,16 +223,16 @@ const Profile = () => {
           </motion.div>
 
           {/* Quick Stats - Only relevant ones */}
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-4 gap-2 mb-3">
             {relevantStats.map(stat => (
               <Card key={stat.label} className="border-0 shadow-soft">
-                <CardContent className="p-3 flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <CardContent className="p-2 sm:p-3 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left">
+                  <div className="hidden sm:flex w-8 h-8 shrink-0 rounded-lg bg-primary/10 items-center justify-center">
                     <stat.icon className="h-4 w-4 text-primary" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-lg font-bold leading-none">{stat.value}</p>
-                    <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{stat.label}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -242,7 +242,7 @@ const Profile = () => {
           {/* Tabs - Contextual */}
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <Tabs defaultValue={searchParams.get("tab") === "verification" ? "verification" : "personal"} className="w-full">
-              <TabsList className={`grid w-full mb-6 ${showFreelance ? "grid-cols-5" : "grid-cols-4"}`}>
+              <TabsList className={`grid w-full mb-3 ${showFreelance ? "grid-cols-5" : "grid-cols-4"}`}>
                 <TabsTrigger value="personal"><User className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Personnel</span></TabsTrigger>
                 {showFreelance && <TabsTrigger value="freelance"><Briefcase className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Freelance</span></TabsTrigger>}
                 <TabsTrigger value="verification"><Shield className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Vérification</span></TabsTrigger>
@@ -253,11 +253,11 @@ const Profile = () => {
               {/* Personal Tab */}
               <TabsContent value="personal">
                 <Card className="border-0 shadow-card">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-lg">Informations personnelles</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label htmlFor="username" className="text-xs">Pseudonyme (public)</Label>
                         <Input id="username" placeholder="mon_pseudo" value={(profile as any).username || ""} onChange={e => setProfile({...profile, username: e.target.value} as any)} />
@@ -268,7 +268,7 @@ const Profile = () => {
                         <Input id="fullName" placeholder="Votre nom" value={profile.full_name || ""} onChange={e => setProfile({...profile, full_name: e.target.value})} />
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1.5">
                         <Label htmlFor="phone" className="text-xs">Téléphone</Label>
                         <Input id="phone" placeholder="+228 XX XX XX XX" value={profile.phone || ""} onChange={e => setProfile({...profile, phone: e.target.value})} />
@@ -280,7 +280,7 @@ const Profile = () => {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="bio" className="text-xs">Bio</Label>
-                      <Textarea id="bio" placeholder="Parlez-nous de vous..." value={profile.bio || ""} onChange={e => setProfile({...profile, bio: e.target.value})} rows={3} />
+                      <Textarea id="bio" placeholder="Parlez-nous de vous..." value={profile.bio || ""} onChange={e => setProfile({...profile, bio: e.target.value})} rows={2} />
                     </div>
                     <Button onClick={handleSaveProfile} disabled={saving}>
                       {saving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sauvegarde...</> : "Sauvegarder"}
@@ -293,10 +293,10 @@ const Profile = () => {
               {showFreelance && (
                 <TabsContent value="freelance">
                   <Card className="border-0 shadow-card">
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-3">
                       <CardTitle className="text-lg">Profil Freelance</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3">
                       <div className="space-y-1.5">
                         <Label className="text-xs">Titre professionnel</Label>
                         <Input placeholder="ex: Développeur Web" value={freelanceProfile.title || ""} onChange={e => setFreelanceProfile({...freelanceProfile, title: e.target.value})} />
@@ -342,7 +342,7 @@ const Profile = () => {
               {/* Spaces Tab */}
               <TabsContent value="roles">
                 <Card className="border-0 shadow-card">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-lg">Vos espaces</CardTitle>
                     <CardDescription className="text-sm">
                       {sp.isAdmin ? "Compte administrateur : tous les espaces sont ouverts." : `L'espace Acheteur est toujours inclus, plus jusqu'à ${sp.limit} espaces professionnels compatibles (${sp.used}/${sp.limit} utilisés).`}
@@ -366,12 +366,12 @@ const Profile = () => {
 
               {/* Settings Tab */}
               <TabsContent value="settings">
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <Card className="border-0 shadow-card">
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-3">
                       <CardTitle className="text-lg">Paramètres du compte</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3">
                       <div className="p-3 rounded-xl bg-muted/50 flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
                           <Mail className="h-4 w-4 text-primary" />
@@ -440,12 +440,12 @@ const Profile = () => {
 
                   {/* Password change */}
                   <Card className="border-0 shadow-card">
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-3">
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Lock className="h-5 w-5" /> Changer le mot de passe
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3">
                       <div className="space-y-1.5">
                         <Label htmlFor="new-password" className="text-xs">Nouveau mot de passe</Label>
                         <Input id="new-password" type="password" placeholder="••••••••" value={newPassword} onChange={e => setNewPassword(e.target.value)} />

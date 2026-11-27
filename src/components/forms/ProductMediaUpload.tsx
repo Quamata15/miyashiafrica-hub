@@ -58,8 +58,8 @@ const ProductMediaUpload = ({ images, onImagesChange, maxFiles = 8 }: ProductMed
   const isVideo = (url: string) => /\.(mp4|webm|mov)$/i.test(url);
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="space-y-2">
+      <div className="grid grid-cols-4 lg:grid-cols-3 gap-2">
         <AnimatePresence>
           {images.map((url, i) => (
             <motion.div
@@ -67,7 +67,7 @@ const ProductMediaUpload = ({ images, onImagesChange, maxFiles = 8 }: ProductMed
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="relative aspect-square rounded-xl overflow-hidden border-2 border-border group"
+              className="relative aspect-square rounded-lg overflow-hidden border border-border group"
             >
               {isVideo(url) ? (
                 <video src={url} className="w-full h-full object-cover" muted />
@@ -78,7 +78,9 @@ const ProductMediaUpload = ({ images, onImagesChange, maxFiles = 8 }: ProductMed
               <Button
                 variant="destructive"
                 size="icon"
-                className="absolute top-1 right-1 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 h-6 w-6 rounded-full sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+                type="button"
+                aria-label="Retirer ce fichier"
                 onClick={() => removeImage(i)}
               >
                 <X className="h-3 w-3" />
@@ -97,7 +99,7 @@ const ProductMediaUpload = ({ images, onImagesChange, maxFiles = 8 }: ProductMed
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="aspect-square rounded-xl border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-all"
+            className="aspect-square rounded-lg border-2 border-dashed border-muted-foreground/30 hover:border-primary/50 flex flex-col items-center justify-center gap-1 text-muted-foreground hover:text-primary transition-all"
           >
             {uploading ? (
               <Loader2 className="h-6 w-6 animate-spin" />
@@ -120,7 +122,7 @@ const ProductMediaUpload = ({ images, onImagesChange, maxFiles = 8 }: ProductMed
         className="hidden"
       />
       <p className="text-xs text-muted-foreground">
-        {images.length}/{maxFiles} fichiers • Photos (JPEG, PNG, WebP) et vidéos (MP4, WebM) acceptés
+        {images.length}/{maxFiles} · photos JPEG, PNG, WebP ou vidéos MP4, WebM
       </p>
     </div>
   );

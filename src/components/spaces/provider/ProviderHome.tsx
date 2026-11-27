@@ -13,7 +13,7 @@ export default function ProviderHome({ onTab }: { onTab: (tab: string) => void }
   const { data: s, loading } = useRpc<Stats>("get_provider_stats", { p_days: 30 });
   const conv = s && s.quotes_sent ? Math.round((s.quotes_accepted / s.quotes_sent) * 100) : null;
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <GuideProgressCard space="prestataire" onTab={onTab} />
       <div className="flex flex-wrap gap-2">
         <Button asChild><Link to="/create?type=service"><Plus className="w-4 h-4 mr-1" />Nouveau service</Link></Button>

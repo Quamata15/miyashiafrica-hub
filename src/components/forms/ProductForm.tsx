@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Package, MapPin, DollarSign, Archive, Loader2, ImagePlus } from "lucide-react";
@@ -15,6 +15,7 @@ import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
 import ProductMediaUpload from "./ProductMediaUpload";
 import { AiListingButton, PriceSuggestion } from "./ListingAssist";
+import { FormHead, StickySubmit } from "./FormBits";
 
 type Category = Tables<"categories">;
 
@@ -98,135 +99,80 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
     }
   };
 
+  const field = (id: keyof typeof formData) => ({
+    id, value: formData[id],
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setFormData({ ...formData, [id]: e.target.value }),
+  });
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
       <Card className="shadow-elevated border-0">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Package className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl font-display">Nouveau Produit</CardTitle>
-              <CardDescription>Ajoutez un produit à vendre sur la marketplace</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Titre du produit *</Label>
-              <Input
-                id="title"
-                placeholder="Ex: iPhone 14 Pro Max"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className={errors.title ? "border-destructive" : ""}
-              />
-              {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
+        <CardContent className="pt-4 sm:pt-5">
+          <FormHead icon={Package} title="Nouveau produit" hint="Ajoutez un produit à vendre sur la marketplace" />
+          <form onSubmit={handleSubmit} className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-6">
+            <div className="space-y-3 min-w-0">
+              <div className="space-y-1.5">
+                <Label htmlFor="title">Titre du produit *</Label>
+                <Input placeholder="Ex: Pagne wax 6 yards" {...field("title")} className={errors.title ? "border-destructive" : ""} />
+                {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="description">Description</Label>
+                <Textarea placeholder="Décrivez votre produit : matière, taille, état…" {...field("description")} className="min-h-[88px]" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="price" className="flex items-center gap-1.5"><DollarSign className="w-4 h-4" /> Prix (FCFA) *</Label>
+                  <Input type="number" inputMode="numeric" placeholder="0" {...field("price")} className={errors.price ? "border-destructive" : ""} />
+                  {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="stock" className="flex items-center gap-1.5"><Archive className="w-4 h-4" /> Stock</Label>
+                  <Input type="number" inputMode="numeric" placeholder="1" {...field("stock")} className={errors.stock ? "border-destructive" : ""} />
+                </div>
+              </div>
+              <PriceSuggestion title={formData.title} categoryId={formData.category_id} onPick={(p) => setFormData((f) => ({ ...f, price: String(p) }))} />
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="location" className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Ville</Label>
+                  <Input placeholder="Ex: Lomé" {...field("location")} />
+                </div>
+                <div className="space-y-1.5 min-w-0">
+                  <Label htmlFor="category">Catégorie</Label>
+                  <Select value={formData.category_id} onValueChange={(value) => setFormData({ ...formData, category_id: value })}>
+                    <SelectTrigger id="category"><SelectValue placeholder="Choisir" /></SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                placeholder="Décrivez votre produit en détail..."
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="min-h-[120px]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <ImagePlus className="w-4 h-4" /> Photos & Vidéos
-              </Label>
+            <div className="space-y-2 min-w-0 lg:row-span-2">
+              <Label className="flex items-center gap-1.5"><ImagePlus className="w-4 h-4" /> Photos & vidéos</Label>
               <ProductMediaUpload images={images} onImagesChange={setImages} />
               <AiListingButton images={images} hint={[formData.title, formData.description].filter(Boolean).join(" — ")} onDraft={(d) => {
                 const cat = categories.find((c) => c.slug === d.category_slug);
                 setFormData((f) => ({ ...f, title: d.title, description: `${d.description}${d.condition && d.condition !== "inconnu" ? `\n\nÉtat : ${d.condition}` : ""}`, category_id: cat?.id ?? f.category_id }));
               }} />
+              <ul className="hidden lg:block mt-2 space-y-1 rounded-xl bg-muted/40 p-3 text-xs text-muted-foreground">
+                <li>• 3 photos au moins : face, détail, étiquette ou taille</li>
+                <li>• Lumière du jour et fond uni</li>
+                <li>• Un prix juste se vend plus vite : utilisez le prix conseillé</li>
+              </ul>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="price" className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4" /> Prix (FCFA) *
-                </Label>
-                <Input
-                  id="price"
-                  type="number"
-                  placeholder="0"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  className={errors.price ? "border-destructive" : ""}
-                />
-                {errors.price && <p className="text-sm text-destructive">{errors.price}</p>}
-                <PriceSuggestion title={formData.title} categoryId={formData.category_id} onPick={(p) => setFormData((f) => ({ ...f, price: String(p) }))} />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="stock" className="flex items-center gap-2">
-                  <Archive className="w-4 h-4" /> Stock disponible
-                </Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  placeholder="1"
-                  value={formData.stock}
-                  onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                  className={errors.stock ? "border-destructive" : ""}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="location" className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4" /> Localisation
-                </Label>
-                <Input
-                  id="location"
-                  placeholder="Ex: Dakar, Sénégal"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="category">Catégorie</Label>
-                <Select
-                  value={formData.category_id}
-                  onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner une catégorie" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <Button type="submit" variant="hero" size="lg" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Création en cours...
-                </>
-              ) : (
-                "Publier le produit"
-              )}
-            </Button>
+            <StickySubmit className="lg:col-start-1">
+              <Button type="submit" variant="hero" className="w-full" disabled={loading}>
+                {loading ? (<><Loader2 className="w-4 h-4 animate-spin" /> Création en cours...</>) : "Publier le produit"}
+              </Button>
+            </StickySubmit>
           </form>
         </CardContent>
       </Card>

@@ -82,7 +82,7 @@ const ResetPassword = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 flex items-center justify-center py-12 px-4 pt-24">
+      <main className="flex-1 flex items-center justify-center pb-10 px-4 pt-header">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,11 +90,11 @@ const ResetPassword = () => {
         >
           <Card className="border-0 shadow-elevated">
             <CardHeader className="text-center pb-2">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-hero flex items-center justify-center shadow-lg">
                 {isSuccess ? (
-                  <CheckCircle className="w-8 h-8 text-primary-foreground" />
+                  <CheckCircle className="w-6 h-6 text-primary-foreground" />
                 ) : (
-                  <Lock className="w-8 h-8 text-primary-foreground" />
+                  <Lock className="w-6 h-6 text-primary-foreground" />
                 )}
               </div>
               <CardTitle className="text-2xl font-display font-bold">
@@ -119,7 +119,6 @@ const ResetPassword = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-12"
                     />
                   </div>
                   <div className="space-y-2">
@@ -132,10 +131,9 @@ const ResetPassword = () => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-12"
                     />
                   </div>
-                  <Button type="submit" className="w-full h-12 bg-gradient-hero text-lg" disabled={isLoading}>
+                  <Button type="submit" className="w-full h-11 bg-gradient-hero text-base" disabled={isLoading}>
                     {isLoading ? (
                       <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Réinitialisation...</>
                     ) : (

@@ -72,7 +72,7 @@ const AdminReportsPanel = ({ reports, onRefresh }: AdminReportsPanelProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Pending reports */}
       <Card className="border-0 shadow-card">
         <CardHeader>

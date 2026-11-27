@@ -141,7 +141,7 @@ const ServiceDetail = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12">
+        <main className="flex-1 pt-header pb-10">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-4">
@@ -163,7 +163,7 @@ const ServiceDetail = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12 flex items-center justify-center">
+        <main className="flex-1 pt-header pb-10 flex items-center justify-center">
           <div className="text-center">
             <Wrench className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <h2 className="text-2xl font-bold mb-2">Service non trouvé</h2>
@@ -196,7 +196,7 @@ const ServiceDetail = () => {
         ]}
       />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
@@ -339,9 +339,9 @@ const ServiceDetail = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <h2 className="text-2xl font-display font-bold mb-6">Avis clients</h2>
+                <h2 className="text-xl md:text-2xl font-display font-bold mb-4">Avis clients</h2>
                 <ReviewsList serviceId={service.id} sellerId={service.provider_id} />
-                <div className="mt-10"><PortfolioGrid userId={service.provider_id} /></div>
+                <div className="mt-6"><PortfolioGrid userId={service.provider_id} /></div>
                 {user && (
                   <div className="mt-6">
                     <ReviewForm serviceId={service.id} onSuccess={() => {}} />
@@ -351,7 +351,7 @@ const ServiceDetail = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Order Card */}
               <motion.div 
                 initial={{ opacity: 0, x: 20 }}

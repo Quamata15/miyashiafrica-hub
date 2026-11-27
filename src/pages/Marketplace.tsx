@@ -169,7 +169,7 @@ const Marketplace = () => {
       <SEOHead title="Marketplace" description="Découvrez des milliers de produits authentiques africains sur MIYASHI." canonical="/marketplace"
         breadcrumbs={[{ name: "Accueil", url: "/" }, { name: "Marketplace", url: "/marketplace" }]} />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4">
           {/* Hero */}
           <PageHero
@@ -237,7 +237,7 @@ const Marketplace = () => {
 
           {/* Products */}
           {loading ? (
-            <div className={cn("grid gap-6", viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1")}>
+            <div className={cn("grid gap-3 sm:gap-5", viewMode === "grid" ? "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1")}>
               {[...Array(8)].map((_, i) => (
                 <Card key={i} className="overflow-hidden">
                   <Skeleton className="aspect-square" />
@@ -246,7 +246,7 @@ const Marketplace = () => {
               ))}
             </div>
           ) : filteredProducts.length === 0 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-10">
               <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                 <Package className="h-12 w-12 text-muted-foreground" />
               </div>
@@ -256,7 +256,7 @@ const Marketplace = () => {
             </motion.div>
           ) : (
             <motion.div variants={container} initial="hidden" animate="show"
-              className={cn("grid gap-6", viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1")}>
+              className={cn("grid gap-3 sm:gap-5", viewMode === "grid" ? "grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1")}>
               <AnimatePresence mode="popLayout">
                 {paginatedProducts.map((product) => (
                   <MarketplaceProductCard

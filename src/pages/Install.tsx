@@ -53,7 +53,7 @@ const Install = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Installer l'application" description="Installez MIYASHI sur votre téléphone pour un accès rapide, des notifications et une expérience native." canonical="/install" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-2xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
             <div className="w-24 h-24 mx-auto mb-6 rounded-3xl shadow-elevated overflow-hidden">

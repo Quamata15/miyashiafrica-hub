@@ -77,7 +77,7 @@ const AdminSecurityPanel = () => {
       <Card className="border-0 shadow-card">
         <CardHeader><CardTitle className="text-base md:text-lg flex items-center gap-2"><Sparkles className="w-4 h-4" /> Conseiller sécurité IA</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <Textarea rows={8} value={findings} onChange={(e) => setFindings(e.target.value)}
+          <Textarea rows={5} value={findings} onChange={(e) => setFindings(e.target.value)}
             placeholder="Collez ici les résultats de l'analyse de sécurité…" />
           <Button onClick={analyze} disabled={analyzing || !findings.trim()}>
             {analyzing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}

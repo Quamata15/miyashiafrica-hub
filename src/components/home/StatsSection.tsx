@@ -44,11 +44,10 @@ const StatsSection = () => {
   }
 
   return (
-    <section ref={sectionRef} className="relative py-10">
+    <section ref={sectionRef} className="relative py-6 md:py-8">
       <div className="container">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-dark border border-foreground/10">
           <div className="absolute inset-x-0 top-0 h-1.5 pattern-kente opacity-90" aria-hidden />
-          <div className="absolute inset-0 bg-grid opacity-40" aria-hidden />
           <div className="relative grid grid-cols-2 lg:grid-cols-4">
             {items.map((item, i) => (
               <motion.div
@@ -57,7 +56,7 @@ const StatsSection = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className={`p-6 md:p-8 flex flex-col gap-3 ${i > 0 ? "lg:border-l" : ""} ${i % 2 ? "border-l lg:border-l" : ""} ${i > 1 ? "border-t lg:border-t-0" : ""} border-white/10`}
+                className={`p-4 md:p-6 flex flex-col gap-1.5 md:gap-2 ${i > 0 ? "lg:border-l" : ""} ${i % 2 ? "border-l lg:border-l" : ""} ${i > 1 ? "border-t lg:border-t-0" : ""} border-white/10`}
               >
                 <item.icon className="w-6 h-6 text-[hsl(var(--neon-gold))]" />
                 <div className="font-display text-xl md:text-3xl font-extrabold text-[hsl(40_30%_96%)]">{item.value}</div>

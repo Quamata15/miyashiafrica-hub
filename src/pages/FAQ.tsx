@@ -39,7 +39,7 @@ const FAQ = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="FAQ" description="Questions fréquentes sur MIYASHI : paiements, livraisons, inscription, sécurité et plus." canonical="/faq" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
             <HelpCircle className="w-12 h-12 mx-auto mb-4 text-primary" />

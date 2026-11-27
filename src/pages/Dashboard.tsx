@@ -105,14 +105,14 @@ export default function Dashboard() {
       case "acheteur:suivi": return <DeliveryTracking />;
       case "acheteur:factures": return <ReceivedInvoices />;
 
-      case "vendeur:vue": return <div className="space-y-6"><GuideProgressCard space="vendeur" onTab={onTab} /><LowStockAlert /><SellerOverview /></div>;
+      case "vendeur:vue": return <div className="space-y-4"><GuideProgressCard space="vendeur" onTab={onTab} /><LowStockAlert /><SellerOverview /></div>;
       case "vendeur:commandes": return <Boxed title="Commandes reçues"><OrdersTable sellerId={user?.id} /></Boxed>;
       case "vendeur:produits": return <ProductsList />;
       case "vendeur:promotions": case "prestataire:promotions": return <PromotionsManager />;
       case "vendeur:boosts": return <BoostAnalytics />;
       case "vendeur:documents": return <ExportCenter />;
 
-      case "livreur:vue": return <div className="space-y-6"><DriverEarnings onTab={onTab} /><DriverOverview /></div>;
+      case "livreur:vue": return <div className="space-y-4"><DriverEarnings onTab={onTab} /><DriverOverview /></div>;
       case "livreur:livraisons": return <DeliveryTracking />;
       case "livreur:historique": return <DriverDeliveryHistory />;
       case "livreur:carte": return <Card className="overflow-hidden"><CardContent className="p-0"><DeliveryMap orderId="live" deliveryRequestId={null} origin={{ lat: 6.1319, lng: 1.2228 }} destination={{ lat: 6.1725, lng: 1.2314 }} deliveryStatus="in_transit" estimatedTime="25 min" trackingNumber="MYS-LIVE" enableRealtime={true} /></CardContent></Card>;
@@ -156,7 +156,7 @@ export default function Dashboard() {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title={`Espace ${def.label}`} description="Gérez votre activité sur MIYASHI" canonical="/dashboard" noindex />
       <Header />
-      <main className="flex-1 pt-[72px]">
+      <main className="flex-1 pt-14 md:pt-16">
         <div className="container max-w-7xl px-4 py-5 md:py-8">
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>

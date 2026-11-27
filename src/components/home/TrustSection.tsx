@@ -13,7 +13,7 @@ const features = [
 const TrustSection = () => {
   const { t } = useT();
   return (
-    <section className="relative py-16 border-t border-border/60 overflow-hidden">
+    <section className="relative py-10 border-t border-border/60 overflow-hidden">
       <img src={photoUrl(PHOTOS.baobabNdem, 1800, 700)} alt="" aria-hidden loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-[0.12]" />
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" aria-hidden />
       <div className="container relative">

@@ -102,7 +102,7 @@ const BoostAnalytics = () => {
   }, []).slice(-30);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-display font-bold">Boosts & Campagnes</h2>

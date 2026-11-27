@@ -27,7 +27,7 @@ const HelpCenter = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Centre d'Aide" description="Guides et tutoriels pour utiliser MIYASHI : acheter, vendre, livrer et plus." canonical="/help" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-4xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
             <BookOpen className="w-12 h-12 mx-auto mb-4 text-primary" />

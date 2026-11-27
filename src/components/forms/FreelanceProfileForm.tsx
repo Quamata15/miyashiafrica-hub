@@ -4,7 +4,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { FormHead, StickySubmit } from "./FormBits";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { User, DollarSign, Clock, Award, Loader2, Tag } from "lucide-react";
@@ -142,27 +143,15 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
       <Card className="shadow-elevated border-0">
-        <CardHeader className="space-y-1">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
-              <User className="w-6 h-6 text-accent" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl font-display">
-                {isEditing ? "Modifier votre profil Freelance" : "Créer votre profil Freelance"}
-              </CardTitle>
-              <CardDescription>Présentez-vous aux employeurs potentiels</CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
+        <CardContent className="pt-4 sm:pt-5">
+          <FormHead icon={User} title={isEditing ? "Modifier votre profil Freelance" : "Créer votre profil Freelance"} hint="Présentez-vous aux employeurs potentiels" tone="bg-accent/10 text-accent" />
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1.5">
               <Label htmlFor="title">Titre professionnel *</Label>
               <Input
                 id="title"
@@ -174,9 +163,9 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
               {errors.title && <p className="text-sm text-destructive">{errors.title}</p>}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="hourly_rate" className="flex items-center gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="hourly_rate" className="flex items-center gap-1.5">
                   <DollarSign className="w-4 h-4" /> Taux horaire (FCFA)
                 </Label>
                 <Input
@@ -188,8 +177,8 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="experience_years" className="flex items-center gap-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="experience_years" className="flex items-center gap-1.5">
                   <Award className="w-4 h-4" /> Années d'expérience
                 </Label>
                 <Input
@@ -201,8 +190,8 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="availability" className="flex items-center gap-2">
+              <div className="space-y-1.5 col-span-2 md:col-span-1">
+                <Label htmlFor="availability" className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4" /> Disponibilité
                 </Label>
                 <Select
@@ -223,8 +212,8 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
+            <div className="space-y-1.5">
+              <Label className="flex items-center gap-1.5">
                 <Tag className="w-4 h-4" /> Compétences
               </Label>
               <div className="flex gap-2">
@@ -253,18 +242,20 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
               )}
             </div>
 
-            <Button type="submit" variant="accent" size="lg" className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Sauvegarde en cours...
-                </>
-              ) : isEditing ? (
-                "Mettre à jour le profil"
-              ) : (
-                "Créer mon profil freelance"
-              )}
-            </Button>
+            <StickySubmit>
+              <Button type="submit" variant="accent" className="w-full" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sauvegarde en cours...
+                  </>
+                ) : isEditing ? (
+                  "Mettre à jour le profil"
+                ) : (
+                  "Créer mon profil freelance"
+                )}
+              </Button>
+            </StickySubmit>
           </form>
         </CardContent>
       </Card>

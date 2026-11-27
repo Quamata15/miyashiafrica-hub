@@ -143,7 +143,7 @@ const KYCVerification = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Verification Status */}
       <Card className="border-0 shadow-card overflow-hidden">
         <div className={`h-1.5 ${isFullyVerified ? "bg-accent" : "bg-primary"}`}>

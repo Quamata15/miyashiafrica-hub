@@ -212,7 +212,7 @@ const AdminKYCPanel = ({ docs, onRefresh }: AdminKYCPanelProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Pending documents */}
       <Card className="border-0 shadow-card">
         <CardHeader>

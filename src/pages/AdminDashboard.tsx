@@ -104,7 +104,7 @@ const AdminDashboard = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-24">
+        <main className="flex-1 flex items-center justify-center pt-header">
           <Card className="max-w-md border-0 shadow-elevated text-center">
             <CardContent className="p-8">
               <Shield className="w-16 h-16 mx-auto mb-4 text-destructive" />
@@ -129,7 +129,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-3 sm:px-4 lg:px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center gap-3 mb-6 md:mb-8">

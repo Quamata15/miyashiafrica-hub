@@ -161,7 +161,7 @@ const Disputes = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12">
+        <main className="flex-1 pt-header pb-10">
           <div className="container mx-auto px-4 max-w-3xl">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
               <Button variant="ghost" size="sm" onClick={() => setSelectedDispute(null)} className="mb-4">
@@ -320,15 +320,15 @@ const Disputes = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-3xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h1 className="text-3xl font-display font-bold flex items-center gap-3">
-                  <Scale className="w-8 h-8 text-primary" /> Litiges & Réclamations
+            <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2 mb-4">
+              <div className="min-w-0">
+                <h1 className="text-2xl md:text-3xl font-display font-bold flex items-center gap-2">
+                  <Scale className="w-6 h-6 shrink-0 text-primary" /> Litiges et réclamations
                 </h1>
-                <p className="text-muted-foreground mt-1">Résolution de conflits entre acheteurs et vendeurs</p>
+                <p className="text-sm text-muted-foreground mt-0.5">Résolution de conflits entre acheteurs et vendeurs</p>
               </div>
               <Dialog open={showNew} onOpenChange={setShowNew}>
                 <DialogTrigger asChild>
@@ -373,10 +373,10 @@ const Disputes = () => {
             </div>
 
             {/* Policy */}
-            <Card className="border-0 shadow-card mb-6 bg-primary/5">
+            <Card className="border-0 shadow-card mb-3 bg-primary/5">
               <CardContent className="p-4">
                 <h3 className="font-semibold flex items-center gap-2 mb-2"><FileText className="w-4 h-4" /> Politique de résolution</h3>
-                <ul className="text-sm text-muted-foreground space-y-1">
+                <ul className="text-sm text-muted-foreground grid sm:grid-cols-2 gap-x-4 gap-y-1">
                   <li>• Remboursement intégral si produit non reçu sous 14 jours</li>
                   <li>• Remboursement ou remplacement si produit endommagé (photos requises)</li>
                   <li>• Médiation gratuite par notre équipe sous 48h</li>
@@ -386,22 +386,22 @@ const Disputes = () => {
             </Card>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-3 gap-2 mb-4">
               <Card className="border-0 shadow-card">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold">{disputes.filter(d => d.status === "open" || d.status === "under_review").length}</p>
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <p className="text-xl font-bold">{disputes.filter(d => d.status === "open" || d.status === "under_review").length}</p>
                   <p className="text-xs text-muted-foreground">En cours</p>
                 </CardContent>
               </Card>
               <Card className="border-0 shadow-card">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold text-accent-foreground">{disputes.filter(d => d.status === "resolved").length}</p>
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <p className="text-xl font-bold text-accent-foreground">{disputes.filter(d => d.status === "resolved").length}</p>
                   <p className="text-xs text-muted-foreground">Résolus</p>
                 </CardContent>
               </Card>
               <Card className="border-0 shadow-card">
-                <CardContent className="p-4 text-center">
-                  <p className="text-2xl font-bold">{disputes.length}</p>
+                <CardContent className="p-2 sm:p-3 text-center">
+                  <p className="text-xl font-bold">{disputes.length}</p>
                   <p className="text-xs text-muted-foreground">Total</p>
                 </CardContent>
               </Card>
@@ -412,8 +412,8 @@ const Disputes = () => {
               <div className="text-center py-12"><Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" /></div>
             ) : disputes.length === 0 ? (
               <Card className="border-0 shadow-card">
-                <CardContent className="p-12 text-center">
-                  <Scale className="w-16 h-16 mx-auto mb-4 text-muted-foreground opacity-30" />
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <Scale className="w-10 h-10 mx-auto mb-3 text-muted-foreground opacity-30" />
                   <p className="text-lg font-medium">Aucun litige</p>
                   <p className="text-muted-foreground">Vous n'avez aucun litige en cours</p>
                 </CardContent>

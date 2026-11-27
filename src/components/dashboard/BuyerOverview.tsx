@@ -70,7 +70,7 @@ const BuyerOverview = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <QuickStatsGrid stats={stats} loading={loading} />
       
       {/* Loyalty Program */}

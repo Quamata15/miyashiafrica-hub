@@ -40,7 +40,7 @@ const Favorites = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 flex items-center justify-center pt-24">
+        <main className="flex-1 flex items-center justify-center pt-header">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -66,7 +66,7 @@ const Favorites = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8 pt-28">
+      <main className="flex-1 container mx-auto px-4 pb-8 pt-header">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -89,7 +89,7 @@ const Favorites = () => {
           </p>
         </motion.div>
 
-        <Tabs defaultValue="products" className="space-y-6">
+        <Tabs defaultValue="products" className="space-y-4">
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="products" className="flex items-center gap-2">
               <Package className="h-4 w-4" />
@@ -103,7 +103,7 @@ const Favorites = () => {
 
           <TabsContent value="products">
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                 {[...Array(4)].map((_, i) => (
                   <Card key={i} className="animate-pulse">
                     <div className="h-48 bg-muted rounded-t-lg" />
@@ -126,7 +126,7 @@ const Favorites = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                 {productFavorites.map((fav, index) => (
                   <motion.div
                     key={fav.id}
@@ -154,7 +154,7 @@ const Favorites = () => {
                           <FavoriteButton productId={fav.product?.id} />
                         </div>
                       </div>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3 sm:p-4">
                         <h3 className="font-semibold line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                           {fav.product?.title}
                         </h3>
@@ -182,7 +182,7 @@ const Favorites = () => {
 
           <TabsContent value="services">
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                 {[...Array(4)].map((_, i) => (
                   <Card key={i} className="animate-pulse">
                     <div className="h-48 bg-muted rounded-t-lg" />
@@ -205,7 +205,7 @@ const Favorites = () => {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
                 {serviceFavorites.map((fav, index) => (
                   <motion.div
                     key={fav.id}
@@ -233,7 +233,7 @@ const Favorites = () => {
                           <FavoriteButton serviceId={fav.service?.id} />
                         </div>
                       </div>
-                      <CardContent className="p-4">
+                      <CardContent className="p-3 sm:p-4">
                         <h3 className="font-semibold line-clamp-2 mb-2 group-hover:text-primary transition-colors">
                           {fav.service?.title}
                         </h3>

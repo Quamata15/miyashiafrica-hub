@@ -44,7 +44,7 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="py-16 md:py-24 bg-muted/50 relative overflow-hidden">
+    <section className="py-10 md:py-14 bg-muted/50 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
       <div className="absolute bottom-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
@@ -54,7 +54,7 @@ const TestimonialsSection = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-8"
         >
           <span className="inline-block px-4 py-1.5 rounded-full bg-secondary/10 text-secondary text-sm font-medium mb-4">
             Témoignages

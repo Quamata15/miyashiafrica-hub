@@ -54,26 +54,29 @@ export default function Settings() {
   };
 
   return (
-    <PageShell title="Préférences et confidentialité">
-      <div className="space-y-6">
-        <Card><CardHeader><CardTitle className="text-lg">Affichage</CardTitle></CardHeader><CardContent className="space-y-4">
+    <PageShell title="Préférences et confidentialité" wide>
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start">
+        <div className="space-y-4 min-w-0">
+        <Card><CardHeader className="pb-3"><CardTitle className="text-lg">Affichage</CardTitle></CardHeader><CardContent className="space-y-3">
+          <div className="grid sm:grid-cols-2 gap-3">
           <div><Label htmlFor="ui-lang">Langue du site</Label>
-            <select id="ui-lang" value={uiLang} onChange={(e) => setUiLang(e.target.value as "fr" | "en")} className="w-full h-10 rounded-md border border-input bg-background px-3 mt-1">
+            <select id="ui-lang" value={uiLang} onChange={(e) => setUiLang(e.target.value as "fr" | "en")} className="w-full h-10 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 mt-1 text-sm">
               <option value="fr">Français</option><option value="en">English (menus et accueil)</option>
             </select></div>
           <div><Label htmlFor="cur">Afficher aussi les prix en</Label>
-            <select id="cur" value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 mt-1">
+            <select id="cur" value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full h-10 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 mt-1 text-sm">
               {currencies.map((c) => <option key={c.code} value={c.code}>{c.name} ({c.symbol})</option>)}
             </select>
             <p className="text-xs text-muted-foreground mt-1">Les paiements restent en FCFA ; l'équivalent est indicatif.</p></div>
+          </div>
           <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Mode économie de données</span><span className="text-sm text-muted-foreground">Images plus légères, pas d'animations. Activé automatiquement sur réseau 2G.</span></span>
             <Switch checked={dataSaver} onCheckedChange={setDataSaver} /></label>
           <div><Label htmlFor="lang">Langue de traduction des messages</Label>
-            <select id="lang" value={p.language} onChange={(e) => save({ language: e.target.value })} className="w-full h-10 rounded-md border border-input bg-background px-3 mt-1">{LANGS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
+            <select id="lang" value={p.language} onChange={(e) => save({ language: e.target.value })} className="w-full h-10 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 mt-1 text-sm">{LANGS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
             <p className="text-xs text-muted-foreground mt-1">Le bouton « Traduire » de la messagerie traduit dans cette langue.</p></div>
         </CardContent></Card>
 
-        <Card><CardHeader><CardTitle className="text-lg">Notifications</CardTitle></CardHeader><CardContent className="space-y-4">
+        <Card><CardHeader className="pb-3"><CardTitle className="text-lg">Notifications</CardTitle></CardHeader><CardContent className="space-y-3">
           <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Par e-mail</span><span className="text-sm text-muted-foreground">Commandes, paiements, offres, devis, litiges.</span></span>
             <Switch checked={p.email_notifications} onCheckedChange={(v) => save({ email_notifications: v })} /></label>
           <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Par WhatsApp</span><span className="text-sm text-muted-foreground">Les mêmes alertes sur votre WhatsApp.</span></span>
@@ -84,9 +87,12 @@ export default function Settings() {
           )}
         </CardContent></Card>
 
-        <Card><CardHeader><CardTitle className="text-lg">Sécurité du compte</CardTitle></CardHeader><CardContent><MfaSettings /></CardContent></Card>
+        </div>
 
-        <Card><CardHeader><CardTitle className="text-lg">Mes données</CardTitle></CardHeader><CardContent className="space-y-4">
+        <div className="space-y-4 min-w-0">
+        <Card><CardHeader className="pb-3"><CardTitle className="text-lg">Sécurité du compte</CardTitle></CardHeader><CardContent><MfaSettings /></CardContent></Card>
+
+        <Card><CardHeader className="pb-3"><CardTitle className="text-lg">Mes données</CardTitle></CardHeader><CardContent className="space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">Téléchargez tout ce que MIYASHI conserve sur vous : profil, commandes, messages, portefeuille…</p>
             <Button variant="outline" onClick={exportData} disabled={exporting}>{exporting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}Exporter mes données</Button>
@@ -97,6 +103,7 @@ export default function Settings() {
           </div>
           <p className="text-sm text-muted-foreground">Supprimer le compte : <Link to="/profile" className="text-primary underline">Profil → Supprimer mon compte</Link>. Documents : <Link to="/terms" className="text-primary underline">conditions et confidentialité</Link>.</p>
         </CardContent></Card>
+        </div>
       </div>
     </PageShell>
   );

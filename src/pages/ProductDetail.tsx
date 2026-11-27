@@ -144,7 +144,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12">
+        <main className="flex-1 pt-header pb-10">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-8">
               <Skeleton className="aspect-square rounded-2xl" />
@@ -165,7 +165,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
-        <main className="flex-1 pt-24 pb-12 flex items-center justify-center">
+        <main className="flex-1 pt-header pb-10 flex items-center justify-center">
           <div className="text-center">
             <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
             <h2 className="text-2xl font-bold mb-2">Produit non trouvé</h2>
@@ -204,10 +204,10 @@ const ProductDetail = () => {
         ]}
       />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4 min-w-0 [&>span:last-child]:truncate">
             <button onClick={() => navigate("/")} className="hover:text-foreground">Accueil</button>
             <span>/</span>
             <button onClick={() => navigate("/marketplace")} className="hover:text-foreground">Marketplace</button>
@@ -215,12 +215,12 @@ const ProductDetail = () => {
             <span className="text-foreground">{product.title}</span>
           </nav>
 
-          <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-8 lg:gap-12">
-            {/* Image Gallery */}
+          <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-6 lg:gap-10">
+            {/* Image Gallery: stays in view while the details column scrolls, so no empty column under it. */}
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-4"
+              className="space-y-3 lg:sticky lg:top-24 lg:self-start"
             >
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-muted shadow-card">
                 <AnimatePresence mode="wait">
@@ -308,7 +308,7 @@ const ProductDetail = () => {
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="space-y-6"
+              className="space-y-4"
             >
               {/* Title & Rating */}
               <div>
@@ -451,15 +451,20 @@ const ProductDetail = () => {
           </div>
 
           {/* Reviews Section */}
-          <div className="mt-12 lg:mt-16">
-            <h2 className="text-2xl font-display font-bold mb-6">Avis clients</h2>
-            <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-8">
+          <div className="mt-8 lg:mt-10">
+            <h2 className="text-xl md:text-2xl font-display font-bold mb-4">Avis clients</h2>
+            <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-4 lg:gap-6">
               <div className="lg:col-span-2">
                 <ReviewsList productId={product.id} sellerId={product.seller_id} />
               </div>
               <div>
-                {user && (
+                {user ? (
                   <ReviewForm productId={product.id} onSuccess={() => {}} />
+                ) : (
+                  <Card><CardContent className="pt-4 sm:pt-5 text-sm space-y-3">
+                    <p className="text-muted-foreground">Vous avez acheté cet article ? Connectez-vous pour donner votre avis.</p>
+                    <Button asChild variant="outline" size="sm"><Link to="/auth">Se connecter</Link></Button>
+                  </CardContent></Card>
                 )}
               </div>
             </div>

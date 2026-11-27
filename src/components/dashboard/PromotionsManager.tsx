@@ -163,7 +163,7 @@ const PromotionsManager = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div>
         <h2 className="text-xl font-display font-bold">Promotions & Campagnes</h2>
         <p className="text-sm text-muted-foreground">Gérez vos offres spéciales, campagnes saisonnières et codes promo</p>
@@ -282,14 +282,14 @@ const PromotionsManager = () => {
             <div className="text-center py-10 text-muted-foreground">Chargement...</div>
           ) : promotions.length === 0 ? (
             <Card className="border-0 shadow-card">
-              <CardContent className="p-10 text-center">
+              <CardContent className="p-6 text-center">
                 <Megaphone className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-40" />
                 <p className="text-muted-foreground mb-3">Aucune promotion active</p>
                 <p className="text-sm text-muted-foreground">Créez votre première promotion pour attirer plus de clients</p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-2 gap-3">
               {promotions.map((promo) => (
                 <Card key={promo.id} className="border-0 shadow-card">
                   <CardContent className="p-4">
@@ -433,7 +433,7 @@ const PromotionsManager = () => {
 
           {promoCodes.length === 0 ? (
             <Card className="border-0 shadow-card">
-              <CardContent className="p-10 text-center">
+              <CardContent className="p-6 text-center">
                 <TicketPercent className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-40" />
                 <p className="text-muted-foreground mb-3">Aucun code promo</p>
                 <p className="text-sm text-muted-foreground">Créez des codes promo que vos clients pourront utiliser au checkout</p>

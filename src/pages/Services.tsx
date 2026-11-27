@@ -167,7 +167,7 @@ const Services = () => {
     <div className="min-h-screen flex flex-col bg-gradient-warm">
       <SEOHead title="Services" description="Trouvez des prestataires qualifiés pour tous vos besoins. Design, développement, marketing et plus sur MIYASHI." canonical="/services" />
       <Header />
-      <main className="flex-1 pt-24 pb-12">
+      <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4">
           <PageHero
             eyebrow="Services"
@@ -291,9 +291,9 @@ const Services = () => {
           {/* Services Grid */}
           {loading ? (
             <div className={cn(
-              "grid gap-6",
+              "grid gap-3 sm:gap-5",
               viewMode === "grid" 
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                ? "grid-cols-2 lg:grid-cols-3" 
                 : "grid-cols-1"
             )}>
               {[...Array(6)].map((_, i) => (
@@ -311,7 +311,7 @@ const Services = () => {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-20"
+              className="text-center py-10"
             >
               <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-muted flex items-center justify-center">
                 <Wrench className="h-12 w-12 text-muted-foreground" />
@@ -330,9 +330,9 @@ const Services = () => {
               initial="hidden"
               animate="show"
               className={cn(
-                "grid gap-6",
+                "grid gap-3 sm:gap-5",
                 viewMode === "grid" 
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" 
+                  ? "grid-cols-2 lg:grid-cols-3" 
                   : "grid-cols-1"
               )}
             >
@@ -377,7 +377,7 @@ const Services = () => {
                         </div>
 
                         <div className={cn("flex-1 flex flex-col", viewMode === "list" && "p-4")}>
-                          <CardContent className={cn("flex-1", viewMode === "grid" && "p-4")}>
+                          <CardContent className={cn("flex-1", viewMode === "grid" && "p-3 sm:p-4")}>
                             {/* Provider Info */}
                             <div className="flex items-center gap-2 mb-3">
                               <Avatar className="h-8 w-8">
@@ -396,10 +396,10 @@ const Services = () => {
                               </div>
                             </div>
 
-                            <h3 className="font-semibold text-foreground line-clamp-2 mb-2 group-hover:text-secondary transition-colors">
+                            <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2 mb-2 group-hover:text-secondary transition-colors">
                               {service.title}
                             </h3>
-                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            <p className={cn("text-sm text-muted-foreground line-clamp-2 mb-3", viewMode === "grid" && "hidden sm:block")}>
                               {service.description}
                             </p>
                             
@@ -412,19 +412,19 @@ const Services = () => {
                           </CardContent>
                           
                           <CardFooter className={cn(
-                            "flex justify-between items-center border-t pt-4",
-                            viewMode === "grid" ? "px-4 pb-4" : "p-0 border-0"
+                            "flex flex-wrap justify-between items-center gap-2 border-t pt-3 sm:pt-4",
+                            viewMode === "grid" ? "px-3 pb-3 sm:px-4 sm:pb-4" : "p-0 border-0"
                           )}>
                             <div>
                               {service.price ? (
-                                <span className="text-xl font-bold text-secondary">
+                                <span className="text-base sm:text-xl font-bold text-secondary">
                                   {service.price.toLocaleString()} <span className="text-sm font-normal">FCFA</span>
                                 </span>
                               ) : (
                                 <span className="text-sm text-muted-foreground">Prix sur demande</span>
                               )}
                             </div>
-                            <Button size="sm" variant="secondary" className="rounded-xl">
+                            <Button size="sm" variant="secondary" className="rounded-xl hidden sm:inline-flex">
                               Voir détails
                             </Button>
                           </CardFooter>

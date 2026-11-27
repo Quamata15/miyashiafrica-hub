@@ -50,12 +50,12 @@ export default function ShopManage() {
           <TabsTrigger value="import">Import</TabsTrigger>
           {isOwner && shop && <TabsTrigger value="team">Équipe</TabsTrigger>}
         </TabsList>
-        {isOwner && <TabsContent value="settings" className="mt-6"><ShopSettings shop={shop} onSaved={setShop} /></TabsContent>}
-        <TabsContent value="products" className="mt-6"><ProductOptions sellerId={sellerId} /></TabsContent>
-        <TabsContent value="orders" className="mt-6"><OrdersTable sellerId={sellerId} /></TabsContent>
-        <TabsContent value="stats" className="mt-6"><SellerStats sellerId={sellerId} /></TabsContent>
-        <TabsContent value="import" className="mt-6">{isOwner ? <CsvImport /> : <p className="text-sm text-muted-foreground">L'import en masse est réservé au propriétaire de la boutique.</p>}</TabsContent>
-        {isOwner && shop && <TabsContent value="team" className="mt-6"><TeamPanel shopId={shop.id} /></TabsContent>}
+        {isOwner && <TabsContent value="settings" className="mt-3"><ShopSettings shop={shop} onSaved={setShop} /></TabsContent>}
+        <TabsContent value="products" className="mt-3"><ProductOptions sellerId={sellerId} /></TabsContent>
+        <TabsContent value="orders" className="mt-3"><OrdersTable sellerId={sellerId} /></TabsContent>
+        <TabsContent value="stats" className="mt-3"><SellerStats sellerId={sellerId} /></TabsContent>
+        <TabsContent value="import" className="mt-3">{isOwner ? <CsvImport /> : <p className="text-sm text-muted-foreground">L'import en masse est réservé au propriétaire de la boutique.</p>}</TabsContent>
+        {isOwner && shop && <TabsContent value="team" className="mt-3"><TeamPanel shopId={shop.id} /></TabsContent>}
       </Tabs>
     </PageShell>
   );

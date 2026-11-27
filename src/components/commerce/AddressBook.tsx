@@ -49,32 +49,34 @@ export function AddressForm({ onSaved, onCancel }: { onSaved: (a: Address) => vo
   };
 
   return (
-    <div className="space-y-3 rounded-xl border border-foreground/10 p-4">
-      <div className="grid sm:grid-cols-2 gap-3">
+    <div className="space-y-3 rounded-xl border border-foreground/10 p-3 sm:p-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <div><Label htmlFor="a-label">Nom de l'adresse</Label><Input id="a-label" value={f.label} onChange={set("label")} placeholder="Maison, Bureau…" /></div>
         <div><Label htmlFor="a-name">Destinataire</Label><Input id="a-name" value={f.recipient_name} onChange={set("recipient_name")} /></div>
         <div><Label htmlFor="a-phone">Téléphone</Label><Input id="a-phone" type="tel" value={f.phone} onChange={set("phone")} placeholder="+228 90 00 00 00" /></div>
         <div>
           <Label htmlFor="a-country">Pays</Label>
-          <select id="a-country" value={f.country} onChange={set("country")} className="w-full h-10 rounded-md border border-input bg-background px-3">
+          <select id="a-country" value={f.country} onChange={set("country")} className="w-full h-10 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-sm">
             {COUNTRY_OPTIONS.map(([c, n]) => <option key={c} value={c}>{n}</option>)}
           </select>
         </div>
         <div><Label htmlFor="a-city">Ville *</Label><Input id="a-city" value={f.city} onChange={set("city")} placeholder="Lomé" /></div>
         <div><Label htmlFor="a-district">Quartier</Label><Input id="a-district" value={f.district} onChange={set("district")} placeholder="Bè, Tokoin…" /></div>
       </div>
+      <div className="grid sm:grid-cols-2 gap-3">
       <div><Label htmlFor="a-landmark">Point de repère</Label><Input id="a-landmark" value={f.landmark} onChange={set("landmark")} placeholder="Derrière la pharmacie du Grand Marché, portail bleu" /></div>
       <div><Label htmlFor="a-details">Précisions</Label><Input id="a-details" value={f.details} onChange={set("details")} placeholder="Rue, maison, étage…" /></div>
-      <div className="flex flex-wrap items-center gap-3">
+      </div>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <Button type="button" variant="outline" size="sm" onClick={locate} disabled={locating}>
           {locating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Crosshair className="w-4 h-4 mr-2" />}
           {f.lat ? "Position GPS ajoutée ✓" : "Ajouter ma position GPS"}
         </Button>
         <label className="flex items-center gap-2 text-sm"><Checkbox checked={f.is_default} onCheckedChange={(v) => setF({ ...f, is_default: !!v })} />Adresse par défaut</label>
-      </div>
-      <div className="flex gap-2 justify-end">
+      <div className="flex gap-2 ml-auto">
         {onCancel && <Button variant="ghost" onClick={onCancel}>Annuler</Button>}
         <Button onClick={save} disabled={busy}>{busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Enregistrer l'adresse</Button>
+      </div>
       </div>
     </div>
   );
