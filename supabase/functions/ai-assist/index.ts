@@ -4,10 +4,13 @@
 //   image_search      — turns a photo into search keywords                                 (#15)
 //   support           — help assistant grounded in the FAQ and the user's own orders       (#43)
 //   translate         — translates a chat message the user can read                        (#45)
-import { adminClient, cors, getUser, json } from "../_shared/http.ts";
+//   screen_application, screen_job, interview_questions, interview_report — recruiting (recruiting.ts)
+import { adminClient, cors, getUser, json, rateLimit } from "../_shared/http.ts";
 import { aiConfigured, askJSON, askText } from "../_shared/ai.ts";
+import { recruiting, RECRUITING_ACTIONS } from "./recruiting.ts";
 
 const DAILY_LIMIT = 60;
+const RECRUITING_DAILY_AI = 200;   // AI calls per recruiter per day; beyond that, rules take over
 const LANGS: Record<string, string> = {
   fr: "français", en: "anglais", ee: "éwé", yo: "yoruba", ha: "haoussa", wo: "wolof", tw: "twi", fon: "fon", bm: "bambara", pt: "portugais",
 };
@@ -36,6 +39,26 @@ Deno.serve(async (req) => {
 
   // suggest_price works without AI (statistics only).
   if (action === "suggest_price") return suggestPrice(db, body);
+
+  // Recruiting works without AI (rules), and uses it when configured and within the daily quota.
+  if (RECRUITING_ACTIONS.has(action)) {
+    if (!(await rateLimit(`recruit:${user.id}`, 120, 3600))) return json({ error: "Trop de demandes, réessayez dans une heure." }, 429);
+    const useAI = async () => {
+      if (!aiConfigured()) return false;
+      const { count } = await db.from("ai_usage").select("id", { count: "exact", head: true })
+        .eq("user_id", user.id).like("action", "recruit:%").gte("created_at", new Date(Date.now() - 86_400_000).toISOString());
+      if ((count ?? 0) >= RECRUITING_DAILY_AI) return false;
+      await db.from("ai_usage").insert({ user_id: user.id, action: `recruit:${action}` });
+      return true;
+    };
+    try {
+      return json(await recruiting(db, user.id, action, body, useAI));
+    } catch (e) {
+      console.error("ai-assist", action, e);
+      const msg = e instanceof Error && e.message.length < 140 ? e.message : "L'analyse n'a pas pu être faite. Réessayez.";
+      return json({ error: msg }, /Accès refusé|introuvable/.test(msg) ? 403 : 500);
+    }
+  }
 
   if (!aiConfigured()) return json({ error: "L'assistant IA n'est pas encore activé sur MIYASHI.", code: "ai_not_configured" }, 503);
 

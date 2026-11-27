@@ -164,35 +164,118 @@ export type Database = {
         }
         Relationships: []
       }
+      application_events: {
+        Row: {
+          actor_id: string | null
+          application_id: string
+          body: string | null
+          created_at: string
+          from_stage: string | null
+          id: number
+          internal: boolean
+          kind: string
+          to_stage: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          application_id: string
+          body?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: never
+          internal?: boolean
+          kind: string
+          to_stage?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          application_id?: string
+          body?: string | null
+          created_at?: string
+          from_stage?: string | null
+          id?: never
+          internal?: boolean
+          kind?: string
+          to_stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
+          ai_summary: Json | null
+          answers: Json
+          available_from: string | null
           cover_letter: string | null
           created_at: string
+          cv_path: string | null
+          expected_salary: number | null
           freelance_id: string
           id: string
           job_id: string
+          knocked_out: boolean
+          match_breakdown: Json
+          match_score: number | null
           proposed_rate: number | null
+          rating: number | null
+          reject_reason: string | null
+          stage: string
+          stage_changed_at: string
           status: string | null
+          tags: string[]
           updated_at: string
         }
         Insert: {
+          ai_summary?: Json | null
+          answers?: Json
+          available_from?: string | null
           cover_letter?: string | null
           created_at?: string
+          cv_path?: string | null
+          expected_salary?: number | null
           freelance_id: string
           id?: string
           job_id: string
+          knocked_out?: boolean
+          match_breakdown?: Json
+          match_score?: number | null
           proposed_rate?: number | null
+          rating?: number | null
+          reject_reason?: string | null
+          stage?: string
+          stage_changed_at?: string
           status?: string | null
+          tags?: string[]
           updated_at?: string
         }
         Update: {
+          ai_summary?: Json | null
+          answers?: Json
+          available_from?: string | null
           cover_letter?: string | null
           created_at?: string
+          cv_path?: string | null
+          expected_salary?: number | null
           freelance_id?: string
           id?: string
           job_id?: string
+          knocked_out?: boolean
+          match_breakdown?: Json
+          match_score?: number | null
           proposed_rate?: number | null
+          rating?: number | null
+          reject_reason?: string | null
+          stage?: string
+          stage_changed_at?: string
           status?: string | null
+          tags?: string[]
           updated_at?: string
         }
         Relationships: [
@@ -1093,6 +1176,51 @@ export type Database = {
           },
         ]
       }
+      employer_profiles: {
+        Row: {
+          about: string | null
+          city: string | null
+          company_name: string
+          country: string | null
+          created_at: string
+          logo_url: string | null
+          sector: string | null
+          size: string | null
+          updated_at: string
+          user_id: string
+          verified: boolean
+          website: string | null
+        }
+        Insert: {
+          about?: string | null
+          city?: string | null
+          company_name: string
+          country?: string | null
+          created_at?: string
+          logo_url?: string | null
+          sector?: string | null
+          size?: string | null
+          updated_at?: string
+          user_id: string
+          verified?: boolean
+          website?: string | null
+        }
+        Update: {
+          about?: string | null
+          city?: string | null
+          company_name?: string
+          country?: string | null
+          created_at?: string
+          logo_url?: string | null
+          sector?: string | null
+          size?: string | null
+          updated_at?: string
+          user_id?: string
+          verified?: boolean
+          website?: string | null
+        }
+        Relationships: []
+      }
       escrow_transactions: {
         Row: {
           created_at: string
@@ -1322,12 +1450,19 @@ export type Database = {
           alert_preferences: Json | null
           availability: string | null
           bio: string | null
+          contract_types: string[]
           created_at: string
+          cv_path: string | null
+          cv_text: string | null
           cv_url: string | null
+          education: string | null
           experience_years: number | null
           hourly_rate: number | null
           id: string
           interests: string[] | null
+          languages: string[]
+          location: string | null
+          open_to_work: boolean
           photo_url: string | null
           portfolio_urls: string[] | null
           realizations: Json | null
@@ -1341,12 +1476,19 @@ export type Database = {
           alert_preferences?: Json | null
           availability?: string | null
           bio?: string | null
+          contract_types?: string[]
           created_at?: string
+          cv_path?: string | null
+          cv_text?: string | null
           cv_url?: string | null
+          education?: string | null
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
           interests?: string[] | null
+          languages?: string[]
+          location?: string | null
+          open_to_work?: boolean
           photo_url?: string | null
           portfolio_urls?: string[] | null
           realizations?: Json | null
@@ -1360,12 +1502,19 @@ export type Database = {
           alert_preferences?: Json | null
           availability?: string | null
           bio?: string | null
+          contract_types?: string[]
           created_at?: string
+          cv_path?: string | null
+          cv_text?: string | null
           cv_url?: string | null
+          education?: string | null
           experience_years?: number | null
           hourly_rate?: number | null
           id?: string
           interests?: string[] | null
+          languages?: string[]
+          location?: string | null
+          open_to_work?: boolean
           photo_url?: string | null
           portfolio_urls?: string[] | null
           realizations?: Json | null
@@ -1482,6 +1631,143 @@ export type Database = {
           },
         ]
       }
+      interview_answers: {
+        Row: {
+          created_at: string
+          duration_s: number | null
+          evaluation: Json | null
+          id: string
+          interview_id: string
+          metrics: Json
+          question: string
+          question_id: string
+          transcript: string | null
+          video_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_s?: number | null
+          evaluation?: Json | null
+          id?: string
+          interview_id: string
+          metrics?: Json
+          question: string
+          question_id: string
+          transcript?: string | null
+          video_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_s?: number | null
+          evaluation?: Json | null
+          id?: string
+          interview_id?: string
+          metrics?: Json
+          question?: string
+          question_id?: string
+          transcript?: string | null
+          video_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interview_answers_interview_id_fkey"
+            columns: ["interview_id"]
+            isOneToOne: false
+            referencedRelation: "interviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interviews: {
+        Row: {
+          application_id: string
+          cancel_reason: string | null
+          candidate_id: string
+          completed_at: string | null
+          consent_at: string | null
+          created_at: string
+          duration_min: number
+          employer_id: string
+          employer_notes: string | null
+          expires_at: string | null
+          external_url: string | null
+          id: string
+          job_id: string
+          kind: string
+          questions: Json
+          report: Json | null
+          room_code: string
+          scheduled_at: string | null
+          scorecard: Json | null
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          cancel_reason?: string | null
+          candidate_id: string
+          completed_at?: string | null
+          consent_at?: string | null
+          created_at?: string
+          duration_min?: number
+          employer_id: string
+          employer_notes?: string | null
+          expires_at?: string | null
+          external_url?: string | null
+          id?: string
+          job_id: string
+          kind: string
+          questions?: Json
+          report?: Json | null
+          room_code?: string
+          scheduled_at?: string | null
+          scorecard?: Json | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          cancel_reason?: string | null
+          candidate_id?: string
+          completed_at?: string | null
+          consent_at?: string | null
+          created_at?: string
+          duration_min?: number
+          employer_id?: string
+          employer_notes?: string | null
+          expires_at?: string | null
+          external_url?: string | null
+          id?: string
+          job_id?: string
+          kind?: string
+          questions?: Json
+          report?: Json | null
+          room_code?: string
+          scheduled_at?: string | null
+          scorecard?: Json | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interviews_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "interviews_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number
@@ -1528,49 +1814,100 @@ export type Database = {
       }
       jobs: {
         Row: {
+          ai_interview: boolean
+          blind_review: boolean
           budget_max: number | null
           budget_min: number | null
           category_id: string | null
+          company_name: string | null
+          contract_type: string
+          country: string | null
           created_at: string
           deadline: string | null
           description: string | null
+          education_level: string | null
           employer_id: string
+          experience_min: number
           id: string
+          interview_questions: Json
           is_active: boolean | null
           job_type: string | null
+          languages: string[]
+          location: string | null
+          nice_to_have: string[]
+          openings: number
+          pay_period: string
+          remote_mode: string
+          screening_questions: Json
+          skill_weights: Json
           skills_required: string[] | null
           title: string
           updated_at: string
+          views: number
         }
         Insert: {
+          ai_interview?: boolean
+          blind_review?: boolean
           budget_max?: number | null
           budget_min?: number | null
           category_id?: string | null
+          company_name?: string | null
+          contract_type?: string
+          country?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
+          education_level?: string | null
           employer_id: string
+          experience_min?: number
           id?: string
+          interview_questions?: Json
           is_active?: boolean | null
           job_type?: string | null
+          languages?: string[]
+          location?: string | null
+          nice_to_have?: string[]
+          openings?: number
+          pay_period?: string
+          remote_mode?: string
+          screening_questions?: Json
+          skill_weights?: Json
           skills_required?: string[] | null
           title: string
           updated_at?: string
+          views?: number
         }
         Update: {
+          ai_interview?: boolean
+          blind_review?: boolean
           budget_max?: number | null
           budget_min?: number | null
           category_id?: string | null
+          company_name?: string | null
+          contract_type?: string
+          country?: string | null
           created_at?: string
           deadline?: string | null
           description?: string | null
+          education_level?: string | null
           employer_id?: string
+          experience_min?: number
           id?: string
+          interview_questions?: Json
           is_active?: boolean | null
           job_type?: string | null
+          languages?: string[]
+          location?: string | null
+          nice_to_have?: string[]
+          openings?: number
+          pay_period?: string
+          remote_mode?: string
+          screening_questions?: Json
+          skill_weights?: Json
           skills_required?: string[] | null
           title?: string
           updated_at?: string
+          views?: number
         }
         Relationships: [
           {
@@ -2882,6 +3219,153 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_invoices: {
+        Row: {
+          client_address: string | null
+          client_email: string | null
+          client_id: string | null
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          discount: number
+          due_date: string | null
+          id: string
+          issued_at: string
+          items: Json
+          notes: string | null
+          number: string | null
+          order_id: string | null
+          paid_at: string | null
+          payment_method: string | null
+          provider_id: string
+          quote_id: string | null
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+          vat_amount: number
+          vat_rate: number
+        }
+        Insert: {
+          client_address?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          discount?: number
+          due_date?: string | null
+          id?: string
+          issued_at?: string
+          items: Json
+          notes?: string | null
+          number?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          provider_id: string
+          quote_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+        }
+        Update: {
+          client_address?: string | null
+          client_email?: string | null
+          client_id?: string | null
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          discount?: number
+          due_date?: string | null
+          id?: string
+          issued_at?: string
+          items?: Json
+          notes?: string | null
+          number?: string | null
+          order_id?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          provider_id?: string
+          quote_id?: string | null
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          vat_amount?: number
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_invoices_quote_id_fkey"
+            columns: ["quote_id"]
+            isOneToOne: false
+            referencedRelation: "quotes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_profiles: {
+        Row: {
+          about: string | null
+          accepts_urgent: boolean
+          certifications: Json
+          cover_url: string | null
+          headline: string | null
+          is_available: boolean
+          languages: string[]
+          response_hours: number
+          service_areas: string[]
+          travel_fee: number | null
+          travels: boolean
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          about?: string | null
+          accepts_urgent?: boolean
+          certifications?: Json
+          cover_url?: string | null
+          headline?: string | null
+          is_available?: boolean
+          languages?: string[]
+          response_hours?: number
+          service_areas?: string[]
+          travel_fee?: number | null
+          travels?: boolean
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          about?: string | null
+          accepts_urgent?: boolean
+          certifications?: Json
+          cover_url?: string | null
+          headline?: string | null
+          is_available?: boolean
+          languages?: string[]
+          response_hours?: number
+          service_areas?: string[]
+          travel_fee?: number | null
+          travels?: boolean
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -3008,6 +3492,33 @@ export type Database = {
           ok?: boolean
           run_at?: string
           totals?: Json
+        }
+        Relationships: []
+      }
+      recruiter_templates: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          kind: string
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          kind?: string
+          name: string
+          owner_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          name?: string
+          owner_id?: string
         }
         Relationships: []
       }
@@ -3171,6 +3682,56 @@ export type Database = {
           },
         ]
       }
+      saved_candidates: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          employer_id: string
+          note: string | null
+          tags: string[]
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          employer_id: string
+          note?: string | null
+          tags?: string[]
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          employer_id?: string
+          note?: string | null
+          tags?: string[]
+        }
+        Relationships: []
+      }
+      saved_jobs: {
+        Row: {
+          created_at: string
+          job_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          job_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          job_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_jobs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       savings_goals: {
         Row: {
           created_at: string
@@ -3314,6 +3875,59 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_packages: {
+        Row: {
+          created_at: string
+          delivery_days: number
+          description: string | null
+          features: string[]
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          revisions: number
+          service_id: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_days?: number
+          description?: string | null
+          features?: string[]
+          id?: string
+          is_active?: boolean
+          name: string
+          price: number
+          revisions?: number
+          service_id: string
+          tier: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_days?: number
+          description?: string | null
+          features?: string[]
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          revisions?: number
+          service_id?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_packages_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]
@@ -4169,6 +4783,10 @@ export type Database = {
         Returns: Json
       }
       accept_shop_invite: { Args: { p_shop_id: string }; Returns: undefined }
+      add_application_note: {
+        Args: { p_body: string; p_id: string }
+        Returns: undefined
+      }
       admin_find_user: { Args: { p_email: string }; Returns: string }
       admin_integration_urls: { Args: never; Returns: Json }
       admin_risk_list: {
@@ -4183,6 +4801,18 @@ export type Database = {
         }[]
       }
       apply_referral: { Args: { p_referral_code: string }; Returns: boolean }
+      apply_to_job: {
+        Args: {
+          p_answers?: Json
+          p_available_from?: string
+          p_cover_letter: string
+          p_cv_path?: string
+          p_expected_salary?: number
+          p_job_id: string
+          p_proposed_rate?: number
+        }
+        Returns: Json
+      }
       assign_own_role: {
         Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: undefined
@@ -4238,7 +4868,23 @@ export type Database = {
       call_notifications_cron: { Args: { p_action: string }; Returns: number }
       can_manage_seller: { Args: { p_seller: string }; Returns: boolean }
       cancel_booking: { Args: { p_booking_id: string }; Returns: undefined }
+      cancel_interview: {
+        Args: { p_id: string; p_reason?: string }
+        Returns: undefined
+      }
       cancel_savings: { Args: { p_goal_id: string }; Returns: undefined }
+      compute_match: {
+        Args: {
+          p_answers: Json
+          p_cv_text: string
+          p_exp: number
+          p_job: Database["public"]["Tables"]["jobs"]["Row"]
+          p_langs: string[]
+          p_location: string
+          p_skills: string[]
+        }
+        Returns: Json
+      }
       compute_user_risk: { Args: { p_user: string }; Returns: Json }
       confirm_handover: {
         Args: { p_code: string; p_order_id: string }
@@ -4307,6 +4953,10 @@ export type Database = {
             }
             Returns: undefined
           }
+      default_interview_questions: {
+        Args: { p_skills: string[]; p_title: string }
+        Returns: Json
+      }
       estimate_customs: {
         Args: { p_amount: number; p_from: string; p_to: string }
         Returns: Json
@@ -4332,6 +4982,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      finish_ai_interview: { Args: { p_id: string }; Returns: undefined }
       format_address: {
         Args: { a: Database["public"]["Tables"]["addresses"]["Row"] }
         Returns: string
@@ -4348,9 +4999,62 @@ export type Database = {
           starts_at: string
         }[]
       }
+      get_buyer_summary: { Args: never; Returns: Json }
+      get_driver_stats: { Args: { p_days?: number }; Returns: Json }
       get_invoice: { Args: { p_order_id: string }; Returns: Json }
+      get_job_pipeline: {
+        Args: { p_job_id: string }
+        Returns: {
+          ai_summary: Json
+          answers: Json
+          available_from: string
+          avatar_url: string
+          cover_letter: string
+          created_at: string
+          cv_path: string
+          email: string
+          expected_salary: number
+          experience_years: number
+          freelance_id: string
+          full_name: string
+          hourly_rate: number
+          id: string
+          interviews: number
+          knocked_out: boolean
+          languages: string[]
+          location: string
+          match_breakdown: Json
+          match_score: number
+          notes: number
+          phone: string
+          portfolio_urls: string[]
+          proposed_rate: number
+          rating: number
+          reject_reason: string
+          skills: string[]
+          stage: string
+          stage_changed_at: string
+          tags: string[]
+          title: string
+        }[]
+      }
       get_or_create_referral_code: { Args: never; Returns: string }
       get_platform_revenue: { Args: { p_days?: number }; Returns: Json }
+      get_provider_clients: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          bookings: number
+          client_id: string
+          full_name: string
+          last_at: string
+          orders: number
+          phone: string
+          quotes: number
+          spent: number
+        }[]
+      }
+      get_provider_stats: { Args: { p_days?: number }; Returns: Json }
       get_recommendations: {
         Args: { p_exclude?: string; p_limit?: number }
         Returns: {
@@ -4378,10 +5082,12 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_recruiting_stats: { Args: never; Returns: Json }
       get_seller_stats: {
         Args: { p_days?: number; p_seller?: string }
         Returns: Json
       }
+      get_space_progress: { Args: { p_space: string }; Returns: Json }
       get_status_summary: { Args: never; Returns: Json }
       has_role: {
         Args: {
@@ -4402,11 +5108,13 @@ export type Database = {
         Args: { p_email: string; p_role?: string }
         Returns: Json
       }
+      invoice_from_quote: { Args: { p_quote_id: string }; Returns: string }
       is_pickup_partner: { Args: { p_point: string }; Returns: boolean }
       join_group_buy: {
         Args: { p_id: string; p_quantity?: number; p_shipping_address?: string }
         Returns: Json
       }
+      join_interview_room: { Args: { p_id: string }; Returns: Json }
       leave_group_buy: { Args: { p_id: string }; Returns: undefined }
       ledger_counterparty: { Args: { p_type: string }; Returns: string }
       log_client_error: {
@@ -4434,6 +5142,62 @@ export type Database = {
         Args: { p_order_id: string }
         Returns: undefined
       }
+      match_for: {
+        Args: { p_answers: Json; p_job_id: string; p_user_id: string }
+        Returns: Json
+      }
+      move_applications: {
+        Args: {
+          p_ids: string[]
+          p_message?: string
+          p_reason?: string
+          p_stage: string
+        }
+        Returns: number
+      }
+      my_applications: {
+        Args: never
+        Returns: {
+          company: string
+          created_at: string
+          id: string
+          is_active: boolean
+          job_id: string
+          job_title: string
+          last_message: string
+          match_score: number
+          next_interview: string
+          pending_ai_interview: string
+          proposed_rate: number
+          stage: string
+          stage_changed_at: string
+          stage_label: string
+        }[]
+      }
+      my_interviews: {
+        Args: never
+        Returns: {
+          answered: number
+          company: string
+          completed_at: string
+          consent_at: string
+          duration_min: number
+          expires_at: string
+          external_url: string
+          id: string
+          job_id: string
+          job_title: string
+          kind: string
+          questions_count: number
+          scheduled_at: string
+          status: string
+        }[]
+      }
+      norm_tags: { Args: { p: string[] }; Returns: string[] }
+      order_service_package: {
+        Args: { p_address?: string; p_notes?: string; p_package_id: string }
+        Returns: Json
+      }
       place_order: { Args: { p: Json }; Returns: Json }
       process_group_buys: { Args: never; Returns: number }
       purchase_boost: {
@@ -4458,8 +5222,31 @@ export type Database = {
         Args: { p_action: string; p_max: number; p_window: number }
         Returns: undefined
       }
+      recommended_jobs: {
+        Args: { p_limit?: number }
+        Returns: {
+          applied: boolean
+          breakdown: Json
+          budget_max: number
+          budget_min: number
+          company: string
+          contract_type: string
+          created_at: string
+          deadline: string
+          id: string
+          location: string
+          pay_period: string
+          remote_mode: string
+          saved: boolean
+          score: number
+          skills_required: string[]
+          title: string
+        }[]
+      }
+      record_job_view: { Args: { p_job_id: string }; Returns: undefined }
       refresh_risk_scores: { Args: never; Returns: number }
       reject_quote: { Args: { p_quote_id: string }; Returns: undefined }
+      rescore_job: { Args: { p_job_id: string }; Returns: number }
       respond_offer: {
         Args: { p_action: string; p_counter_price?: number; p_offer_id: string }
         Returns: Json
@@ -4474,7 +5261,40 @@ export type Database = {
         Returns: Json
       }
       run_reconciliation: { Args: never; Returns: Json }
+      save_interview_answer: {
+        Args: {
+          p_duration: number
+          p_id: string
+          p_metrics: Json
+          p_question_id: string
+          p_transcript: string
+          p_video_path: string
+        }
+        Returns: undefined
+      }
+      save_interview_scorecard: {
+        Args: {
+          p_complete?: boolean
+          p_id: string
+          p_notes?: string
+          p_scorecard: Json
+        }
+        Returns: undefined
+      }
       scan_shipping_label: { Args: { p_qr_token: string }; Returns: Json }
+      schedule_interview: {
+        Args: {
+          p_application_id: string
+          p_duration?: number
+          p_expires_days?: number
+          p_external_url?: string
+          p_kind: string
+          p_message?: string
+          p_questions?: Json
+          p_scheduled_at?: string
+        }
+        Returns: string
+      }
       search_products: {
         Args: {
           p_category_id?: string
@@ -4526,6 +5346,29 @@ export type Database = {
           title: string
         }[]
       }
+      search_talent: {
+        Args: {
+          p_limit?: number
+          p_location?: string
+          p_min_exp?: number
+          p_q?: string
+          p_skills?: string[]
+        }
+        Returns: {
+          availability: string
+          avatar_url: string
+          experience_years: number
+          full_name: string
+          hourly_rate: number
+          languages: string[]
+          location: string
+          matched: number
+          saved: boolean
+          skills: string[]
+          title: string
+          user_id: string
+        }[]
+      }
       semantic_search_products: {
         Args: {
           p_count?: number
@@ -4562,6 +5405,11 @@ export type Database = {
           p_valid_days?: number
         }
         Returns: string
+      }
+      stage_label: { Args: { p_stage: string }; Returns: string }
+      start_ai_interview: {
+        Args: { p_consent: boolean; p_id: string }
+        Returns: Json
       }
       submit_delivery_proof: {
         Args: {
@@ -4744,4 +5592,3 @@ export const Constants = {
     },
   },
 } as const
-

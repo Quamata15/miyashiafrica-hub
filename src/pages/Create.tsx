@@ -151,6 +151,10 @@ const Create = () => {
           </TabsContent>
 
           <TabsContent value="job">
+            <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/[0.06] p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+              <p className="flex-1 text-sm">Pour trier automatiquement les candidatures (compétences pondérées, questions éliminatoires) et faire passer des entretiens vidéo ou enregistrés, utilisez l'éditeur complet de l'espace Recruteur.</p>
+              <Button size="sm" onClick={async () => { await supabase.rpc("assign_own_role", { p_role: "employer" }); navigate("/dashboard?espace=recruteur&onglet=offres&nouvelle=1"); }}>Éditeur complet</Button>
+            </div>
             <JobForm categories={jobCategories} />
           </TabsContent>
 

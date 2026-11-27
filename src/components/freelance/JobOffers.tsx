@@ -1,227 +1,79 @@
-import { useState, useEffect } from "react";
+// Public job board: active offers with their conditions; applying opens the full form
+// (recruiter's questions, CV, message) shared with the freelance space.
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { Search, Briefcase, MapPin, Clock, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Search, Calendar, DollarSign, Briefcase, MapPin, Loader2 } from "lucide-react";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-import type { Tables } from "@/integrations/supabase/types";
+import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ApplyDialog from "@/components/spaces/freelance/ApplyDialog";
+import { CONTRACTS, PERIODS, REMOTE, dateFr, fcfa } from "@/components/spaces/kit";
 
-type Job = Tables<"jobs">;
+type Job = { id: string; title: string; description: string | null; company_name: string | null; contract_type: string; remote_mode: string; location: string | null; pay_period: string;
+  budget_min: number | null; budget_max: number | null; skills_required: string[] | null; deadline: string | null; created_at: string; screening_questions: unknown[] };
 
 const JobOffers = () => {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [applying, setApplying] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
-  const [coverLetter, setCoverLetter] = useState("");
-  const [proposedRate, setProposedRate] = useState("");
   const { user } = useAuth();
-  const { toast } = useToast();
+  const [jobs, setJobs] = useState<Job[] | null>(null);
+  const [applied, setApplied] = useState<Set<string>>(new Set());
+  const [q, setQ] = useState("");
+  const [contract, setContract] = useState("all");
+  const [remote, setRemote] = useState("all");
+  const [applyTo, setApplyTo] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchJobs();
+    supabase.from("jobs").select("id, title, description, company_name, contract_type, remote_mode, location, pay_period, budget_min, budget_max, skills_required, deadline, created_at, screening_questions")
+      .eq("is_active", true).order("created_at", { ascending: false }).limit(200).then(({ data }) => setJobs((data ?? []) as unknown as Job[]));
   }, []);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("applications").select("job_id").eq("freelance_id", user.id).then(({ data }) => setApplied(new Set((data ?? []).map((a) => a.job_id))));
+  }, [user?.id]);
 
-  const fetchJobs = async () => {
-    const { data, error } = await supabase
-      .from("jobs")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setJobs(data);
-    }
-    setLoading(false);
-  };
-
-  const handleApply = async () => {
-    if (!user || !selectedJob) {
-      toast({
-        title: "Erreur",
-        description: "Vous devez être connecté pour postuler",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setApplying(true);
-
-    const { error } = await supabase.from("applications").insert({
-      job_id: selectedJob.id,
-      freelance_id: user.id,
-      cover_letter: coverLetter,
-      proposed_rate: proposedRate ? parseFloat(proposedRate) : null,
-    });
-
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Candidature envoyée",
-        description: "Votre candidature a été soumise avec succès",
-      });
-      setCoverLetter("");
-      setProposedRate("");
-      setSelectedJob(null);
-    }
-    setApplying(false);
-  };
-
-  const filteredJobs = jobs.filter((job) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      job.title.toLowerCase().includes(searchLower) ||
-      job.description?.toLowerCase().includes(searchLower) ||
-      job.skills_required?.some(skill => skill.toLowerCase().includes(searchLower))
-    );
-  });
-
-  if (loading) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">Chargement des offres...</p>
-      </div>
-    );
-  }
+  const list = useMemo(() => (jobs ?? []).filter((j) => (!j.deadline || new Date(j.deadline) > new Date()) &&
+    (contract === "all" || j.contract_type === contract) && (remote === "all" || j.remote_mode === remote) &&
+    (!q || `${j.title} ${j.description ?? ""} ${j.company_name ?? ""} ${(j.skills_required ?? []).join(" ")} ${j.location ?? ""}`.toLowerCase().includes(q.toLowerCase()))), [jobs, q, contract, remote]);
 
   return (
     <div>
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-        <Input
-          placeholder="Rechercher par titre, description ou compétence..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+      <div className="flex flex-wrap gap-2 mb-6">
+        <div className="relative flex-1 min-w-[220px]"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" /><Input aria-label="Rechercher une offre" placeholder="Intitulé, compétence, entreprise, ville…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-10" /></div>
+        <Select value={contract} onValueChange={setContract}><SelectTrigger className="w-40" aria-label="Type de contrat"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tous contrats</SelectItem>{Object.entries(CONTRACTS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select>
+        <Select value={remote} onValueChange={setRemote}><SelectTrigger className="w-36" aria-label="Lieu de travail"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Partout</SelectItem>{Object.entries(REMOTE).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select>
       </div>
+      {user && <p className="mb-4 text-sm text-muted-foreground">Voyez votre correspondance avec chaque offre dans votre <Link to="/dashboard?espace=freelance&onglet=offres" className="text-primary underline">espace Freelance</Link>.</p>}
 
-      {/* Jobs List */}
-      {filteredJobs.length === 0 ? (
-        <div className="text-center py-12">
-          <Briefcase className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">Aucune offre trouvée</p>
-        </div>
+      {jobs === null ? <p className="text-center py-12 text-muted-foreground">Chargement des offres…</p> : list.length === 0 ? (
+        <p className="text-center py-12 text-muted-foreground">Aucune offre ne correspond à votre recherche.</p>
       ) : (
-        <div className="space-y-4">
-          {filteredJobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-xl">{job.title}</CardTitle>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                      <Badge variant="outline">{job.job_type}</Badge>
-                      {job.deadline && (
-                        <div className="flex items-center gap-1">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(job.deadline), "dd MMM yyyy", { locale: fr })}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {(job.budget_min || job.budget_max) && (
-                    <div className="flex items-center gap-1 text-primary font-semibold">
-                      <DollarSign className="h-4 w-4" />
-                      {job.budget_min?.toLocaleString()} - {job.budget_max?.toLocaleString()} FCFA
-                    </div>
-                  )}
+        <div className="grid gap-4 md:grid-cols-2">
+          {list.map((j) => (
+            <Card key={j.id} className="border-foreground/[0.07] bg-card/80 hover:border-primary/30 transition-colors">
+              <CardContent className="p-5 flex flex-col h-full">
+                <p className="font-semibold text-lg leading-snug">{j.title}</p>
+                {j.company_name && <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5"><Building2 className="w-3.5 h-3.5" />{j.company_name}</p>}
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Briefcase className="w-3 h-3" />{CONTRACTS[j.contract_type] ?? j.contract_type}</span>
+                  <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{REMOTE[j.remote_mode]}{j.location ? ` · ${j.location}` : ""}</span>
+                  {j.deadline && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />avant le {dateFr(j.deadline)}</span>}
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">{job.description}</p>
-                
-                {job.skills_required && job.skills_required.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {job.skills_required.map((skill, index) => (
-                      <Badge key={index} variant="secondary">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                {(j.budget_min || j.budget_max) && <p className="mt-2 text-sm font-medium">{j.budget_min ? fcfa(j.budget_min) : ""}{j.budget_max ? ` – ${fcfa(j.budget_max)}` : ""} <span className="text-muted-foreground font-normal">par {PERIODS[j.pay_period] ?? "mission"}</span></p>}
+                {j.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{j.description}</p>}
+                {!!j.skills_required?.length && <div className="mt-3 flex flex-wrap gap-1">{j.skills_required.slice(0, 6).map((s) => <Badge key={s} variant="secondary" className="font-normal">{s}</Badge>)}</div>}
+                <div className="mt-auto pt-4 flex items-center justify-between gap-2">
+                  <span className="text-xs text-muted-foreground">Publiée le {dateFr(j.created_at)}{j.screening_questions?.length ? ` · ${j.screening_questions.length} question(s)` : ""}</span>
+                  {applied.has(j.id) ? <Badge variant="outline" className="border-emerald-500/30 text-emerald-400">Candidature envoyée</Badge> : <Button size="sm" onClick={() => setApplyTo(j.id)}>Postuler</Button>}
+                </div>
               </CardContent>
-              <CardFooter>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setSelectedJob(job)}>
-                      Postuler
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Postuler pour: {job.title}</DialogTitle>
-                      <DialogDescription>
-                        Envoyez votre candidature pour cette offre
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="coverLetter">Lettre de motivation</Label>
-                        <Textarea
-                          id="coverLetter"
-                          placeholder="Présentez-vous et expliquez pourquoi vous êtes le candidat idéal..."
-                          value={coverLetter}
-                          onChange={(e) => setCoverLetter(e.target.value)}
-                          rows={5}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="proposedRate">Tarif proposé (FCFA)</Label>
-                        <Input
-                          id="proposedRate"
-                          type="number"
-                          placeholder="Votre tarif pour ce projet"
-                          value={proposedRate}
-                          onChange={(e) => setProposedRate(e.target.value)}
-                        />
-                      </div>
-                      <Button 
-                        onClick={handleApply} 
-                        className="w-full"
-                        disabled={applying || !user}
-                      >
-                        {applying ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Envoi en cours...
-                          </>
-                        ) : !user ? (
-                          "Connectez-vous pour postuler"
-                        ) : (
-                          "Envoyer ma candidature"
-                        )}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
             </Card>
           ))}
         </div>
       )}
+      <ApplyDialog jobId={applyTo} open={!!applyTo} onOpenChange={(o) => !o && setApplyTo(null)} onApplied={() => applyTo && setApplied((s) => new Set(s).add(applyTo))} />
     </div>
   );
 };

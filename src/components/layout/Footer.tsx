@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { BrandMark } from "@/components/brand/BrandMark";
 import { Link } from "react-router-dom";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { PHOTOS } from "@/lib/photos";
+import { AISLE_PHOTOS } from "@/lib/aislePhotos";
 
 const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   const { t } = useT();
@@ -206,17 +207,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
             <p className="text-sm text-white/50">
               © 2026 MIYASHI by ASHIZAN Group. Tous droits réservés.
             </p>
-            <p className="text-xs text-white/35 mt-1">
-              Photos :{" "}
-              {Object.values(PHOTOS).map((p, i, all) => (
-                <span key={p.id}>
-                  <a href={`${p.profile}?utm_source=miyashi&utm_medium=referral`} target="_blank" rel="noreferrer" className="hover:text-white/70 underline-offset-2 hover:underline">{p.author}</a>
-                  {i < all.length - 1 ? ", " : ""}
-                </span>
-              ))}{" "}
-              sur{" "}
-              <a href="https://unsplash.com/?utm_source=miyashi&utm_medium=referral" target="_blank" rel="noreferrer" className="hover:text-white/70 hover:underline">Unsplash</a>
-            </p>
+            <PhotoCredits />
           </div>
           <div className="flex items-center gap-6 flex-wrap justify-center">
             <Link to="/terms" className="text-sm text-white/50 hover:text-primary transition-colors">
@@ -272,5 +263,34 @@ const FooterColumn = ({ title, icon: Icon, links }: {
   </div>
   );
 };
+
+
+// Every Unsplash photographer whose work appears on the site, once each.
+const PHOTOGRAPHERS = (() => {
+  const seen = new Map<string, { author: string; profile: string }>();
+  [...Object.values(PHOTOS), ...Object.values(AISLE_PHOTOS).flat()].forEach((p) => { if (!seen.has(p.profile)) seen.set(p.profile, { author: p.author, profile: p.profile }); });
+  return [...seen.values()];
+})();
+
+function PhotoCredits() {
+  const [all, setAll] = useState(false);
+  const shown = all ? PHOTOGRAPHERS : PHOTOGRAPHERS.slice(0, 12);
+  return (
+    <p className="text-xs text-white/35 mt-1 max-w-3xl">
+      Photos :{" "}
+      {shown.map((p, i) => (
+        <span key={p.profile}>
+          <a href={`${p.profile}?utm_source=miyashi&utm_medium=referral`} target="_blank" rel="noreferrer" className="hover:text-white/70 underline-offset-2 hover:underline">{p.author}</a>
+          {i < shown.length - 1 ? ", " : ""}
+        </span>
+      ))}
+      {!all && PHOTOGRAPHERS.length > shown.length && (
+        <> … <button type="button" onClick={() => setAll(true)} className="underline hover:text-white/70">et {PHOTOGRAPHERS.length - shown.length} autres</button></>
+      )}{" "}
+      sur{" "}
+      <a href="https://unsplash.com/?utm_source=miyashi&utm_medium=referral" target="_blank" rel="noreferrer" className="hover:text-white/70 hover:underline">Unsplash</a>
+    </p>
+  );
+}
 
 export default Footer;

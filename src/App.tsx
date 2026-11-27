@@ -24,6 +24,9 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const Services = lazy(() => import("./pages/Services"));
 const Freelance = lazy(() => import("./pages/Freelance"));
+const InterviewRoom = lazy(() => import("./pages/InterviewRoom"));
+const AiInterview = lazy(() => import("./pages/AiInterview"));
+const ProviderInvoicePage = lazy(() => import("./pages/ProviderInvoicePage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Create = lazy(() => import("./pages/Create"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -147,6 +150,9 @@ const App = () => (
                     <Route path="/shop/manage" element={<ProtectedRoute><ShopManage /></ProtectedRoute>} />
                     <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
                     <Route path="/quotes" element={<ProtectedRoute><Quotes /></ProtectedRoute>} />
+                    <Route path="/entretien/:id" element={<ProtectedRoute><InterviewRoom /></ProtectedRoute>} />
+                    <Route path="/entretien-ia/:id" element={<ProtectedRoute><AiInterview /></ProtectedRoute>} />
+                    <Route path="/facture/:id" element={<ProtectedRoute><ProviderInvoicePage /></ProtectedRoute>} />
                     <Route path="/pickup-partner" element={<ProtectedRoute><PickupPartner /></ProtectedRoute>} />
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 

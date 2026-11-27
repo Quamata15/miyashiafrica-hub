@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import SEOHead from "@/components/SEOHead";
 import { BookingPicker, PortfolioGrid } from "@/components/commerce/Services";
+import ServicePackages, { ProviderProCard } from "@/components/commerce/ServicePackages";
 import { usePrefs } from "@/lib/prefs";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -323,35 +324,9 @@ const ServiceDetail = () => {
                 </Card>
               </motion.div>
 
-              {/* What's Included */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <Card className="border-0 shadow-card">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Ce qui est inclus</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-3">
-                      {[
-                        "Consultation initiale gratuite",
-                        "Communication régulière",
-                        "Révisions incluses",
-                        "Support après livraison",
-                      ].map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center">
-                            <CheckCircle className="h-4 w-4 text-accent" />
-                          </div>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </motion.div>
+              {/* Packs and the provider's professional profile (real data, no generic promises) */}
+              <ServicePackages serviceId={service.id} providerId={service.provider_id} />
+              <ProviderProCard providerId={service.provider_id} />
 
               {/* Report */}
               <div className="flex justify-end">
