@@ -9,11 +9,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 
-type FreelanceProfile = Tables<"freelance_profiles">;
+type FreelanceProfile = Tables<"freelance_profiles_public">;
 type Profile = Tables<"profiles">;
 
+type PublicProfile = { user_id: string; full_name: string | null; username: string | null; avatar_url: string | null; location: string | null; is_verified: boolean | null };
 interface FreelanceWithProfile extends FreelanceProfile {
-  profile?: Profile;
+  profile?: PublicProfile;
 }
 
 const FreelanceProfiles = () => {
@@ -27,9 +28,11 @@ const FreelanceProfiles = () => {
 
   const fetchFreelancers = async () => {
     const { data: freelanceData, error: freelanceError } = await supabase
-      .from("freelance_profiles")
+      .from("freelance_profiles_public")
       .select("*")
-      .eq("availability", "available");
+      .eq("open_to_work", true)
+      .order("is_featured", { ascending: false })
+      .order("updated_at", { ascending: false });
 
     if (freelanceError || !freelanceData) {
       setLoading(false);
@@ -39,8 +42,8 @@ const FreelanceProfiles = () => {
     // Fetch profiles for each freelancer
     const userIds = freelanceData.map(f => f.user_id);
     const { data: profilesData } = await supabase
-      .from("profiles")
-      .select("*")
+      .from("profiles_public")
+      .select("user_id, full_name, username, avatar_url, location, is_verified")
       .in("user_id", userIds);
 
     const freelancersWithProfiles = freelanceData.map(freelance => ({
@@ -112,6 +115,7 @@ const FreelanceProfiles = () => {
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">{freelancer.title}</p>
                 </div>
+                {(freelancer as { is_featured?: boolean }).is_featured && <Badge className="shrink-0 bg-primary/15 text-primary border-0">★ Vedette</Badge>}
               </CardHeader>
               <CardContent className="space-y-4">
                 {freelancer.profile?.location && (

@@ -13,7 +13,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { FileText } from "lucide-react";
 
-type Q = { id: string; provider_id: string; client_id: string; title: string; items: { label: string; qty: number; unit_price: number }[]; total: number; notes: string | null; valid_until: string; status: string; created_at: string };
+type Q = { id: string; provider_id: string; client_id: string; title: string; items: { label: string; qty: number; unit_price: number }[]; total: number; notes: string | null; valid_until: string; status: string; created_at: string;
+  terms?: string | null; start_date?: string | null; duration_days?: number | null; on_site?: boolean; location?: string | null };
 const LABEL: Record<string, string> = { sent: "En attente", accepted: "Accepté", rejected: "Refusé", expired: "Expiré", cancelled: "Retiré" };
 
 export default function Quotes() {
@@ -44,9 +45,11 @@ export default function Quotes() {
       <div className="flex justify-between gap-2"><div><p className="font-semibold">{q.title}</p><p className="text-sm text-muted-foreground">{asClient ? `De ${names[q.provider_id] ?? "…"}` : `Pour ${names[q.client_id] ?? "…"}`} · valable jusqu'au {new Date(q.valid_until).toLocaleDateString("fr-FR")}</p></div><Badge variant="outline">{LABEL[q.status]}</Badge></div>
       <table className="w-full text-sm"><tbody>{q.items.map((it, i) => <tr key={i} className="border-t border-foreground/10"><td className="py-1">{it.label}</td><td className="text-right">{it.qty} × {fcfa(it.unit_price)}</td><td className="text-right w-28">{fcfa(it.qty * it.unit_price)}</td></tr>)}
         <tr className="border-t border-foreground/20 font-bold"><td className="py-2" colSpan={2}>Total</td><td className="text-right">{fcfa(q.total)}</td></tr></tbody></table>
+      {(q.start_date || q.duration_days || q.on_site) && <p className="text-sm">{q.start_date ? `Début le ${new Date(q.start_date).toLocaleDateString("fr-FR")}` : ""}{q.duration_days ? ` · ${q.duration_days} jour(s)` : ""}{q.on_site ? ` · sur place : ${q.location ?? ""}` : " · à distance"}</p>}
+      {q.terms && <div className="rounded-lg bg-muted/40 p-3 text-sm"><p className="font-medium mb-1">Termes et accords</p><p className="text-muted-foreground whitespace-pre-line">{q.terms}</p></div>}
       {q.notes && <p className="text-sm text-muted-foreground whitespace-pre-line">{q.notes}</p>}
       {q.status === "sent" && (asClient ? (
-        <div className="flex gap-2"><Button onClick={() => accept(q)}>Accepter et payer {fcfa(q.total)}</Button><Button variant="ghost" onClick={() => reject(q)}>Refuser</Button></div>
+        <div className="flex gap-2"><Button onClick={() => accept(q)}>J'accepte les termes et je paie {fcfa(q.total)}</Button><Button variant="ghost" onClick={() => reject(q)}>Refuser</Button></div>
       ) : <Button variant="ghost" size="sm" onClick={() => reject(q)}>Retirer le devis</Button>)}
     </CardContent></Card>
   );

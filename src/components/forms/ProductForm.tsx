@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { errMsg } from "@/lib/ai";
 import { Package, MapPin, DollarSign, Archive, Loader2, ImagePlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { z } from "zod";
@@ -91,7 +92,7 @@ const ProductForm = ({ categories, onSuccess }: ProductFormProps) => {
     setLoading(false);
 
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de créer le produit", variant: "destructive" });
+      toast({ title: "Erreur", description: errMsg(error), variant: "destructive" });
     } else {
       toast({ title: "Succès", description: "Produit créé avec succès!" });
       onSuccess?.();

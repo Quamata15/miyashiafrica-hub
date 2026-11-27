@@ -17,9 +17,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { Banknote, Lock, Loader2, MapPin, Package, Shield, ShoppingBag, Smartphone, Store, Tag, Truck, Wallet } from "lucide-react";
+import { Banknote, Lock, Loader2, MapPin, Package, PiggyBank, Shield, ShoppingBag, Smartphone, Store, Tag, Truck, Wallet } from "lucide-react";
 import CheckoutPromoCode, { type AppliedPromo } from "@/components/checkout/CheckoutPromoCode";
 import { AddressBook, type Address } from "@/components/commerce/AddressBook";
+import { ensureGuestSession } from "@/lib/guest";
+import { SavingsPlanPicker, requestSavingsPlan, type PlanChoice } from "@/components/commerce/SavingsPlan";
 
 type Line = {
   key: string; product_id?: string; service_id?: string; variant_id?: string | null; offer_id?: string;
@@ -49,7 +51,8 @@ export default function Checkout() {
   const [zone, setZone] = useState<Zone | null>(null);
   const [points, setPoints] = useState<Point[]>([]);
   const [pointId, setPointId] = useState<string>("");
-  const [pay, setPay] = useState<"wallet" | "mobile" | "cod">("mobile");
+  const [pay, setPay] = useState<"wallet" | "mobile" | "cod" | "savings">("mobile");
+  const [plan, setPlan] = useState<PlanChoice>({ plan: "installments", installments: 3, days: 90 });
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [promoInput, setPromoInput] = useState("");
@@ -116,7 +119,7 @@ export default function Checkout() {
   }, [productParam, offerParam, items.length]);
 
   useEffect(() => {
-    if (!user) { navigate("/auth"); return; }
+    if (!user) return;
     supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle().then(({ data }) => setBalance(Number(data?.balance ?? 0)));
     supabase.from("profiles").select("phone").eq("user_id", user.id).maybeSingle().then(({ data }) => data?.phone && setPhone(data.phone));
     supabase.from("pickup_points").select("id, name, address, city, opening_hours").eq("is_active", true).order("city").then(({ data }) => setPoints(data ?? []));
@@ -137,7 +140,10 @@ export default function Checkout() {
   const codAllowed = flag("cash_on_delivery") && allProducts && total <= COD_LIMIT && sellerIds.every((id) => shops.find((s) => s.owner_id === id)?.accepts_cod !== false);
   const needsDelivery = lines.some((l) => l.product_id);
 
+  // Savings: one product line (not a negotiated offer); the seller must accept and then holds the items.
+  const savingsAllowed = flag("savings") && lines.length === 1 && !!lines[0].product_id && !lines[0].offer_id;
   useEffect(() => { if (pay === "cod" && !codAllowed) setPay("mobile"); }, [codAllowed, pay]);
+  useEffect(() => { if (pay === "savings" && !savingsAllowed) setPay("mobile"); }, [savingsAllowed, pay]);
 
   const applyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
@@ -175,6 +181,14 @@ export default function Checkout() {
     if (pay === "mobile" && phone.replace(/\D/g, "").length < 8) return toast.error("Entrez le numéro mobile money qui va payer");
     setBusy(true);
     try {
+      if (pay === "savings") {
+        const l = lines[0];
+        await requestSavingsPlan({ productId: l.product_id!, variantId: l.variant_id, quantity: l.quantity, choice: plan, addressId: fulfil === "delivery" ? address?.id : null });
+        if (!productParam) await clearCart();
+        toast.success("Demande d'épargne envoyée au vendeur. Vous serez prévenu dès sa réponse.");
+        navigate("/savings");
+        return;
+      }
       if (pay === "mobile") {
         const { data: ck, error } = await supabase.rpc("create_pending_checkout", { p_items: lines.map(itemPayload), p_common: common() });
         if (error) throw error;
@@ -194,13 +208,37 @@ export default function Checkout() {
       }
       if (!productParam && !offerParam) await clearCart();
       toast.success(pay === "cod" ? "Commande confirmée : vous paierez à la livraison" : "Paiement réussi, fonds sécurisés en séquestre");
-      navigate(`/order-success?order=${orders[orders.length - 1]}&total=${total}`);
+      // Home delivery: choose the driver right away (for cash on delivery, the driver must accept to collect).
+      if (needsDelivery && fulfil === "delivery" && orders.length === 1) navigate(`/select-driver?order=${orders[0]}`);
+      else navigate(`/order-success?order=${orders[orders.length - 1]}&total=${total}`);
     } catch (e) {
       toast.error(errMsg(e));
     } finally {
       setBusy(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-warm">
+        <Header />
+        <main className="flex-1 pt-header pb-10 flex items-center justify-center px-4">
+          <Card className="max-w-md w-full"><CardContent className="p-6 space-y-4 text-center">
+            <ShoppingBag className="w-10 h-10 mx-auto text-primary" />
+            <h1 className="text-xl font-display font-bold">Comment voulez-vous commander ?</h1>
+            <p className="text-sm text-muted-foreground">Sans compte, vous commandez tout de suite ; votre commande reste protégée par le séquestre et le code de remise. Vous pourrez créer votre compte ensuite sans rien perdre.</p>
+            <div className="grid gap-2">
+              <Button onClick={async () => { setBusy(true); const id = await ensureGuestSession(); setBusy(false); if (!id) toast.error("Impossible pour le moment, réessayez"); }} disabled={busy}>
+                {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Commander sans compte
+              </Button>
+              <Button variant="outline" onClick={() => navigate(`/auth?next=${encodeURIComponent(window.location.pathname + window.location.search)}`)}>Se connecter ou créer un compte</Button>
+            </div>
+          </CardContent></Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!loadingLines && !lines.length) {
     return (
@@ -288,9 +326,12 @@ export default function Checkout() {
               <RadioGroup value={pay} onValueChange={(v) => setPay(v as typeof pay)} className="space-y-2">
                 {flag("direct_mobile_money") && option("mobile", <Smartphone className="w-5 h-5" />, "Mobile money", "TMoney, Flooz, MTN, Moov, Orange, Wave ou carte, en une fois via FedaPay")}
                 {option("wallet", <Wallet className="w-5 h-5" />, "Portefeuille MIYASHI", `Solde : ${fcfa(balance)}${balance < total ? " (insuffisant)" : ""}`, balance < total)}
+                {savingsAllowed && option("savings", <PiggyBank className="w-5 h-5" />, "Épargne : payer en plusieurs fois",
+                  "Petits dépôts libres ou 2 à 5 tranches. Le vendeur accepte et réserve l'article pour vous, ou refuse.")}
                 {flag("cash_on_delivery") && option("cod", <Banknote className="w-5 h-5" />, "Paiement à la livraison",
-                  codAllowed ? "Payez en espèces au livreur ou au vendeur, contre votre code de remise" : allProducts ? `Non disponible pour cette commande (vendeur ou montant > ${fcfa(COD_LIMIT)})` : "Réservé aux produits", !codAllowed)}
+                  codAllowed ? "Rien à payer maintenant. Vous choisissez ensuite le livreur ; s'il accepte la course en espèces, vous payez à la remise contre votre code" : allProducts ? `Non disponible pour cette commande (vendeur ou montant > ${fcfa(COD_LIMIT)})` : "Réservé aux produits", !codAllowed)}
               </RadioGroup>
+              {pay === "savings" && <SavingsPlanPicker total={total} value={plan} onChange={setPlan} />}
               {pay === "mobile" && (
                 <div><Label htmlFor="mm-phone">Numéro mobile money</Label><Input id="mm-phone" type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="90 00 00 00" /></div>
               )}
@@ -311,7 +352,7 @@ export default function Checkout() {
 
           <Button onClick={submit} disabled={busy || loadingLines} className="w-full h-14 text-lg">
             {busy && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-            {pay === "cod" ? `Confirmer la commande (${fcfa(total)})` : pay === "mobile" ? `Payer ${fcfa(total)} par mobile money` : `Payer ${fcfa(total)}`}
+            {pay === "savings" ? "Envoyer la demande d'épargne au vendeur" : pay === "cod" ? `Confirmer la commande (${fcfa(total)})` : pay === "mobile" ? `Payer ${fcfa(total)} par mobile money` : `Payer ${fcfa(total)}`}
           </Button>
         </div>
       </main>

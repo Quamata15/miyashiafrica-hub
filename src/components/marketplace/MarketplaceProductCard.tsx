@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Eye, ShoppingCart, Star, MapPin, Package, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { kmLabel } from "@/hooks/useNearMe";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
@@ -18,6 +19,7 @@ interface MarketplaceProductCardProps {
   rating: number;
   isVerified: boolean;
   promotion?: { discount_type: string; discount_value: number };
+  distanceKm?: number;
 }
 
 const item = {
@@ -27,7 +29,7 @@ const item = {
 
 const MarketplaceProductCard = ({
   product, viewMode, isFavorite: fav, toggleFavorite, addToCart,
-  rating, isVerified, promotion,
+  rating, isVerified, promotion, distanceKm,
 }: MarketplaceProductCardProps) => {
   const navigate = useNavigate();
 
@@ -73,6 +75,10 @@ const MarketplaceProductCard = ({
             </Badge>
           )}
 
+          {(product as { is_featured?: boolean }).is_featured && (
+            <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground">★ Vedette</Badge>
+          )}
+
           {/* Promo Badge */}
           {promotion && (
             <Badge className="absolute top-3 left-3 bg-destructive text-destructive-foreground font-bold">
@@ -104,7 +110,7 @@ const MarketplaceProductCard = ({
             <p className={cn("text-sm text-muted-foreground line-clamp-2 mb-3", viewMode === "grid" && "hidden sm:block")}>{product.description}</p>
             {product.location && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <MapPin className="h-3 w-3" /> {product.location}
+                <MapPin className="h-3 w-3" /> {product.location}{distanceKm != null ? ` · ${kmLabel(distanceKm)}` : ""}
               </div>
             )}
           </CardContent>

@@ -18,18 +18,18 @@ BEGIN
   PERFORM assign_own_role('seller');
   BEGIN PERFORM assign_own_role('freelance'); log := log || ' seller_freelance=NO'; EXCEPTION WHEN OTHERS THEN log := log || ' seller_freelance=ok'; END;
   BEGIN PERFORM assign_own_role('driver'); log := log || ' driver_without_registration=NO'; EXCEPTION WHEN OTHERS THEN log := log || ' driver_without_registration=ok'; END;
-  BEGIN PERFORM register_driver('Lomé', 'moto'); log := log || ' seller_driver=NO'; EXCEPTION WHEN OTHERS THEN log := log || ' seller_driver=ok'; END;
+  -- A seller may also deliver (the buyer's handover code still releases the money)
+  BEGIN PERFORM register_driver('Lomé', 'moto'); log := log || ' seller_driver=ok'; PERFORM deactivate_own_role('driver');
+  EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg = MESSAGE_TEXT; log := log || ' seller_driver=NO(' || msg || ')'; END;
   PERFORM assign_own_role('provider'); PERFORM assign_own_role('employer');
   SELECT count(*) INTO n FROM user_roles WHERE user_id = sel; log := log || ' seller_spaces=' || n || CASE WHEN n = 4 THEN '' ELSE '=NO' END;
   r := get_space_options();
   log := log || ' options_reason=' || CASE WHEN (SELECT x ->> 'reason' FROM jsonb_array_elements(r -> 'roles') x WHERE x ->> 'role' = 'freelance') LIKE 'Incompatible%' THEN 'ok' ELSE 'NO' END;
   log := log || ' options_used=' || CASE WHEN (r ->> 'used')::int = 3 THEN 'ok' ELSE 'NO' END;
 
-  -- The limit holds even without a conflict (rule removed inside this test only)
-  DELETE FROM role_conflicts WHERE role_a = 'seller' AND role_b = 'driver';
+  -- The limit holds for compatible spaces too
   BEGIN PERFORM register_driver('Lomé', 'moto'); log := log || ' limit3=NO';
   EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg = MESSAGE_TEXT; log := log || ' limit3=' || CASE WHEN msg LIKE '%maximum%' THEN 'ok' ELSE 'NO(' || msg || ')' END; END;
-  INSERT INTO role_conflicts VALUES ('seller', 'driver', 'test');
 
   -- Direct inserts into user_roles are refused for users
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', bu, 'role','authenticated')::text, true);
@@ -100,7 +100,7 @@ BEGIN
   EXCEPTION WHEN OTHERS THEN GET STACKED DIAGNOSTICS msg = MESSAGE_TEXT; log := log || ' cooldown=' || CASE WHEN msg LIKE '%30 jours%' THEN 'ok' ELSE 'NO(' || msg || ')' END; END;
   PERFORM assign_own_role('seller');
   log := log || ' reopen_same=' || CASE WHEN has_role(sel, 'seller') THEN 'ok' ELSE 'NO' END;
-  SELECT count(*) INTO n FROM user_role_events WHERE user_id = sel AND action = 'deactivated'; log := log || ' history=' || n || CASE WHEN n = 2 THEN '' ELSE '=NO' END;
+  SELECT count(*) INTO n FROM user_role_events WHERE user_id = sel AND action = 'deactivated'; log := log || ' history=' || n || CASE WHEN n = 3 THEN '' ELSE '=NO' END;
 
   -- Freelance closes: open applications are withdrawn and the profile leaves the talent pool
   PERFORM set_config('request.jwt.claims', jsonb_build_object('sub', fl, 'role','authenticated')::text, true);

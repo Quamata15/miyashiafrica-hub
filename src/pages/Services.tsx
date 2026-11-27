@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { SiteBanners, SponsoredStrip } from "@/components/home/SiteBanners";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useNearMe, NEAR_KM, kmLabel } from "@/hooks/useNearMe";
+import NearToggle from "@/components/search/NearToggle";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -13,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Search, Clock, Wrench, Star, 
   Grid3X3, List, ArrowUpDown, CheckCircle, User
-} from "lucide-react";
+, MapPin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Select,
@@ -126,6 +128,18 @@ const Services = () => {
     }
   };
 
+  // Providers within 25 km of the person come first (and only them while the filter is on).
+  const near = useNearMe();
+  const [dist, setDist] = useState<Map<string, number>>(new Map());
+  const [onlyNear, setOnlyNear] = useState(true);
+  useEffect(() => {
+    if (!near.pos) return;
+    supabase.rpc("services_near", { p_lat: near.pos.lat, p_lng: near.pos.lng, p_radius_km: 20000, p_limit: 500 })
+      .then(({ data }) => setDist(new Map((data ?? []).map((r) => [r.service_id, r.distance_km]))));
+  }, [near.pos]);
+  const nearCount = useMemo(() => services.filter((x) => (dist.get(x.id) ?? Infinity) <= NEAR_KM).length, [services, dist]);
+  const nearActive = !!near.pos && onlyNear && nearCount > 0;
+
   const filteredServices = useMemo(() => services
     .filter((service) => {
       const matchesSearch = service.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
@@ -133,10 +147,13 @@ const Services = () => {
       const matchesCategory = !filters.selectedCategory || service.category_id === filters.selectedCategory;
       const matchesPrice = !service.price || (service.price >= filters.priceRange[0] && service.price <= filters.priceRange[1]);
       const matchesRating = filters.minRating === 0 || (serviceRatings.get(service.id) || 0) >= filters.minRating;
-      return matchesSearch && matchesCategory && matchesPrice && matchesRating;
+      const matchesNear = !nearActive || (dist.get(service.id) ?? Infinity) <= NEAR_KM;
+      return matchesSearch && matchesCategory && matchesPrice && matchesRating && matchesNear;
     })
     .sort((a, b) => {
       switch (filters.sortBy) {
+        case "nearest":
+          return (dist.get(a.id) ?? Infinity) - (dist.get(b.id) ?? Infinity);
         case "price-asc":
           return (a.price || 0) - (b.price || 0);
         case "price-desc":
@@ -145,10 +162,16 @@ const Services = () => {
           return (serviceRatings.get(b.id) || 0) - (serviceRatings.get(a.id) || 0);
         case "oldest":
           return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        default:
+        default: {
+          if (near.pos && nearCount === 0 && dist.size) return (dist.get(a.id) ?? Infinity) - (dist.get(b.id) ?? Infinity);
+          const na = (dist.get(a.id) ?? Infinity) <= NEAR_KM ? 1 : 0, nb = (dist.get(b.id) ?? Infinity) <= NEAR_KM ? 1 : 0;
+          if (na !== nb) return nb - na;
+          const fa = (a as { is_featured?: boolean }).is_featured ? 1 : 0, fb = (b as { is_featured?: boolean }).is_featured ? 1 : 0;
+          if (fa !== fb) return fb - fa;
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        }
       }
-    }), [services, filters, serviceRatings]);
+    }), [services, filters, serviceRatings, dist, nearActive, near.pos, nearCount]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -236,7 +259,8 @@ const Services = () => {
                     <SelectValue placeholder="Trier par" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Plus récents</SelectItem>
+                    <SelectItem value="newest">Pertinence</SelectItem>
+                    <SelectItem value="nearest">Plus proches</SelectItem>
                     <SelectItem value="oldest">Plus anciens</SelectItem>
                     <SelectItem value="price-asc">Prix croissant</SelectItem>
                     <SelectItem value="price-desc">Prix décroissant</SelectItem>
@@ -282,10 +306,11 @@ const Services = () => {
           <ActiveFilterPills filters={filters} categories={categories} onFiltersChange={updateFilters} />
 
           {/* Results Count */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <p className="text-muted-foreground">
               <span className="font-semibold text-foreground">{filteredServices.length}</span> services disponibles
             </p>
+            <NearToggle near={near} active={nearActive} onlyNear={onlyNear} setOnlyNear={setOnlyNear} nearCount={nearCount} what="prestataire" />
           </div>
 
           {/* Services Grid */}
@@ -403,6 +428,10 @@ const Services = () => {
                               {service.description}
                             </p>
                             
+                            {dist.get(service.id) != null && (
+                              <p className="mb-1 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" />{kmLabel(dist.get(service.id))}</p>
+                            )}
+                            {(service as { is_featured?: boolean }).is_featured && <Badge className="mb-1 bg-primary/15 text-primary border-0">★ Vedette</Badge>}
                             {service.delivery_days && (
                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Clock className="h-4 w-4" />

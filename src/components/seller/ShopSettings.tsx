@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import LocateButton from "@/components/search/LocateButton";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
@@ -49,6 +50,7 @@ export default function ShopSettings({ shop, onSaved }: { shop: Shop | null; onS
       theme_color: f.theme_color || null, country: f.country ?? "TG", city: f.city ?? null, opening_hours: hours, quick_replies: replies.filter(Boolean).slice(0, 12),
       vacation_mode: !!f.vacation_mode, vacation_message: f.vacation_message ?? null, vacation_until: f.vacation_until || null,
       accepts_cod: f.accepts_cod ?? true, store_pickup_address: f.store_pickup_address || null, vat_number: f.vat_number || null,
+      lat: f.lat ?? null, lng: f.lng ?? null,
     };
     const { data, error } = shop
       ? await supabase.from("shops").update(row).eq("id", shop.id).select("*").single()
@@ -95,6 +97,10 @@ export default function ShopSettings({ shop, onSaved }: { shop: Shop | null; onS
             <div><Label htmlFor="s-country">Pays</Label>
               <select id="s-country" value={f.country ?? "TG"} onChange={(e) => set("country", e.target.value)} className="w-full h-10 rounded-xl border border-foreground/10 bg-foreground/[0.04] px-3 text-sm">{COUNTRY_OPTIONS.map(([c, n]) => <option key={c} value={c}>{n}</option>)}</select></div>
             <div><Label htmlFor="s-city">Ville</Label><Input id="s-city" value={f.city ?? ""} onChange={(e) => set("city", e.target.value)} /></div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <LocateButton value={{ lat: f.lat ?? null, lng: f.lng ?? null }} onLocate={(lat, lng) => setF((x) => ({ ...x, lat, lng }))} label="Position exacte de la boutique" />
+            <span>Les clients à moins de 25 km voient vos articles en premier.</span>
           </div>
         </CardContent>
       </Card>

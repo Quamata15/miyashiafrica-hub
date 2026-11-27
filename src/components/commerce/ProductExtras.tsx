@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { SavingsPlanDialog } from "./SavingsPlan";
 import { BellRing, Check, Copy, GitCompare, HandCoins, Loader2, PiggyBank, Plane, Share2, Users } from "lucide-react";
 
 export type Variant = { id: string; label: string; options: Record<string, string>; price: number | null; stock: number; is_active: boolean };
@@ -205,17 +206,16 @@ function CreateGroupBuy({ productId, listPrice, onCreated }: { productId: string
   );
 }
 
-export function SavingsButton({ productId, variant, quantity }: { productId: string; variant: Variant | null; quantity: number }) {
+export function SavingsButton({ productId, variant, quantity, unit }: { productId: string; variant: Variant | null; quantity: number; unit: number }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const start = async () => {
-    if (!requireLogin(user, navigate)) return;
-    const { error } = await supabase.rpc("create_savings_goal", { p_product_id: productId, p_quantity: quantity, p_variant_id: variant?.id ?? undefined });
-    if (error) return toast.error(errMsg(error));
-    toast.success("Objectif d'épargne créé. Versez quand vous voulez : la commande part dès que le montant est atteint.");
-    navigate("/savings");
-  };
-  return <Button variant="ghost" size="sm" onClick={start}><PiggyBank className="w-4 h-4 mr-2" />Payer en plusieurs fois (épargne)</Button>;
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="ghost" size="sm" onClick={() => requireLogin(user, navigate) && setOpen(true)}><PiggyBank className="w-4 h-4 mr-2" />Payer par épargne (2 à 5 tranches)</Button>
+      {open && <SavingsPlanDialog open={open} onOpenChange={setOpen} productId={productId} variantId={variant?.id} quantity={quantity} total={unit * quantity} />}
+    </>
+  );
 }
 
 export function StockAlertButton({ productId, variantId }: { productId: string; variantId?: string | null }) {

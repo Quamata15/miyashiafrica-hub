@@ -50,8 +50,9 @@ const Auth = () => {
     if (ref) { setReferralCode(ref); setShowReferral(true); }
   }, [searchParams]);
 
-  // Redirect if already logged in
-  if (user) {
+  // Redirect if already logged in (a guest stays here to sign in or create the account)
+  const isGuest = !!(user as { is_anonymous?: boolean } | null)?.is_anonymous;
+  if (user && !isGuest) {
     return <Navigate to={nextPath ?? "/dashboard"} replace />;
   }
 
@@ -119,7 +120,13 @@ const Auth = () => {
       return;
     }
     setIsLoading(true);
-    const { error } = await signUp(signupEmail, signupPassword, signupFullName, nextPath ? nextUrl : undefined, signupRole);
+    // A guest becomes a real account: same user, so the cart and the orders are kept.
+    const { error } = isGuest
+      ? await supabase.auth.updateUser({ email: signupEmail, password: signupPassword, data: { full_name: signupFullName, role: signupRole } })
+      : await signUp(signupEmail, signupPassword, signupFullName, nextPath ? nextUrl : undefined, signupRole);
+    if (!error && isGuest && signupFullName.trim()) {
+      await supabase.from("profiles").update({ full_name: signupFullName.trim() }).eq("user_id", user!.id);
+    }
     
     if (error) {
       toast({

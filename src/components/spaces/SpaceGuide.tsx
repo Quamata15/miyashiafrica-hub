@@ -1,6 +1,7 @@
 // Guide of a space: progress from real data, next steps, how it works, safety rules, FAQ.
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, Circle, ShieldCheck, Lightbulb, ArrowRight, HelpCircle } from "lucide-react";
+import { CheckCircle2, Circle, ShieldCheck, Lightbulb, ArrowRight, HelpCircle, X } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -31,8 +32,15 @@ function StepRow({ step, ok, onTab }: { step: GuideStep; ok: boolean; onTab: (ta
 }
 
 /** Compact card for the overview: shows the next steps until everything is done. */
+const HIDE_KEY = (space: string) => `miyashi_guide_hidden_${space}`;
+const guideHidden = (space: string) => { try { return Number(localStorage.getItem(HIDE_KEY(space)) || 0) > Date.now(); } catch { return false; } };
+
 export function GuideProgressCard({ space, onTab }: { space: SpaceKey; onTab: (tab: string) => void }) {
   const { flags, loading, done, total, pct } = useSpaceProgress(space);
+  const [hidden, setHidden] = useState(() => guideHidden(space));
+  // "Plus tard": hidden for 7 days; the guide stays available from the menu.
+  const hide = () => { try { localStorage.setItem(HIDE_KEY(space), String(Date.now() + 7 * 86400000)); } catch { /* private mode */ } setHidden(true); };
+  if (hidden) return null;
   if (loading) return <Skeleton className="h-28 rounded-2xl" />;
   if (done === total) return null;
   const next = GUIDES[space].steps.filter((s) => !flags[s.key]).slice(0, 2);
@@ -40,7 +48,10 @@ export function GuideProgressCard({ space, onTab }: { space: SpaceKey; onTab: (t
     <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/[0.08] to-transparent p-4">
       <div className="flex items-center justify-between gap-3 mb-2">
         <p className="font-semibold text-sm">Bien démarrer · {done}/{total} étapes</p>
-        <Button size="sm" variant="ghost" onClick={() => onTab("guide")}>Voir le guide <ArrowRight className="w-4 h-4 ml-1" /></Button>
+        <div className="flex items-center gap-1">
+          <Button size="sm" variant="ghost" onClick={() => onTab("guide")}>Voir le guide <ArrowRight className="w-4 h-4 ml-1" /></Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={hide} aria-label="Masquer le guide pour l'instant" title="Plus tard"><X className="w-4 h-4" /></Button>
+        </div>
       </div>
       <Progress value={pct} className="h-2" aria-label={`Progression ${pct} %`} />
       <ul className="mt-3 space-y-2">{next.map((s) => <StepRow key={s.key} step={s} ok={false} onTab={onTab} />)}</ul>
@@ -53,7 +64,8 @@ export default function SpaceGuide({ space, onTab }: { space: SpaceKey; onTab: (
   const { flags, loading, done, total, pct } = useSpaceProgress(space);
   return (
     <div className="space-y-4">
-      <Section title="Votre guide" description={g.intro}>
+      <Section title="Votre guide" description={g.intro}
+        action={<Button size="sm" variant="ghost" onClick={() => onTab("vue")} aria-label="Fermer le guide"><X className="w-4 h-4 mr-1" />Fermer</Button>}>
         {loading ? <Skeleton className="h-40 rounded-xl" /> : (
           <>
             <div className="flex items-center gap-4 mb-4">

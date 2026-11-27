@@ -27,6 +27,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
     { label: "Tous les produits", href: "/marketplace", icon: ShoppingBag },
     { label: "Services", href: "/services", icon: Briefcase },
     { label: "Freelance & Emploi", href: "/freelance", icon: Users },
+    { label: "Actus et classements", href: "/feed", icon: Users },
     { label: "Devenir livreur", href: "/driver-registration", icon: Truck },
     { label: "Devenir point relais", href: "/devenir-point-relais", icon: Truck },
   ];

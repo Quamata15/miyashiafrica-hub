@@ -109,8 +109,8 @@ const AdminKYCPanel = ({ docs, onRefresh }: AdminKYCPanelProps) => {
           approvedTypes.push(currentDoc.document_type);
         }
 
-        const hasBasicDocs = ["cni_recto", "cni_verso", "selfie_verification"]
-          .every(t => approvedTypes.includes(t));
+        const hasBasicDocs = approvedTypes.includes("selfie_verification")
+          && ((approvedTypes.includes("cni_recto") && approvedTypes.includes("cni_verso")) || approvedTypes.includes("passeport"));
 
         if (hasBasicDocs) {
           await supabase.from("profiles")

@@ -8,11 +8,12 @@ Un compte MIYASHI a toujours l'espace **Acheteur**. Il peut ouvrir au plus **3 e
 | --- | --- |
 | Recruteur + Freelance | On ne recrute pas et on ne candidate pas avec le même compte : un recruteur verrait les candidatures de ses concurrents et pourrait répondre à ses propres offres. |
 | Vendeur + Freelance | Une boutique est une activité commerciale ; l'espace Freelance sert à postuler à des offres. |
-| Vendeur + Livreur | Un vendeur ne livre pas ses propres commandes : la preuve de remise libère l'argent du séquestre. |
 
 Après la fermeture d'un espace, un espace incompatible ne peut être ouvert que **30 jours** plus tard (pas d'aller-retour pour consulter les données de l'autre côté). L'administrateur peut lever ce délai, mais pas l'incompatibilité.
 
 Les règles sont dans la table `role_conflicts` et les fonctions `space_limit()` et `space_cooldown()` (migration `20261130100000_space_rules.sql`).
+
+Un vendeur peut aussi ouvrir l'espace Livreur et livrer ses propres commandes : la remise exige toujours le code à 6 chiffres de l'acheteur, qui seul libère l'argent.
 
 ## Ouvrir et fermer
 

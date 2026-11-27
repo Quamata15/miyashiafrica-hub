@@ -54,7 +54,7 @@ const DriverRegistration = () => {
 
     setLoading(true);
     try {
-      // One call: checks the space rules (no seller account, 3 spaces at most), then saves the driver profile.
+      // One call: checks the space rules (3 spaces at most), then saves the driver profile.
       const { error } = await supabase.rpc("register_driver", {
         p_zone: form.zone, p_vehicle: form.vehicle_type, p_license: form.license_number || undefined,
         p_phone: form.phone || undefined, p_bio: form.bio || undefined,

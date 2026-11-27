@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FormHead, StickySubmit } from "./FormBits";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { errMsg } from "@/lib/ai";
 import { Briefcase, Clock, DollarSign, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { z } from "zod";
@@ -87,7 +88,7 @@ const ServiceForm = ({ categories, onSuccess }: ServiceFormProps) => {
     setLoading(false);
 
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de créer le service", variant: "destructive" });
+      toast({ title: "Erreur", description: errMsg(error), variant: "destructive" });
     } else {
       toast({ title: "Succès", description: "Service créé avec succès!" });
       onSuccess?.();

@@ -20,6 +20,7 @@ import AdminUserManagement from "@/components/admin/AdminUserManagement";
 import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
 import { MfaSettings, useHasMfa } from "@/components/security/Mfa";
+import AdminFeaturedNews from "@/components/admin/AdminFeaturedNews";
 import { AdminContent, AdminDelivery, AdminFlagsAudit, AdminLegal, AdminModeration, AdminOps, AdminRevenue } from "@/components/admin/AdminPlatform";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -195,6 +196,7 @@ const AdminDashboard = () => {
                   <TabsTrigger value="moderation" className="whitespace-nowrap text-xs sm:text-sm">Modération</TabsTrigger>
                   <TabsTrigger value="delivery" className="whitespace-nowrap text-xs sm:text-sm">Livraison</TabsTrigger>
                   <TabsTrigger value="content" className="whitespace-nowrap text-xs sm:text-sm">Contenu</TabsTrigger>
+                  <TabsTrigger value="featured" className="whitespace-nowrap text-xs sm:text-sm">Vedettes & Actus</TabsTrigger>
                   <TabsTrigger value="flags" className="whitespace-nowrap text-xs sm:text-sm">Fonctions & audit</TabsTrigger>
                   <TabsTrigger value="legal" className="whitespace-nowrap text-xs sm:text-sm">Juridique</TabsTrigger>
                   <TabsTrigger value="ops" className="whitespace-nowrap text-xs sm:text-sm">Exploitation</TabsTrigger>
@@ -256,6 +258,7 @@ const AdminDashboard = () => {
               <TabsContent value="moderation"><AdminModeration /></TabsContent>
               <TabsContent value="delivery"><AdminDelivery /></TabsContent>
               <TabsContent value="content"><AdminContent /></TabsContent>
+              <TabsContent value="featured"><AdminFeaturedNews /></TabsContent>
               <TabsContent value="flags"><AdminFlagsAudit /></TabsContent>
               <TabsContent value="legal"><AdminLegal /></TabsContent>
               <TabsContent value="ops"><AdminOps /></TabsContent>

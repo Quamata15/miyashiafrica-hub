@@ -56,13 +56,17 @@ const FeaturedSection = () => {
       const [productsRes, servicesRes] = await Promise.all([
         supabase
           .from("products")
-          .select("id, title, price, images, location")
+          .select("id, title, price, images, location, is_featured")
           .eq("is_active", true)
-          .limit(4),
+          .order("is_featured", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(8),
         supabase
           .from("services")
-          .select("id, title, price, price_type, images")
+          .select("id, title, price, price_type, images, is_featured")
           .eq("is_active", true)
+          .order("is_featured", { ascending: false })
+          .order("created_at", { ascending: false })
           .limit(4),
       ]);
 
@@ -127,7 +131,7 @@ const FeaturedSection = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5"
           >
             {loading
               ? Array(4)
@@ -160,7 +164,7 @@ const FeaturedSection = () => {
                             </div>
                           )}
                           <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">
-                            Nouveau
+                            {(product as { is_featured?: boolean }).is_featured ? "★ Vedette" : "Nouveau"}
                           </Badge>
                         </div>
                         <CardContent className="p-4">
@@ -217,7 +221,7 @@ const FeaturedSection = () => {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5"
           >
             {loading
               ? Array(4)

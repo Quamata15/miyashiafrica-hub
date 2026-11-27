@@ -136,7 +136,7 @@ const App = () => (
                     <Route path="/alerts" element={<ProtectedRoute><SearchAlerts /></ProtectedRoute>} />
                     <Route path="/driver-dashboard" element={<ProtectedRoute><DriverDashboard /></ProtectedRoute>} />
                     <Route path="/select-driver" element={<ProtectedRoute><DriverSelection /></ProtectedRoute>} />
-                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                    <Route path="/checkout" element={<Checkout />} />
                     <Route path="/provider-space" element={<ProtectedRoute><ProviderSpace /></ProtectedRoute>} />
                     <Route path="/boost" element={<ProtectedRoute><RequireSpace feature="boost"><Boost /></RequireSpace></ProtectedRoute>} />
                     <Route path="/campaigns" element={<ProtectedRoute><RequireSpace feature="boost"><Campaigns /></RequireSpace></ProtectedRoute>} />
@@ -144,7 +144,7 @@ const App = () => (
                     <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                     <Route path="/disputes" element={<ProtectedRoute><Disputes /></ProtectedRoute>} />
-                    <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
+                    <Route path="/feed" element={<Feed />} />
                     <Route path="/checkout/return" element={<ProtectedRoute><CheckoutReturn /></ProtectedRoute>} />
                     <Route path="/invoice/:orderId" element={<ProtectedRoute><Invoice /></ProtectedRoute>} />
                     <Route path="/savings" element={<ProtectedRoute><Savings /></ProtectedRoute>} />

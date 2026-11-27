@@ -20,11 +20,19 @@ export default function BuyerHome({ onTab }: { onTab: (tab: string) => void }) {
   const navigate = useNavigate();
   const { data: s, loading, reload } = useRpc<Summary>("get_buyer_summary");
   const [orders, setOrders] = useState<Order[] | null>(null);
+  const [rides, setRides] = useState<Record<string, { status: string; cash_to_collect: number }>>({});
 
   const loadOrders = () => user && supabase.from("orders")
-    .select("id, status, payment_mode, payment_status, total_price, created_at, seller_id, fulfillment_method, product:products(title, images), service:services(title)")
+    .select("id, status, payment_mode, payment_status, total_price, created_at, seller_id, fulfillment_method, product_id, product:products(title, images), service:services(title)")
     .eq("buyer_id", user.id).not("status", "in", "(completed,cancelled,refunded)").order("created_at", { ascending: false }).limit(8)
-    .then(({ data }) => setOrders((data ?? []) as unknown as Order[]));
+    .then(async ({ data }) => {
+      setOrders((data ?? []) as unknown as Order[]);
+      const ids = (data ?? []).map((o) => o.id);
+      if (!ids.length) return;
+      const { data: dr } = await supabase.from("delivery_requests").select("order_id, status, cash_to_collect")
+        .in("order_id", ids).in("status", ["pending", "accepted", "picked_up", "delivered"]);
+      setRides(Object.fromEntries((dr ?? []).map((d: any) => [d.order_id, { status: d.status, cash_to_collect: Number(d.cash_to_collect) }])));
+    });
   useEffect(() => { loadOrders(); }, [user?.id]);
 
   const confirm = async (id: string) => {
@@ -88,7 +96,16 @@ export default function BuyerHome({ onTab }: { onTab: (tab: string) => void }) {
                       </li>
                     ))}
                   </ol>
+                  {o.fulfillment_method === "delivery" && (o as any).product_id && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {!rides[o.id] ? "Aucun livreur choisi."
+                        : rides[o.id].status === "pending" ? "Livreur contacté : en attente de sa réponse."
+                        : rides[o.id].status === "delivered" ? "Livré."
+                        : `Livreur en route${rides[o.id].cash_to_collect > 0 ? ` : ${rides[o.id].cash_to_collect.toLocaleString("fr-FR")} FCFA à payer à la remise` : ""}.`}
+                    </p>
+                  )}
                   <div className="mt-3 flex flex-wrap gap-2">
+                    {o.fulfillment_method === "delivery" && (o as any).product_id && !rides[o.id] && <Button size="sm" variant="secondary" asChild><Link to={`/select-driver?order=${o.id}`}>Choisir un livreur</Link></Button>}
                     {["delivered", "shipped"].includes(o.status) && o.payment_mode !== "cod" && <Button size="sm" onClick={() => confirm(o.id)}><CheckCircle2 className="w-4 h-4 mr-1" />J'ai reçu ma commande</Button>}
                     {user && <Button size="sm" variant="outline" onClick={() => openConversation(user.id, o.seller_id, navigate)}><MessageSquare className="w-4 h-4 mr-1" />Contacter le vendeur</Button>}
                     <Button size="sm" variant="ghost" asChild><Link to="/disputes">Signaler un problème</Link></Button>

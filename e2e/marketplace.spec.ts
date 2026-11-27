@@ -28,7 +28,8 @@ test("buyer picks a variant and pays from the wallet", async ({ page }) => {
   await expect(page).toHaveURL(/\/checkout\?product=/);
   await page.getByText("Portefeuille MIYASHI").click();
   await page.getByRole("button", { name: /^Payer 12/ }).click();
-  await expect(page).toHaveURL(/order-success/);
+  // Home delivery: the buyer chooses the driver right after ordering.
+  await expect(page).toHaveURL(/select-driver\?order=/);
   const order = calls.find((c) => c.rpc === "place_order")?.body as { p: Record<string, unknown> };
   expect(order.p).toMatchObject({ product_id: PRODUCT, variant_id: "v1", quantity: 1, payment_mode: "wallet", address_id: "a1" });
 });

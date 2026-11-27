@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { CalendarClock, FileText, Loader2, Plus, Trash2, Upload, Video } from "lucide-react";
@@ -110,7 +111,8 @@ export function AvailabilityEditor() {
 
 type Line = { label: string; qty: string; unit_price: string };
 
-export function QuoteDialog({ clientId, trigger, onSent }: { clientId: string; trigger?: React.ReactNode; onSent?: () => void }) {
+export function QuoteDialog({ clientId, trigger, onSent, request }: { clientId: string; trigger?: React.ReactNode; onSent?: () => void;
+  request?: { id: string; service_id: string | null; on_site: boolean; location: string | null; preferred_date: string | null } | null }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -120,13 +122,27 @@ export function QuoteDialog({ clientId, trigger, onSent }: { clientId: string; t
   const [services, setServices] = useState<{ id: string; title: string }[]>([]);
   const [serviceId, setServiceId] = useState("");
   const [busy, setBusy] = useState(false);
+  const [terms, setTerms] = useState("");
+  const [start, setStart] = useState("");
+  const [duration, setDuration] = useState("");
+  const [onSite, setOnSite] = useState(false);
+  const [place, setPlace] = useState("");
   useEffect(() => { if (open && user) supabase.from("services").select("id, title").eq("provider_id", user.id).then(({ data }) => setServices(data ?? [])); }, [open, user]);
+  // Answering a client's request: start from what they asked.
+  useEffect(() => {
+    if (!open || !request) return;
+    if (request.service_id) setServiceId(request.service_id);
+    setOnSite(request.on_site); setPlace(request.location ?? "");
+    if (request.preferred_date && request.preferred_date >= new Date().toISOString().slice(0, 10)) setStart(request.preferred_date);
+  }, [open, request]);
   const total = lines.reduce((s, l) => s + (Number(l.qty) || 0) * (Number(l.unit_price) || 0), 0);
   const send = async () => {
     setBusy(true);
     const { error } = await supabase.rpc("send_quote", {
       p_client_id: clientId, p_title: title, p_items: lines.filter((l) => l.label).map((l) => ({ label: l.label, qty: Number(l.qty), unit_price: Number(l.unit_price) })),
       p_service_id: serviceId || undefined, p_notes: notes || undefined, p_valid_days: Number(days) || 15,
+      p_terms: terms || undefined, p_start_date: start || undefined, p_duration_days: duration ? Number(duration) : undefined,
+      p_on_site: onSite, p_location: onSite ? place : undefined, p_request_id: request?.id,
     });
     setBusy(false);
     if (error) return toast.error(errMsg(error));
@@ -152,7 +168,15 @@ export function QuoteDialog({ clientId, trigger, onSent }: { clientId: string; t
             ))}
             <Button variant="outline" size="sm" onClick={() => setLines([...lines, { label: "", qty: "1", unit_price: "" }])}><Plus className="w-4 h-4 mr-1" />Ligne</Button>
           </div>
-          <div><Label htmlFor="q-notes">Conditions (facultatif)</Label><Textarea id="q-notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Délai, matériel fourni…" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label htmlFor="q-start">Début</Label><Input id="q-start" type="date" min={new Date().toISOString().slice(0, 10)} value={start} onChange={(e) => setStart(e.target.value)} /></div>
+            <div><Label htmlFor="q-dur">Durée (jours)</Label><Input id="q-dur" type="number" min={1} max={365} value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="Ex. : 5" /></div>
+          </div>
+          <label className="flex items-center justify-between gap-3 text-sm"><span className="font-medium">Je me déplace chez le client</span><Switch checked={onSite} onCheckedChange={setOnSite} /></label>
+          {onSite && <div><Label htmlFor="q-place">Lieu</Label><Input id="q-place" value={place} onChange={(e) => setPlace(e.target.value)} placeholder="Quartier, ville" /></div>}
+          <div><Label htmlFor="q-terms">Termes et accords</Label><Textarea id="q-terms" rows={3} value={terms} onChange={(e) => setTerms(e.target.value)} placeholder="Ce qui est inclus, matériel, frais de déplacement, révisions, livrables, ce qui se passe en cas de retard…" /></div>
+          <div><Label htmlFor="q-notes">Remarques (facultatif)</Label><Textarea id="q-notes" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Précisions pour le client" /></div>
+          <p className="text-xs text-muted-foreground">Le client accepte ces termes en payant : l'argent est bloqué en séquestre et vous commencez seulement après. Les coordonnées (numéros, e-mails, WhatsApp) sont masquées.</p>
           <div className="flex items-center justify-between"><div className="flex items-center gap-2 text-sm"><span>Valable</span><Input type="number" className="w-20" value={days} onChange={(e) => setDays(e.target.value)} aria-label="Validité en jours" /><span>jours</span></div><p className="text-lg font-bold">Total : {fcfa(total)}</p></div>
         </div>
         <DialogFooter><Button onClick={send} disabled={busy || !title || total <= 0}>{busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Envoyer le devis</Button></DialogFooter>

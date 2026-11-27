@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ReviewsList from "@/components/reviews/ReviewsList";
+import { ServiceRequestDialog, orderFixedService } from "@/components/commerce/ServiceRequest";
+import { errMsg } from "@/lib/ai";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,45 +67,28 @@ const ServiceDetail = () => {
     setLoading(false);
   };
 
+  const [requestOpen, setRequestOpen] = useState(false);
+
+  // Fixed price: pay now from the wallet (held in escrow until the service is done).
   const handleOrder = async () => {
-    if (!user) {
-      toast({
-        title: "Connexion requise",
-        description: "Veuillez vous connecter pour commander",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-
+    if (!user) { navigate("/auth"); return; }
     if (!service) return;
-
     setOrdering(true);
-    const { error } = await supabase.from("orders").insert({
-      buyer_id: user.id,
-      seller_id: service.provider_id,
-      service_id: service.id,
-      quantity: 1,
-      total_price: service.price || 0,
-      status: "pending",
-      notes: orderNote,
-    });
-
-    setOrdering(false);
-
-    if (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de passer la commande",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Commande passée!",
-        description: "Le prestataire a été notifié de votre demande",
-      });
+    try {
+      await orderFixedService(service.id, orderNote);
+      toast({ title: "Prestation commandée", description: "Le paiement est bloqué en séquestre : le prestataire peut commencer." });
       navigate("/dashboard");
+    } catch (e) {
+      const m = errMsg(e);
+      toast({ title: "Commande impossible", description: m.includes("Solde") ? `${m} : rechargez votre portefeuille ou demandez un devis.` : m, variant: "destructive" });
+    } finally {
+      setOrdering(false);
     }
+  };
+
+  const handleRequest = () => {
+    if (!user) { navigate("/auth"); return; }
+    setRequestOpen(true);
   };
 
   const handleContactProvider = async () => {
@@ -141,6 +126,7 @@ const ServiceDetail = () => {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-warm">
         <Header />
+      {service && <ServiceRequestDialog open={requestOpen} onOpenChange={setRequestOpen} serviceId={service.id} serviceTitle={service.title} />}
         <main className="flex-1 pt-header pb-10">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-8">
@@ -413,15 +399,14 @@ const ServiceDetail = () => {
 
                     {/* Actions */}
                     <div className="space-y-3">
-                      <Button 
-                        variant="secondary" 
-                        size="lg" 
-                        className="w-full rounded-xl"
-                        onClick={handleOrder}
-                        disabled={ordering}
-                      >
-                        {ordering ? "Commande en cours..." : "Commander ce service"}
+                      <Button variant="secondary" size="lg" className="w-full rounded-xl" onClick={handleRequest}>
+                        Demander cette prestation
                       </Button>
+                      {service.price_type === "fixed" && !!service.price && (
+                        <Button variant="outline" size="lg" className="w-full rounded-xl" onClick={handleOrder} disabled={ordering}>
+                          {ordering ? "Commande en cours..." : `Commander au prix affiché (${service.price.toLocaleString("fr-FR")} FCFA)`}
+                        </Button>
+                      )}
                       <Button 
                         variant="outline" 
                         size="lg" 
@@ -436,7 +421,7 @@ const ServiceDetail = () => {
                     {/* Trust */}
                     <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-4 border-t">
                       <Shield className="h-4 w-4" />
-                      <span>Paiement sécurisé • Garantie satisfaction</span>
+                      <span>Payé sur MIYASHI, bloqué en séquestre jusqu'à la fin de la prestation</span>
                     </div>
                   </CardContent>
                 </Card>

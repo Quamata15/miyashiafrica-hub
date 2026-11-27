@@ -2,6 +2,7 @@ import { Check, CheckCheck, MapPin, Download, FileText, Video } from "lucide-rea
 import { TranslateMessage } from "./ChatExtras";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface ChatMessageBubbleProps {
   message: {
@@ -105,6 +106,19 @@ const ChatMessageBubble = ({ message, isOwn }: ChatMessageBubbleProps) => {
             <span className="h-10 w-10 rounded-lg bg-accent/20 flex items-center justify-center"><Video className="h-5 w-5 text-accent" /></span>
             <span className="text-sm font-medium">Appel vidéo<span className="block text-xs opacity-70">Rejoindre l'appel</span></span>
           </a>
+        );
+
+      case 'service_request':
+      case 'quote':
+        return (
+          <div className={`rounded-lg p-2 ${isOwn ? 'bg-primary-foreground/10' : 'bg-background/50'}`}>
+            <p className="text-sm whitespace-pre-line break-words">{message.content}</p>
+            {message.message_type === 'quote' && (
+              <Link to="/quotes" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold underline">
+                <FileText className="h-3.5 w-3.5" />{isOwn ? 'Voir mes devis' : 'Lire les termes et payer en séquestre'}
+              </Link>
+            )}
+          </div>
         );
 
       default:

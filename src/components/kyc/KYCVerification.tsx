@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/upload";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -72,7 +73,9 @@ const KYCVerification = () => {
   };
 
   const getRequiredDocs = () => {
-    const required = ["cni_recto", "cni_verso", "selfie_verification"];
+    // A passport replaces both sides of the identity card.
+    const hasPassport = docs.some((d) => d.document_type === "passeport" && d.status !== "rejected");
+    const required = hasPassport ? ["passeport", "selfie_verification"] : ["cni_recto", "cni_verso", "selfie_verification"];
     if (userRoles.some(r => ["seller", "provider", "employer"].includes(r))) {
       required.push("nif");
     }
@@ -89,28 +92,21 @@ const KYCVerification = () => {
   const isFullyVerified = progress === 100;
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user || !selectedType) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Fichier trop volumineux", description: "Maximum 5 Mo", variant: "destructive" });
-      return;
-    }
-
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
-    if (!allowedTypes.includes(file.type)) {
-      toast({ title: "Format non supporté", description: "JPG, PNG, WebP ou PDF uniquement", variant: "destructive" });
-      return;
-    }
+    const picked = e.target.files?.[0];
+    if (!picked || !user || !selectedType) return;
 
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/${selectedType}_${Date.now()}.${ext}`;
+      // Phone photos are often 4 to 8 MB: shrink them first (still sharp enough to read a card).
+      const file = await compressImage(picked, 2000, 0.85);
+      const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "application/pdf": "pdf" };
+      if (!EXT[file.type]) throw new Error("Format non supporté : envoyez une photo (JPG, PNG, WebP) ou un PDF");
+      if (file.size > 10 * 1024 * 1024) throw new Error("Fichier trop volumineux : 10 Mo maximum");
+      const path = `${user.id}/${selectedType}_${Date.now()}.${EXT[file.type]}`;
 
       const { error: uploadError } = await supabase.storage
         .from("kyc-documents")
-        .upload(path, file, { upsert: true });
+        .upload(path, file, { upsert: false, contentType: file.type });
 
       if (uploadError) throw uploadError;
 
@@ -121,7 +117,10 @@ const KYCVerification = () => {
         status: "pending",
       });
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        await supabase.storage.from("kyc-documents").remove([path]);
+        throw insertError;
+      }
 
       toast({ title: "Document soumis ✅", description: "Votre document sera examiné sous 24-48h." });
       setSelectedType("");
@@ -237,7 +236,7 @@ const KYCVerification = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  accept="image/*,application/pdf"
                   onChange={handleUpload}
                   className="hidden"
                   id="kyc-upload"

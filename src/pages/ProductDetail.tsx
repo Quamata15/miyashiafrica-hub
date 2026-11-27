@@ -88,17 +88,8 @@ const ProductDetail = () => {
     setLoading(false);
   };
 
+  // Ordering needs no account: the checkout opens a guest session if needed.
   const handleOrder = () => {
-    if (!user) {
-      toast({
-        title: "Connexion requise",
-        description: "Veuillez vous connecter pour commander",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
-
     if (!product) return;
 
     if (variants.length && !variant) {
@@ -386,7 +377,7 @@ const ProductDetail = () => {
                   </div>
                 )}
                 <div className="flex flex-wrap items-center gap-1">
-                  {!isOwner && stock > 0 && flag("savings") && <SavingsButton productId={product.id} variant={variant} quantity={quantity} />}
+                  {!isOwner && stock > 0 && flag("savings") && <SavingsButton productId={product.id} variant={variant} quantity={quantity} unit={unit} />}
                   <CompareToggle productId={product.id} />
                   <Button variant="ghost" size="sm" onClick={handleContactSeller}><MessageSquare className="w-4 h-4 mr-1" />Contacter le vendeur</Button>
                 </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
 import { QuickReplies, VideoCallButton, VoiceRecorder } from "@/components/chat/ChatExtras";
+import { ChatSafetyNotice, OffPlatformReport } from "@/components/chat/OffPlatformReport";
 import { QuoteDialog } from "@/components/commerce/Services";
 import { useSpaces } from "@/hooks/useSpaces";
 import { usePrefs } from "@/lib/prefs";
@@ -54,6 +56,17 @@ const Messages = () => {
   useEffect(() => {
     if (selectedConversation) fetchMessages(selectedConversation.id);
   }, [selectedConversation, fetchMessages]);
+
+  // The client's open request in this conversation, so the provider's quote answers it.
+  const [openRequest, setOpenRequest] = useState<{ id: string; service_id: string | null; on_site: boolean; location: string | null; preferred_date: string | null } | null>(null);
+  useEffect(() => {
+    setOpenRequest(null);
+    if (!selectedConversation || !user) return;
+    supabase.from("service_requests").select("id, service_id, on_site, location, preferred_date")
+      .eq("conversation_id", selectedConversation.id).eq("provider_id", user.id).in("status", ["open", "quoted"])
+      .order("created_at", { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => setOpenRequest(data));
+  }, [selectedConversation, user]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -206,11 +219,13 @@ const Messages = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                        {user && <OffPlatformReport otherUserId={selectedConversation.participant_1 === user.id ? selectedConversation.participant_2 : selectedConversation.participant_1} />}
                         {flag("video_calls") && <VideoCallButton send={sendMessage} />}
-                        {flag("quotes") && user && sp.can("provide") && <QuoteDialog clientId={selectedConversation.participant_1 === user.id ? selectedConversation.participant_2 : selectedConversation.participant_1} />}
+                        {flag("quotes") && user && sp.can("provide") && <QuoteDialog request={openRequest} clientId={selectedConversation.participant_1 === user.id ? selectedConversation.participant_2 : selectedConversation.participant_1} />}
                       </div>
                     </div>
 
+                    <ChatSafetyNotice />
                     {/* Messages */}
                     <ScrollArea className="flex-1 p-4">
                       <div className="space-y-4">

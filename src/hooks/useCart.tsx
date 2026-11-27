@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { ensureGuestSession } from '@/lib/guest';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
@@ -86,8 +87,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addToCart = async (productId?: string, serviceId?: string, quantity = 1, variantId: string | null = null) => {
-    if (!user) {
-      toast.error('Connectez-vous pour ajouter au panier');
+    // No account needed: a guest session is opened on the first add.
+    const userId = user?.id ?? await ensureGuestSession();
+    if (!userId) {
+      toast.error("Impossible d'ouvrir le panier pour le moment, réessayez");
       return;
     }
 
@@ -101,7 +104,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const { error } = await (supabase as any).from('cart_items').insert({
-      user_id: user.id,
+      user_id: userId,
       product_id: productId || null,
       service_id: serviceId || null,
       variant_id: variantId,

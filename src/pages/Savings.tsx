@@ -34,7 +34,7 @@ export default function Savings() {
     load();
   };
   const cancel = async (g: Tables<"savings_goals">) => {
-    if (!confirm(`Annuler et récupérer ${fcfa(g.saved_amount)} sur votre portefeuille ?`)) return;
+    if (!confirm(g.saved_amount > 0 ? `Annuler et récupérer ${fcfa(g.saved_amount)} sur votre portefeuille ?` : "Retirer cette demande d'épargne ?")) return;
     const { error } = await supabase.rpc("cancel_savings", { p_goal_id: g.id });
     if (error) return toast.error(errMsg(error));
     toast.success("Épargne rendue sur votre portefeuille");
@@ -42,31 +42,42 @@ export default function Savings() {
   };
 
   return (
-    <PageShell title="Mon épargne" description="Mettez de côté petit à petit depuis votre portefeuille : la commande part toute seule quand le montant est atteint.">
+    <PageShell title="Mon épargne" description="Petits dépôts ou 2 à 5 tranches : le vendeur réserve l'article, la commande part toute seule quand le montant est atteint.">
       {!goals.length ? (
-        <EmptyState icon={<PiggyBank className="w-6 h-6" />} title="Aucun objectif d'épargne">Sur une fiche produit, choisissez « Payer en plusieurs fois ». <Link to="/marketplace" className="text-primary underline">Voir les produits</Link></EmptyState>
+        <EmptyState icon={<PiggyBank className="w-6 h-6" />} title="Aucune épargne en cours">Sur une fiche produit ou au paiement, choisissez « Payer par épargne ». <Link to="/marketplace" className="text-primary underline">Voir les produits</Link></EmptyState>
       ) : (
         <div className="space-y-4">
           {goals.map((g) => {
             const pct = Math.min(100, Math.round((g.saved_amount / g.target_amount) * 100));
+            const left = g.target_amount - g.saved_amount;
+            const minPay = g.plan === "installments" && g.installment_amount ? Math.min(g.installment_amount, left) : 100;
+            const label: Record<string, string> = { pending_seller: "En attente du vendeur", active: `${pct} %`, completed: "Commandé", cancelled: "Annulée", refused: "Refusée", expired: "Expirée" };
             return (
-              <Card key={g.id}><CardContent className="p-5 space-y-3">
+              <Card key={g.id}><CardContent className="p-4 space-y-3">
                 <div className="flex justify-between gap-2">
-                  <div>
+                  <div className="min-w-0">
                     <Link to={g.product_id ? `/product/${g.product_id}` : "#"} className="font-semibold hover:text-primary">{g.title}</Link>
-                    <p className="text-sm text-muted-foreground">{fcfa(g.saved_amount)} sur {fcfa(g.target_amount)}{g.quantity > 1 ? ` · ${g.quantity} pièces` : ""}</p>
+                    <p className="text-sm text-muted-foreground">{fcfa(g.saved_amount)} sur {fcfa(g.target_amount)}{g.quantity > 1 ? ` · ${g.quantity} pièces` : ""}
+                      {" · "}{g.plan === "installments" ? `${g.installments} tranches de ${fcfa(g.installment_amount ?? 0)}` : "petits dépôts"}
+                      {g.deadline ? ` · avant le ${new Date(g.deadline).toLocaleDateString("fr-FR")}` : ""}</p>
                   </div>
-                  <Badge variant={g.status === "completed" ? "default" : g.status === "cancelled" ? "secondary" : "outline"}>{g.status === "active" ? `${pct} %` : g.status === "completed" ? "Commandé" : "Annulé"}</Badge>
+                  <Badge className="shrink-0" variant={g.status === "completed" || g.status === "active" ? "default" : g.status === "pending_seller" ? "outline" : "secondary"}>{label[g.status] ?? g.status}</Badge>
                 </div>
-                <Progress value={pct} aria-label={`Épargne ${pct} %`} />
+                {g.status === "pending_seller" && <p className="text-sm text-muted-foreground">Le vendeur doit accepter et réserver l'article. Vous pourrez verser dès son accord.</p>}
+                {g.status === "refused" && <p className="text-sm text-muted-foreground">Le vendeur n'a pas pu réserver cet article{g.refused_reason ? ` : ${g.refused_reason}` : ""}.</p>}
+                {g.status === "active" && g.reserved_qty > 0 && <p className="text-sm text-emerald-600 dark:text-emerald-400">Réservé pour vous par le vendeur ({g.reserved_qty} pièce{g.reserved_qty > 1 ? "s" : ""}).
+                  {g.plan === "installments" && g.next_due_date ? ` Prochaine tranche : ${fcfa(minPay)} avant le ${new Date(g.next_due_date).toLocaleDateString("fr-FR")}.` : ""}</p>}
+                {(g.status === "active" || g.status === "completed") && <Progress value={pct} aria-label={`Épargne ${pct} %`} />}
                 {g.status === "active" && (
                   <div className="flex flex-wrap gap-2">
-                    <Input type="number" inputMode="numeric" min={100} placeholder="Montant à verser" value={amounts[g.id] ?? ""} onChange={(e) => setAmounts({ ...amounts, [g.id]: e.target.value })} className="w-44" />
+                    <Input type="number" inputMode="numeric" min={minPay} placeholder={g.plan === "installments" ? `Tranche : ${fcfa(minPay)}` : "Montant à verser"} value={amounts[g.id] ?? ""} onChange={(e) => setAmounts({ ...amounts, [g.id]: e.target.value })} className="w-44" aria-label="Montant à verser" />
                     <Button onClick={() => contribute(g)} disabled={!amounts[g.id]}>Verser</Button>
-                    <Button variant="ghost" onClick={() => setAmounts({ ...amounts, [g.id]: String(g.target_amount - g.saved_amount) })}>Le reste ({fcfa(g.target_amount - g.saved_amount)})</Button>
+                    {g.plan === "installments" && <Button variant="outline" onClick={() => setAmounts({ ...amounts, [g.id]: String(minPay) })}>Une tranche</Button>}
+                    <Button variant="ghost" onClick={() => setAmounts({ ...amounts, [g.id]: String(left) })}>Le reste ({fcfa(left)})</Button>
                     <Button variant="ghost" className="text-destructive ml-auto" onClick={() => cancel(g)}>Annuler</Button>
                   </div>
                 )}
+                {g.status === "pending_seller" && <Button variant="ghost" size="sm" className="text-destructive" onClick={() => cancel(g)}>Retirer la demande</Button>}
                 {g.status === "completed" && g.order_id && <Link to="/dashboard" className="text-sm text-primary underline">Suivre la commande</Link>}
               </CardContent></Card>
             );

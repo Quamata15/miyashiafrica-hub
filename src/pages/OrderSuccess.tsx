@@ -1,5 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
+import { useAuth } from "@/hooks/useAuth";
 import Footer from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import { motion } from "framer-motion";
 const OrderSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const guest = !!(user as { is_anonymous?: boolean } | null)?.is_anonymous;
   const orderId = searchParams.get("order");
   const total = searchParams.get("total");
 
@@ -38,6 +41,12 @@ const OrderSuccess = () => {
                   <p className="text-muted-foreground">
                     Vos fonds sont sécurisés en escrow jusqu'à la réception de votre commande.
                   </p>
+                  {guest && (
+                    <div className="mt-4 rounded-xl border border-primary/30 bg-primary/[0.06] p-3 text-sm">
+                      Vous avez commandé sans compte. Ajoutez un e-mail et un mot de passe pour retrouver vos commandes sur tous vos appareils : rien n'est perdu.
+                      <Button size="sm" variant="link" className="px-1" onClick={() => navigate("/auth")}>Créer mon compte</Button>
+                    </div>
+                  )}
                 </div>
 
                 {orderId && (

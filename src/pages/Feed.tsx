@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { NewsList, Rankings } from "@/components/news/NewsAndRankings";
 import { useAuth } from "@/hooks/useAuth";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
@@ -11,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, Package, Briefcase, Rss, Clock, MapPin, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -35,8 +36,10 @@ const Feed = () => {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("all");
 
+  const [section, setSection] = useState<"news" | "follows">("news");
   useEffect(() => {
-    if (user) fetchFeed();
+    if (user) fetchFeed(); else setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchFeed = async () => {
@@ -221,62 +224,58 @@ const Feed = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
-      <SEOHead title="Mon fil d'actualité — MIYASHI" description="Découvrez les derniers produits et services de vos abonnements." canonical="/feed" />
+      <SEOHead title="Actus — MIYASHI" description="Actualités de MIYASHI, top 3 de la semaine et du mois, nouveautés de vos abonnements." canonical="/feed" />
       <Header />
       <main className="flex-1 pt-header pb-10">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2.5 rounded-xl bg-primary/10">
-                <Rss className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-display font-bold">Fil d'actualité</h1>
-                <p className="text-sm text-muted-foreground">Nouveautés de vos abonnements</p>
-              </div>
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2.5 rounded-xl bg-primary/10"><Rss className="h-5 w-5 text-primary" /></div>
+            <div className="min-w-0">
+              <h1 className="text-xl md:text-2xl font-display font-bold">Actus</h1>
+              <p className="text-sm text-muted-foreground">Les nouvelles de MIYASHI, les meilleurs de la semaine et vos abonnements</p>
             </div>
-
-            {loading ? (
-              <div className="flex justify-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : items.length === 0 ? (
-              <Card className="border-0 shadow-soft">
-                <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-                  <Rss className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                  <h2 className="font-semibold text-lg mb-1">Rien à afficher</h2>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Suivez des vendeurs et prestataires pour voir leurs nouveautés ici.
-                  </p>
-                  <Button asChild>
-                    <Link to="/marketplace">Explorer le marketplace</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                <Tabs value={tab} onValueChange={setTab} className="mb-6">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="all">Tout ({items.length})</TabsTrigger>
-                    <TabsTrigger value="product">
-                      <Package className="h-3.5 w-3.5 mr-1" />
-                      Produits ({items.filter(i => i.type === "product").length})
-                    </TabsTrigger>
-                    <TabsTrigger value="service">
-                      <Briefcase className="h-3.5 w-3.5 mr-1" />
-                      Services ({items.filter(i => i.type === "service").length})
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-
-                <div className="space-y-4">
-                  {filtered.map((item) => (
-                    <FeedCard key={`${item.type}-${item.id}`} item={item} />
-                  ))}
-                </div>
-              </>
-            )}
-          </motion.div>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+            <div className="min-w-0">
+              <Tabs value={section} onValueChange={(v) => setSection(v as typeof section)} className="mb-3">
+                <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:inline-grid">
+                  <TabsTrigger value="news">Actualités</TabsTrigger>
+                  <TabsTrigger value="follows">Mes abonnements</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              {section === "news" ? <NewsList /> : !user ? (
+                <Card className="border-0 shadow-soft"><CardContent className="py-8 text-center">
+                  <p className="text-sm text-muted-foreground mb-3">Connectez-vous pour voir les nouveautés des vendeurs et prestataires que vous suivez.</p>
+                  <Button asChild><Link to="/auth">Se connecter</Link></Button>
+                </CardContent></Card>
+              ) : loading ? (
+                <div className="flex justify-center py-10"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+              ) : items.length === 0 ? (
+                <Card className="border-0 shadow-soft">
+                  <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+                    <Rss className="h-10 w-10 text-muted-foreground/30 mb-3" />
+                    <h2 className="font-semibold text-lg mb-1">Rien à afficher</h2>
+                    <p className="text-sm text-muted-foreground mb-4">Suivez des vendeurs et prestataires pour voir leurs nouveautés ici.</p>
+                    <Button asChild><Link to="/marketplace">Explorer le marketplace</Link></Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  <Tabs value={tab} onValueChange={setTab} className="mb-3">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="all">Tout ({items.length})</TabsTrigger>
+                      <TabsTrigger value="product"><Package className="h-3.5 w-3.5 mr-1" />Produits ({items.filter(i => i.type === "product").length})</TabsTrigger>
+                      <TabsTrigger value="service"><Briefcase className="h-3.5 w-3.5 mr-1" />Services ({items.filter(i => i.type === "service").length})</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  <div className="space-y-3">
+                    {filtered.map((item) => <FeedCard key={`${item.type}-${item.id}`} item={item} />)}
+                  </div>
+                </>
+              )}
+            </div>
+            <aside className="min-w-0 lg:sticky lg:top-24"><Rankings /></aside>
+          </div>
         </div>
       </main>
       <Footer />

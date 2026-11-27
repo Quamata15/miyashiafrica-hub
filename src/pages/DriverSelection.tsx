@@ -51,67 +51,54 @@ const DriverSelection = () => {
     }
   };
 
-  const vehicleRates: Record<string, number> = {
-    moto: 550, tricycle: 1000, voiture: 1500, camionnette: 2000,
-  };
+  // The order to deliver: the one in the link, else the latest home delivery without a driver.
+  // A cash-on-delivery order needs no payment first: the driver decides whether to collect the cash.
+  type Target = { id: string; total_price: number; payment_status: string; seller_id: string; shipping_address: string | null };
+  const [order, setOrder] = useState<Target | null>(null);
+  const [active, setActive] = useState<{ id: string; status: string; driver_id: string | null } | null>(null);
 
-  // Check if there's a paid order
-  const [hasPaidOrder, setHasPaidOrder] = useState(false);
-  const [paidOrder, setPaidOrder] = useState<any>(null);
-
-  useEffect(() => {
-    if (user) checkPaidOrder();
-  }, [user]);
-
-  const checkPaidOrder = async () => {
+  const loadOrder = async () => {
     if (!user) return;
-    // Get latest paid order for this buyer
-    const { data } = await supabase.from("orders")
-      .select("*")
-      .eq("buyer_id", user.id)
-      .eq("payment_status", "paid")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    let q = supabase.from("orders").select("id, total_price, payment_status, seller_id, shipping_address")
+      .eq("buyer_id", user.id).in("payment_status", ["paid", "cod_pending"]).eq("fulfillment_method", "delivery")
+      .not("product_id", "is", null).not("status", "in", "(completed,cancelled,refunded)");
+    q = orderId && orderId !== "latest" ? q.eq("id", orderId) : q.order("created_at", { ascending: false }).limit(1);
+    const { data } = await q.maybeSingle();
+    setOrder(data as Target | null);
     if (data) {
-      setPaidOrder(data);
-      setHasPaidOrder(true);
+      const { data: dr } = await supabase.from("delivery_requests").select("id, status, driver_id").eq("order_id", data.id)
+        .in("status", ["pending", "accepted", "picked_up"]).maybeSingle();
+      setActive(dr);
     }
   };
+  useEffect(() => { loadOrder(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [user, orderId]);
+  const cod = order?.payment_status === "cod_pending";
 
-  const requestDriver = async (driverId: string) => {
-    if (!user) return;
-    if (!hasPaidOrder || !paidOrder) {
-      toast({ title: "Paiement requis", description: "Vous devez d'abord payer votre commande", variant: "destructive" });
-      navigate("/checkout");
-      return;
-    }
-    setRequesting(driverId);
-
-    const actualOrderId = paidOrder.id;
-
-    const { error } = await (supabase.from("delivery_requests") as any).insert({
-      order_id: actualOrderId,
-      driver_id: driverId,
-      buyer_id: user.id,
-      seller_id: paidOrder.seller_id,
-      status: "pending",
-      vehicle_type: selectedVehicle,
-      distance_km: 5,
-      base_price: 5 * vehicleRates[selectedVehicle],
-      commission: 5 * vehicleRates[selectedVehicle] * 0.18,
-      total_delivery_price: 5 * vehicleRates[selectedVehicle],
-    });
-
-    // Notification is now handled automatically by database trigger on delivery_requests insert
-
+  const requestDriver = async (driverId: string | null) => {
+    if (!user || !order) return;
+    setRequesting(driverId ?? "all");
+    const { data, error } = await supabase.rpc("request_driver" as any, { p_order_id: order.id, p_driver_id: driverId, p_vehicle: selectedVehicle });
     setRequesting(null);
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de demander ce livreur", variant: "destructive" });
-    } else {
-      toast({ title: "Demande envoyée! 🚀", description: "Le livreur a été notifié de votre demande" });
-      navigate("/dashboard");
+      toast({ title: "Demande impossible", description: error.message.replace(/^.*?ERROR:\s*/i, ""), variant: "destructive" });
+      return;
     }
+    const r = data as { price: number; distance_km: number; cash_to_collect: number };
+    toast({
+      title: driverId ? "Demande envoyée au livreur 🚀" : "Course proposée aux livreurs disponibles 🚀",
+      description: cod
+        ? `Le livreur doit accepter d'encaisser ${r.cash_to_collect.toLocaleString("fr-FR")} FCFA à la remise (commande + livraison ${r.price.toLocaleString("fr-FR")} FCFA, ${r.distance_km} km).`
+        : `Livraison ${r.price.toLocaleString("fr-FR")} FCFA (${r.distance_km} km), réglée depuis votre portefeuille et bloquée jusqu'à la réception.`,
+    });
+    loadOrder();
+  };
+
+  const cancelRequest = async () => {
+    if (!active) return;
+    const { error } = await supabase.rpc("cancel_delivery_request" as any, { p_id: active.id });
+    if (error) { toast({ title: "Annulation impossible", description: error.message.replace(/^.*?ERROR:\s*/i, ""), variant: "destructive" }); return; }
+    toast({ title: "Demande annulée", description: "Vous pouvez choisir un autre livreur." });
+    loadOrder();
   };
 
   const filteredDrivers = drivers.filter(d => selectedVehicle === "all" || d.vehicle_type === selectedVehicle);
@@ -121,12 +108,33 @@ const DriverSelection = () => {
       <Header />
       <main className="flex-1 pt-header pb-10">
         <div className="container mx-auto px-4 max-w-4xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-            <h1 className="text-3xl font-display font-bold mb-2">Choisir un livreur</h1>
-            <p className="text-muted-foreground">Sélectionnez un livreur disponible dans votre zone</p>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+            <h1 className="text-2xl md:text-3xl font-display font-bold">Choisir un livreur</h1>
+            <p className="text-sm text-muted-foreground">Sélectionnez un livreur disponible, ou proposez la course à tous.</p>
           </motion.div>
 
-          <div className="flex flex-wrap gap-4 mb-8">
+          {!order ? (
+            <Card className="mb-4"><CardContent className="p-4 text-sm text-muted-foreground">
+              Aucune commande à faire livrer pour l'instant. Les commandes avec livraison à domicile (payées ou à payer à la livraison) apparaissent ici.
+              <Button variant="link" className="px-1" onClick={() => navigate("/marketplace")}>Voir les produits</Button>
+            </CardContent></Card>
+          ) : (
+            <Card className="mb-4 border-primary/25">
+              <CardContent className="p-4 flex flex-wrap items-center gap-3">
+                <div className="flex-1 min-w-[14rem] text-sm">
+                  <p className="font-medium">Commande #{order.id.slice(0, 8)} · {Number(order.total_price).toLocaleString("fr-FR")} FCFA</p>
+                  <p className="text-muted-foreground">
+                    {cod ? "Paiement à la livraison : seul un livreur qui accepte d'encaisser l'argent prendra la course." : "Commande payée. La livraison est réglée depuis votre portefeuille et reste bloquée jusqu'à la réception."}
+                  </p>
+                  {active && <p className="mt-1 text-primary">{active.status === "pending" ? "Demande envoyée : en attente de réponse du livreur." : "Un livreur a accepté la course."}</p>}
+                </div>
+                {active?.status === "pending" && <Button variant="outline" size="sm" onClick={cancelRequest}>Annuler la demande</Button>}
+                {!active && <Button size="sm" onClick={() => requestDriver(null)} disabled={requesting === "all"}>{requesting === "all" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Proposer à tous les livreurs"}</Button>}
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="flex flex-wrap gap-4 mb-4">
             <Select value={selectedVehicle} onValueChange={setSelectedVehicle}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Type de véhicule" />
@@ -189,7 +197,7 @@ const DriverSelection = () => {
 
                         <Button
                           onClick={() => requestDriver(driver.user_id)}
-                          disabled={requesting === driver.user_id}
+                          disabled={!order || !!active || requesting === driver.user_id || driver.user_id === user?.id}
                           className="bg-gradient-hero shrink-0"
                         >
                           {requesting === driver.user_id ? (

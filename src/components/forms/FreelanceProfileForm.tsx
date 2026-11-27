@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FormHead, StickySubmit } from "./FormBits";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { errMsg } from "@/lib/ai";
 import { User, DollarSign, Clock, Award, Loader2, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import { z } from "zod";
@@ -133,7 +134,7 @@ const FreelanceProfileForm = ({ onSuccess }: FreelanceProfileFormProps) => {
     setLoading(false);
 
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de sauvegarder le profil", variant: "destructive" });
+      toast({ title: "Erreur", description: errMsg(error), variant: "destructive" });
     } else {
       toast({ title: "Succès", description: "Profil freelance sauvegardé!" });
       setIsEditing(true);

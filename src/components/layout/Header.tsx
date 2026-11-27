@@ -41,6 +41,8 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [me, setMe] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const { user, signOut, loading } = useAuth();
+  // A guest (bought without an account) sees the cart, their orders and an invitation to create the account.
+  const guest = !!(user as { is_anonymous?: boolean } | null)?.is_anonymous;
   const sp = useSpaces();
   const isAdmin = sp.isAdmin;
   // Only the spaces the account holds, and only the tools those spaces use.
@@ -88,6 +90,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
     { label: "Produits", href: "/marketplace", icon: ShoppingBag },
     { label: "Services", href: "/services", icon: Briefcase },
     { label: "Freelance", href: "/freelance", icon: Users },
+    { label: "Actus", href: "/feed", icon: Rss },
   ];
 
   const handleSignOut = async () => {
@@ -157,7 +160,13 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
           <div className="hidden md:flex items-center gap-1">
             <LanguageSwitch />
             <ThemeToggle />
-            {user ? (
+            {guest ? (
+              <>
+                <CartDrawer />
+                <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard?espace=acheteur")}>{t("Mes commandes")}</Button>
+                <Button size="sm" onClick={() => navigate("/auth")} className="rounded-xl shadow-md bg-gradient-hero">{t("Créer mon compte")}</Button>
+              </>
+            ) : user ? (
               <>
                 <Button variant="ghost" size="icon" className="rounded-xl" aria-label="Favoris" onClick={() => navigate("/favorites")}>
                   <Heart className="w-5 h-5" />
@@ -214,7 +223,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                         <LayoutDashboard className="mr-2 h-4 w-4" /> {t("Tableau de bord")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/feed")} className="cursor-pointer">
-                        <Rss className="mr-2 h-4 w-4" /> {t("Fil d'actualité")}
+                        <Rss className="mr-2 h-4 w-4" /> {t("Actus")}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
                         <User className="mr-2 h-4 w-4" /> {t("Mon Profil")}
@@ -408,7 +417,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   <div className="pt-3 border-t border-border mt-3">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Mon Compte</p>
                      <MobileMenuItem icon={LayoutDashboard} label="Tableau de bord" onClick={() => go("/dashboard")} badge={unreadNotifications} />
-                    <MobileMenuItem icon={Rss} label="Fil d'actualité" onClick={() => go("/feed")} />
+                    <MobileMenuItem icon={Rss} label="Actus" onClick={() => go("/feed")} />
                     <MobileMenuItem icon={User} label="Mon Profil" onClick={() => go("/profile")} />
                     <MobileMenuItem icon={Wallet} label="Portefeuille" onClick={() => go("/wallet")} />
                     {sp.can("sell") && <MobileMenuItem icon={Store} label="Ma boutique" onClick={() => go("/shop/manage")} />}

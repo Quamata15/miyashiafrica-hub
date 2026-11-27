@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useNearMe, NEAR_KM } from "@/hooks/useNearMe";
+import NearToggle from "@/components/search/NearToggle";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -139,6 +141,18 @@ const Marketplace = () => {
     }
   };
 
+  // Proximity: what is within 25 km comes first (and only that, if the person keeps the filter on).
+  const near = useNearMe();
+  const [dist, setDist] = useState<Map<string, number>>(new Map());
+  const [onlyNear, setOnlyNear] = useState(true);
+  useEffect(() => {
+    if (!near.pos) return;
+    supabase.rpc("products_near", { p_lat: near.pos.lat, p_lng: near.pos.lng, p_radius_km: 20000, p_limit: 500 })
+      .then(({ data }) => setDist(new Map((data ?? []).map((r) => [r.product_id, r.distance_km]))));
+  }, [near.pos]);
+  const nearCount = useMemo(() => products.filter((p) => (dist.get(p.id) ?? Infinity) <= NEAR_KM).length, [products, dist]);
+  const nearActive = !!near.pos && onlyNear && nearCount > 0;
+
   const filteredProducts = useMemo(() => products
     .filter((product) => {
       const searchLower = filters.searchTerm.toLowerCase();
@@ -148,18 +162,28 @@ const Marketplace = () => {
         (!filters.selectedCategory || product.category_id === filters.selectedCategory) &&
         product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1] &&
         (!filters.location || product.location?.toLowerCase().includes(filters.location.toLowerCase())) &&
-        (filters.minRating === 0 || (productRatings.get(product.id) || 0) >= filters.minRating)
+        (filters.minRating === 0 || (productRatings.get(product.id) || 0) >= filters.minRating) &&
+        (!nearActive || (dist.get(product.id) ?? Infinity) <= NEAR_KM)
       );
     })
     .sort((a, b) => {
       switch (filters.sortBy) {
+        case "nearest": return (dist.get(a.id) ?? Infinity) - (dist.get(b.id) ?? Infinity);
         case "price-asc": return a.price - b.price;
         case "price-desc": return b.price - a.price;
         case "rating-desc": return (productRatings.get(b.id) || 0) - (productRatings.get(a.id) || 0);
         case "oldest": return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-        default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        default: {
+          // Newest: nearby first, then featured, then most recent. Nothing nearby: closest first.
+          if (near.pos && nearCount === 0 && dist.size) return (dist.get(a.id) ?? Infinity) - (dist.get(b.id) ?? Infinity);
+          const na = (dist.get(a.id) ?? Infinity) <= NEAR_KM ? 1 : 0, nb = (dist.get(b.id) ?? Infinity) <= NEAR_KM ? 1 : 0;
+          if (na !== nb) return nb - na;
+          const fa = (a as { is_featured?: boolean }).is_featured ? 1 : 0, fb = (b as { is_featured?: boolean }).is_featured ? 1 : 0;
+          if (fa !== fb) return fb - fa;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        }
       }
-    }), [products, filters, productRatings, sellerNames]);
+    }), [products, filters, productRatings, sellerNames, dist, nearActive, near.pos, nearCount]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -209,7 +233,8 @@ const Marketplace = () => {
                     <ArrowUpDown className="w-4 h-4 mr-2" /><SelectValue placeholder="Trier par" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Plus récents</SelectItem>
+                    <SelectItem value="newest">Pertinence</SelectItem>
+                    <SelectItem value="nearest">Plus proches</SelectItem>
                     <SelectItem value="oldest">Plus anciens</SelectItem>
                     <SelectItem value="price-asc">Prix croissant</SelectItem>
                     <SelectItem value="price-desc">Prix décroissant</SelectItem>
@@ -229,10 +254,11 @@ const Marketplace = () => {
 
           <ActiveFilterPills filters={filters} categories={categories} onFiltersChange={updateFilters} />
 
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <p className="text-muted-foreground">
               <span className="font-semibold text-foreground">{filteredProducts.length}</span> produits trouvés
             </p>
+            <NearToggle near={near} active={nearActive} onlyNear={onlyNear} setOnlyNear={setOnlyNear} nearCount={nearCount} what="produit" />
           </div>
 
           {/* Products */}
@@ -269,6 +295,7 @@ const Marketplace = () => {
                     rating={productRatings.get(product.id) || 0}
                     isVerified={verifiedSellers.has(product.seller_id)}
                     promotion={promotions.get(product.seller_id)}
+                    distanceKm={dist.get(product.id)}
                   />
                 ))}
               </AnimatePresence>

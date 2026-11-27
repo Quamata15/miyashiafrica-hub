@@ -74,6 +74,20 @@ const DriverOverview = () => {
     fetchData();
   };
 
+  const declineDelivery = async (id: string) => {
+    const { error } = await supabase.rpc("decline_delivery" as any, { p_id: id, p_reason: "Refusée par le livreur" });
+    if (error) { toast.error(error.message.replace(/^.*?ERROR:\s*/i, "").replace(/\s*CONTEXT:.*$/s, "")); return; }
+    toast.success("Course refusée : l'acheteur va choisir un autre livreur");
+    fetchData();
+  };
+
+  const settleCash = async () => {
+    const { data, error } = await supabase.rpc("settle_driver_cash" as any, {});
+    if (error) { toast.error(error.message.replace(/^.*?ERROR:\s*/i, "").replace(/\s*CONTEXT:.*$/s, "")); return; }
+    toast.success(`${Number((data as any)?.paid ?? 0).toLocaleString("fr-FR")} FCFA reversés`);
+    fetchData();
+  };
+
   const updateStatus = async (id: string, status: string) => {
     const updates: any = { status };
     if (status === "picked_up") updates.picked_up_at = new Date().toISOString();
@@ -105,7 +119,7 @@ const DriverOverview = () => {
     { label: "Livraisons totales", value: driverProfile?.total_deliveries || 0, icon: Package },
     { label: "Note moyenne", value: driverProfile?.average_rating?.toFixed(1) || "0.0", icon: Star },
     { label: "Points fidélité", value: driverProfile?.loyalty_points || 0, icon: Award },
-    { label: "Gains", value: `${(driverProfile?.commission_balance || 0).toLocaleString()}F`, icon: DollarSign },
+    { label: "Espèces à reverser", value: `${(driverProfile?.commission_balance || 0).toLocaleString()}F`, icon: DollarSign },
   ];
 
   return (
@@ -217,27 +231,43 @@ const DriverOverview = () => {
           ) : (
             <div className="space-y-3">
               {pendingDeliveries.slice(0, 8).map((d) => (
-                <div key={d.id} className="flex items-center justify-between p-3 bg-muted/20 rounded-xl hover:bg-muted/40 transition-colors">
+                <div key={d.id} className="flex items-center justify-between gap-3 p-3 bg-muted/20 rounded-xl hover:bg-muted/40 transition-colors">
                   <div>
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="w-3 h-3 text-secondary" />
                       <span>{d.pickup_address || "Retrait"} → {d.delivery_address || "Livraison"}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1">
                       <span>{d.distance_km} km</span>
                       <span className="font-semibold text-foreground">{d.total_delivery_price?.toLocaleString()}F</span>
                       {d.night_surcharge && <Badge variant="outline" className="text-xs">Nuit</Badge>}
+                      {Number(d.cash_to_collect) > 0
+                        ? <Badge className="text-xs bg-amber-500/15 text-amber-600 dark:text-amber-300 border-0">Paiement à la livraison : {Number(d.cash_to_collect).toLocaleString("fr-FR")}F à encaisser</Badge>
+                        : <Badge variant="outline" className="text-xs">Payée en ligne</Badge>}
+                      {d.driver_id === user?.id && <Badge variant="secondary" className="text-xs">Demande pour vous</Badge>}
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => acceptDelivery(d.id)} className="bg-accent text-accent-foreground">
-                    Accepter
-                  </Button>
+                  <div className="flex shrink-0 flex-col sm:flex-row gap-1.5">
+                    <Button size="sm" onClick={() => acceptDelivery(d.id)} className="bg-accent text-accent-foreground">
+                      Accepter
+                    </Button>
+                    {d.driver_id === user?.id && <Button size="sm" variant="outline" onClick={() => declineDelivery(d.id)}>Refuser</Button>}
+                  </div>
                 </div>
               ))}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {Number(driverProfile?.commission_balance) > 0 && (
+        <Card className="border-amber-500/30 bg-amber-500/[0.06]">
+          <CardContent className="p-4 flex flex-wrap items-center gap-3">
+            <p className="flex-1 min-w-[14rem] text-sm">Espèces encaissées à reverser : <strong>{Number(driverProfile.commission_balance).toLocaleString("fr-FR")} FCFA</strong>. Au-delà de 150 000 FCFA, vous ne pouvez plus accepter de course en espèces.</p>
+            <Button size="sm" onClick={settleCash}>Reverser depuis mon portefeuille</Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Contract & Badge */}
       <DriverContract />

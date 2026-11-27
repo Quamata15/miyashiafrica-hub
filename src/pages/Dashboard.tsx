@@ -48,6 +48,7 @@ const ProductsList = lazy(() => import("@/components/dashboard/ProductsList"));
 const ServicesList = lazy(() => import("@/components/dashboard/ServicesList"));
 const SellerOverview = lazy(() => import("@/components/dashboard/SellerOverview"));
 const LowStockAlert = lazy(() => import("@/components/dashboard/LowStockAlert"));
+const SavingsRequests = lazy(() => import("@/components/seller/SavingsRequests"));
 const DriverOverview = lazy(() => import("@/components/dashboard/DriverOverview"));
 const DeliveryTracking = lazy(() => import("@/components/dashboard/DeliveryTracking"));
 const DriverDeliveryHistory = lazy(() => import("@/components/dashboard/DriverDeliveryHistory"));
@@ -105,7 +106,7 @@ export default function Dashboard() {
       case "acheteur:suivi": return <DeliveryTracking />;
       case "acheteur:factures": return <ReceivedInvoices />;
 
-      case "vendeur:vue": return <div className="space-y-4"><GuideProgressCard space="vendeur" onTab={onTab} /><LowStockAlert /><SellerOverview /></div>;
+      case "vendeur:vue": return <div className="space-y-4"><GuideProgressCard space="vendeur" onTab={onTab} /><SavingsRequests /><LowStockAlert /><SellerOverview /></div>;
       case "vendeur:commandes": return <Boxed title="Commandes reçues"><OrdersTable sellerId={user?.id} /></Boxed>;
       case "vendeur:produits": return <ProductsList />;
       case "vendeur:promotions": case "prestataire:promotions": return <PromotionsManager />;
