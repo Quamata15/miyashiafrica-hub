@@ -31,7 +31,7 @@ const TILES: Tile[] = [
   { key: "beaute", name: "Beauté", hint: "Karité, savons, soins", icon: Sparkles, href: "/marketplace?categorie=beaute-sante", cat: "beaute-sante" },
   { key: "services", name: "Services pro", hint: "Couture, bâtiment, artisans", icon: Wrench, href: "/services", cat: "" },
   { key: "art", name: "Art & Artisanat", hint: "Masques, sculptures, peintures", icon: Palette, href: "/marketplace?categorie=artisanat", cat: "artisanat" },
-  { key: "form", name: "Formation", hint: "Livres, fournitures, cours", icon: GraduationCap, href: "/services?categorie=formation", cat: "" },
+  { key: "form", name: "Formation", hint: "Livres, fournitures, cours", icon: GraduationCap, href: "/services?categorie=formation", cat: "", span: "md:col-span-2" },
 ];
 
 function AisleTile({ tile, index }: { tile: Tile; index: number }) {
