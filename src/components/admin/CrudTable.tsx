@@ -8,10 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Upload, Loader2 } from "lucide-react";
+import { compressImage } from "@/lib/upload";
 
 export type Field = {
-  key: string; label: string; type?: "text" | "number" | "bool" | "textarea" | "date" | "datetime" | "select";
+  key: string; label: string; type?: "text" | "number" | "bool" | "textarea" | "date" | "datetime" | "select" | "image";
+  /** For "image": the public bucket the file goes to. */
+  bucket?: string;
   options?: [string, string][]; required?: boolean; hideInList?: boolean; placeholder?: string;
   /** Turns the typed value into what is stored (e.g. an e-mail into a user id). */
   toDb?: (v: any) => Promise<any> | any;
@@ -25,6 +28,19 @@ export default function CrudTable({ table, fields, pk = "id", order, defaults = 
   const [rows, setRows] = useState<Row[]>([]);
   const [edit, setEdit] = useState<Row | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [uploading, setUploading] = useState<string | null>(null);
+  const upload = async (f: Field, input: File | undefined) => {
+    if (!input || !edit) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(input.type)) return toast.error("Image JPG, PNG ou WebP");
+    setUploading(f.key);
+    const file = await compressImage(input, 2000, 0.85);
+    const ext = file.type === "image/webp" ? "webp" : file.type === "image/png" ? "png" : "jpg";
+    const path = `${table}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage.from(f.bucket ?? "site-media").upload(path, file, { contentType: file.type });
+    setUploading(null);
+    if (error) return toast.error(error.message);
+    setEdit({ ...edit, [f.key]: supabase.storage.from(f.bucket ?? "site-media").getPublicUrl(path).data.publicUrl });
+  };
   const db = supabase as any;
 
   const load = async () => {
@@ -56,7 +72,7 @@ export default function CrudTable({ table, fields, pk = "id", order, defaults = 
     if (error) return toast.error(error.message);
     load();
   };
-  const show = (f: Field, v: any) => (f.type === "bool" ? (v ? "Oui" : "Non") : f.options ? (f.options.find(([k]) => k === v)?.[1] ?? v) : v == null || v === "" ? "—" : String(v).slice(0, 80));
+  const show = (f: Field, v: any) => (f.type === "image" ? (v ? "Image" : "—") : f.type === "bool" ? (v ? "Oui" : "Non") : f.options ? (f.options.find(([k]) => k === v)?.[1] ?? v) : v == null || v === "" ? "—" : String(v).slice(0, 80));
   const listed = fields.filter((f) => !f.hideInList);
 
   return (
@@ -89,7 +105,21 @@ export default function CrudTable({ table, fields, pk = "id", order, defaults = 
                   <label className="flex items-center justify-between gap-3"><span className="text-sm font-medium">{f.label}</span><Switch checked={!!edit[f.key]} onCheckedChange={(v) => setEdit({ ...edit, [f.key]: v })} /></label>
                 ) : (<>
                   <Label htmlFor={`f-${f.key}`}>{f.label}{f.required && " *"}</Label>
-                  {f.type === "textarea" ? <Textarea id={`f-${f.key}`} rows={8} value={edit[f.key] ?? ""} placeholder={f.placeholder} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />
+                  {f.type === "image" ? (
+                    <div className="space-y-2">
+                      {edit[f.key] && <img src={edit[f.key]} alt="" className="w-full max-h-40 rounded-lg object-cover border border-foreground/10" />}
+                      <div className="flex gap-2">
+                        <Input id={`f-${f.key}`} placeholder="https://… ou envoyez une image" value={edit[f.key] ?? ""} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />
+                        <Button type="button" variant="outline" asChild disabled={uploading === f.key}>
+                          <label className="cursor-pointer shrink-0">
+                            {uploading === f.key ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}<span className="ml-1 hidden sm:inline">Envoyer</span>
+                            <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={(e) => { upload(f, e.target.files?.[0]); e.target.value = ""; }} />
+                          </label>
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">Format large conseillé (1600 × 600 px). L'image est compressée automatiquement.</p>
+                    </div>
+                  ) : f.type === "textarea" ? <Textarea id={`f-${f.key}`} rows={8} value={edit[f.key] ?? ""} placeholder={f.placeholder} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />
                     : f.type === "select" ? <select id={`f-${f.key}`} value={edit[f.key] ?? ""} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} className="w-full h-10 rounded-md border border-input bg-background px-3">{f.options!.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select>
                     : <Input id={`f-${f.key}`} type={f.type === "number" ? "number" : f.type === "date" ? "date" : f.type === "datetime" ? "datetime-local" : "text"} placeholder={f.placeholder}
                         value={f.type === "datetime" && edit[f.key] ? String(edit[f.key]).slice(0, 16) : edit[f.key] ?? ""} onChange={(e) => setEdit({ ...edit, [f.key]: e.target.value })} />}

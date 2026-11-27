@@ -215,7 +215,7 @@ const ProductDetail = () => {
             <span className="text-foreground">{product.title}</span>
           </nav>
 
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Image Gallery */}
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -415,16 +415,16 @@ const ProductDetail = () => {
               {/* Seller Card */}
               <Card className="border-0 shadow-card">
                 <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                    <Avatar className="h-14 w-14 shrink-0">
                       <AvatarImage src={sellerProfile?.avatar_url || ""} />
                       <AvatarFallback className="bg-gradient-hero text-primary-foreground">
                         {sellerProfile?.full_name?.charAt(0) || <User className="h-6 w-6" />}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold">{sellerProfile?.full_name || "Vendeur"}</h4>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <h4 className="font-semibold truncate">{sellerProfile?.full_name || "Vendeur"}</h4>
                         {sellerProfile?.is_verified && (
                           <Badge className="bg-accent text-accent-foreground text-[10px] px-1.5 py-0">
                             <CheckCircle className="h-3 w-3 mr-0.5" />Vérifié
@@ -453,7 +453,7 @@ const ProductDetail = () => {
           {/* Reviews Section */}
           <div className="mt-12 lg:mt-16">
             <h2 className="text-2xl font-display font-bold mb-6">Avis clients</h2>
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <ReviewsList productId={product.id} sellerId={product.seller_id} />
               </div>

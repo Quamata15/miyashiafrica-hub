@@ -193,8 +193,8 @@ export function AdminContent() {
       <Card><CardHeader><CardTitle className="text-base">Bannières promotionnelles</CardTitle></CardHeader><CardContent>
         <CrudTable table="site_banners" order="sort_order" defaults={{ placement: "home_top", is_active: true, sort_order: 0 }} fields={[
           { key: "title", label: "Titre", required: true }, { key: "subtitle", label: "Sous-titre", hideInList: true },
-          { key: "placement", label: "Emplacement", type: "select", options: [["home_top", "Accueil (haut)"], ["home_middle", "Accueil (milieu)"], ["marketplace_top", "Marketplace"]] },
-          { key: "image_url", label: "Image (lien https)", hideInList: true }, { key: "cta_label", label: "Bouton", hideInList: true }, { key: "cta_href", label: "Lien du bouton", placeholder: "/marketplace?q=pagne", hideInList: true },
+          { key: "placement", label: "Emplacement", type: "select", options: [["home_top", "Accueil (haut)"], ["home_middle", "Accueil (milieu)"], ["marketplace_top", "Produits"], ["services_top", "Services"], ["freelance_top", "Freelance & emploi"]] },
+          { key: "image_url", label: "Image", type: "image", bucket: "site-media", hideInList: true }, { key: "cta_label", label: "Bouton", hideInList: true }, { key: "cta_href", label: "Lien du bouton", placeholder: "/marketplace?q=pagne", hideInList: true },
           { key: "starts_at", label: "Début", type: "datetime" }, { key: "ends_at", label: "Fin", type: "datetime" }, { key: "sort_order", label: "Ordre", type: "number", hideInList: true }, { key: "is_active", label: "Active", type: "bool" },
         ]} />
       </CardContent></Card>

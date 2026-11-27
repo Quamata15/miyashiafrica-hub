@@ -26,12 +26,16 @@ import {
 import DriverContract from "@/components/driver/DriverContract";
 import PageHero from "@/components/layout/PageHero";
 import { PHOTOS } from "@/lib/photos";
+import { useSpaces } from "@/hooks/useSpaces";
 
 const DriverRegistration = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const sp = useSpaces();
+  const driverOption = sp.option("driver");
+  const blocked = !!user && !sp.loading && !sp.has("driver") && driverOption && !driverOption.available;
   const [form, setForm] = useState({
     zone: "Lomé",
     vehicle_type: "moto",
@@ -49,36 +53,19 @@ const DriverRegistration = () => {
 
     setLoading(true);
     try {
-      // Add driver role
-      await supabase.from("user_roles").insert({
-        user_id: user.id,
-        role: "driver" as any,
+      // One call: checks the space rules (no seller account, 3 spaces at most), then saves the driver profile.
+      const { error } = await supabase.rpc("register_driver", {
+        p_zone: form.zone, p_vehicle: form.vehicle_type, p_license: form.license_number || undefined,
+        p_phone: form.phone || undefined, p_bio: form.bio || undefined,
       });
-
-      // Create driver profile
-      const { error } = await (supabase.from("driver_profiles") as any).insert({
-        user_id: user.id,
-        zone: form.zone,
-        vehicle_type: form.vehicle_type,
-        license_number: form.license_number || null,
-      });
-
-      if (error) throw error;
-
-      // Update profile with phone
-      if (form.phone) {
-        await supabase.from("profiles").upsert({
-          user_id: user.id,
-          phone: form.phone,
-          bio: form.bio || null,
-        });
-      }
+      if (error) throw new Error(error.message.replace(/^.*?ERROR:\s*/i, "").replace(/\s*CONTEXT:.*$/s, ""));
+      await sp.refresh();
 
       toast({
         title: "Inscription réussie ! 🎉",
         description: "Bienvenue dans l'équipe MIYASHI. Vous pouvez maintenant accepter des livraisons.",
       });
-      navigate("/driver-dashboard");
+      navigate("/dashboard?espace=livreur&onglet=guide");
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -188,6 +175,17 @@ const DriverRegistration = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                {sp.has("driver") && !sp.isAdmin ? (
+                  <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.06] p-4 text-sm">
+                    Vous êtes déjà livreur MIYASHI. <Button variant="link" className="px-1" onClick={() => navigate("/dashboard?espace=livreur")}>Ouvrir l'espace Livreur</Button>
+                  </div>
+                ) : blocked ? (
+                  <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-sm space-y-2">
+                    <p className="font-medium">Inscription impossible avec ce compte</p>
+                    <p className="text-muted-foreground">{driverOption?.reason}</p>
+                    <Button variant="outline" size="sm" onClick={() => navigate("/dashboard?gerer=1")}>Gérer mes espaces</Button>
+                  </div>
+                ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -278,6 +276,7 @@ const DriverRegistration = () => {
                     )}
                   </Button>
                 </form>
+                )}
               </CardContent>
             </Card>
           </motion.div>

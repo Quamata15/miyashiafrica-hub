@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { fcfa } from "@/lib/prefs";
 import { errMsg } from "@/lib/ai";
+import { useSpaces } from "@/hooks/useSpaces";
 import PageShell, { EmptyState } from "@/components/layout/PageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const LABEL: Record<string, string> = { sent: "En attente", accepted: "Accepté"
 
 export default function Quotes() {
   const { user } = useAuth();
+  const sp = useSpaces();
   const [list, setList] = useState<Q[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const load = async () => {
@@ -50,10 +52,11 @@ export default function Quotes() {
   );
   const received = list.filter((q) => q.client_id === user?.id);
   const sent = list.filter((q) => q.provider_id === user?.id);
+  const provider = sp.can("provide") || sent.length > 0;
   return (
     <PageShell title="Devis" description="Les devis s'envoient depuis la messagerie. Accepté, le montant est protégé par le séquestre.">
       <Tabs defaultValue={received.length || !sent.length ? "received" : "sent"}>
-        <TabsList><TabsTrigger value="received">Reçus ({received.length})</TabsTrigger><TabsTrigger value="sent">Envoyés ({sent.length})</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="received">Reçus ({received.length})</TabsTrigger>{provider && <TabsTrigger value="sent">Envoyés ({sent.length})</TabsTrigger>}</TabsList>
         <TabsContent value="received" className="space-y-3 mt-4">{received.length ? received.map((q) => card(q, true)) : <EmptyState icon={<FileText className="w-6 h-6" />} title="Aucun devis reçu" />}</TabsContent>
         <TabsContent value="sent" className="space-y-3 mt-4">{sent.length ? sent.map((q) => card(q, false)) : <EmptyState icon={<FileText className="w-6 h-6" />} title="Aucun devis envoyé">Dans une conversation, cliquez sur « Envoyer un devis ».</EmptyState>}</TabsContent>
       </Tabs>

@@ -8,29 +8,37 @@ import ShopSettings from "@/components/seller/ShopSettings";
 import { CsvImport, MyInvitations, ProductOptions, SellerStats, TeamPanel } from "@/components/seller/SellerTools";
 import OrdersTable from "@/components/dashboard/OrdersTable";
 import type { Tables } from "@/integrations/supabase/types";
+import { useSpaces } from "@/hooks/useSpaces";
+import { SpaceLocked } from "@/components/spaces/SpaceAccess";
 
 export default function ShopManage() {
   const { user } = useAuth();
   const [shop, setShop] = useState<Tables<"shops"> | null | undefined>(undefined);
   const [workFor, setWorkFor] = useState<{ owner_id: string; name: string }[]>([]);
   const [actingFor, setActingFor] = useState<string | null>(null);
+  const [invited, setInvited] = useState(0);
+  const sp = useSpaces();
+  const seller = sp.can("sell");
 
   useEffect(() => {
     if (!user) return;
     supabase.from("shops").select("*").eq("owner_id", user.id).maybeSingle().then(({ data }) => setShop(data));
     supabase.from("shop_members").select("shop:shops(owner_id, name)").eq("user_id", user.id).eq("status", "active")
       .then(({ data }) => setWorkFor(((data ?? []).map((d: any) => d.shop).filter(Boolean))));
+    supabase.from("shop_members").select("id", { count: "exact", head: true }).eq("user_id", user.id).eq("status", "invited").then(({ count }) => setInvited(count ?? 0));
   }, [user]);
 
-  if (!user || shop === undefined) return <PageShell title="Ma boutique"><div /></PageShell>;
-  const sellerId = actingFor ?? user.id;
+  if (!user || shop === undefined || sp.loading) return <PageShell title="Ma boutique"><div /></PageShell>;
+  // Team members manage the shops they work for without holding the seller space themselves.
+  if (!seller && !workFor.length) return <PageShell title="Ma boutique">{invited > 0 && <MyInvitations />}<SpaceLocked feature="sell" className="mt-4" /></PageShell>;
+  const sellerId = actingFor ?? (seller ? user.id : workFor[0].owner_id);
   const isOwner = sellerId === user.id;
 
   return (
     <PageShell wide title="Ma boutique" description="Votre vitrine, vos produits, vos chiffres et votre équipe."
       actions={workFor.length ? (
         <select value={sellerId} onChange={(e) => setActingFor(e.target.value === user.id ? null : e.target.value)} className="h-10 rounded-md border border-input bg-background px-3" aria-label="Boutique gérée">
-          <option value={user.id}>Ma boutique</option>{workFor.map((w) => <option key={w.owner_id} value={w.owner_id}>{w.name} (équipe)</option>)}
+          {seller && <option value={user.id}>Ma boutique</option>}{workFor.map((w) => <option key={w.owner_id} value={w.owner_id}>{w.name} (équipe)</option>)}
         </select>) : undefined}>
       <MyInvitations />
       <Tabs defaultValue={isOwner && !shop ? "settings" : "products"}>

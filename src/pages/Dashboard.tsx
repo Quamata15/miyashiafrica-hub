@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import SpaceSwitcher, { AddSpaceDialog } from "@/components/spaces/SpaceSwitcher";
 import { availableSpaces, defaultSpace, spaceOf } from "@/components/spaces/registry";
 import type { SpaceKey } from "@/components/spaces/guides";
+import { useSpaces } from "@/hooks/useSpaces";
 
 const SpaceGuide = lazy(() => import("@/components/spaces/SpaceGuide"));
 const BuyerHome = lazy(() => import("@/components/spaces/buyer/BuyerHome"));
@@ -66,20 +67,15 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { unreadCount } = useNotifications();
   const [params, setParams] = useSearchParams();
-  const [roles, setRoles] = useState<string[] | null>(null);
+  const sp = useSpaces();
+  const roles = sp.loading ? null : (sp.roles as string[]);
   const [name, setName] = useState("");
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState(params.get("gerer") === "1");
 
-  const loadRoles = async () => {
+  useEffect(() => {
     if (!user) return;
-    const [{ data: r }, { data: p }] = await Promise.all([
-      supabase.from("user_roles").select("role").eq("user_id", user.id),
-      supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle(),
-    ]);
-    setRoles((r ?? []).map((x) => x.role));
-    setName(p?.full_name?.split(" ")[0] ?? "");
-  };
-  useEffect(() => { loadRoles(); }, [user?.id]);
+    supabase.from("profiles").select("full_name").eq("user_id", user.id).maybeSingle().then(({ data: p }) => setName(p?.full_name?.split(" ")[0] ?? ""));
+  }, [user?.id]);
 
   const spaces = useMemo(() => availableSpaces(roles ?? []), [roles]);
   const stored = (() => { try { return localStorage.getItem(STORE_KEY); } catch { return null; } })();
@@ -170,15 +166,15 @@ export default function Dashboard() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => navigate("/messages")}><MessageSquare className="w-4 h-4 mr-1" />Messages</Button>
-              <Button size="sm" onClick={() => navigate("/create")}><Plus className="w-4 h-4 mr-1" />Publier</Button>
+              {sp.can("publish") && <Button size="sm" onClick={() => navigate(space === "vendeur" ? "/create?type=product" : space === "prestataire" ? "/create?type=service" : space === "recruteur" ? "/dashboard?espace=recruteur&onglet=offres&nouvelle=1" : "/create")}><Plus className="w-4 h-4 mr-1" />{space === "recruteur" ? "Publier une offre" : "Publier"}</Button>}
             </div>
           </motion.div>
 
           {roles === null ? <Skeleton className="h-9 w-full max-w-xl rounded-full" /> : <SpaceSwitcher spaces={spaces} active={space} onChange={switchSpace} onAdd={() => setAdding(true)} />}
           {user && !user.email_confirmed_at && user.email && <div className="mt-4"><EmailVerificationBanner email={user.email} /></div>}
 
-          <div className="mt-5 grid gap-6 lg:grid-cols-[230px_1fr]">
-            <aside className="lg:sticky lg:top-24 lg:self-start" aria-label={`Navigation de l'espace ${def.label}`}>
+          <div className="mt-5 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[230px_minmax(0,1fr)]">
+            <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start" aria-label={`Navigation de l'espace ${def.label}`}>
               <nav className="flex lg:flex-col gap-1 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0">
                 {def.tabs.map((t) => (
                   <button key={t.key} onClick={() => onTab(t.key)} aria-current={tab === t.key ? "page" : undefined}
@@ -202,7 +198,7 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
-      <AddSpaceDialog open={adding} onOpenChange={setAdding} roles={roles ?? []} onActivated={async (k) => { await loadRoles(); try { localStorage.setItem(STORE_KEY, k); } catch { /* storage unavailable */ } go({ espace: k, onglet: k === "acheteur" ? "vue" : "guide" }); }} />
+      <AddSpaceDialog open={adding} onOpenChange={setAdding} onActivated={(k) => { try { localStorage.setItem(STORE_KEY, k); } catch { /* storage unavailable */ } go({ espace: k, onglet: k === "acheteur" ? "vue" : "guide" }); }} />
     </div>
   );
 }

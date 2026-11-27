@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { SiteBanners, SponsoredStrip } from "@/components/home/SiteBanners";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import SEOHead from "@/components/SEOHead";
@@ -118,6 +119,9 @@ const Services = () => {
       .eq("type", "service");
 
     if (!error && data) {
+      const slug = new URLSearchParams(window.location.search).get("categorie");
+      const hit = slug ? data.find((c) => c.slug === slug) : undefined;
+      if (hit) setFilters((f) => ({ ...f, selectedCategory: hit.id }));
       setCategories(data);
     }
   };
@@ -179,6 +183,8 @@ const Services = () => {
               ))}
             </div>
           </PageHero>
+          <div className="-mx-4"><SiteBanners placement="services_top" /></div>
+          <SponsoredStrip kind="service" title="Services à la une" />
 
           {/* Filters Bar */}
           <motion.div 

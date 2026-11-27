@@ -19,7 +19,7 @@ import MarketplaceProductCard from "@/components/marketplace/MarketplaceProductC
 import MarketplacePagination from "@/components/marketplace/MarketplacePagination";
 import { ImageSearchButton, SemanticResults, VoiceSearchButton } from "@/components/search/SmartSearch";
 import { Recommendations } from "@/components/commerce/ProductTiles";
-import { SiteBanners } from "@/components/home/SiteBanners";
+import { SiteBanners, SponsoredStrip } from "@/components/home/SiteBanners";
 import type { Tables } from "@/integrations/supabase/types";
 import PageHero from "@/components/layout/PageHero";
 import { PHOTOS } from "@/lib/photos";
@@ -130,7 +130,13 @@ const Marketplace = () => {
 
   const fetchCategories = async () => {
     const { data, error } = await supabase.from("categories").select("*").eq("type", "product");
-    if (!error && data) setCategories(data);
+    if (!error && data) {
+      setCategories(data);
+      // Links from the home page aisles open the matching category (?categorie=slug).
+      const slug = searchParams.get("categorie");
+      const hit = slug ? data.find((c) => c.slug === slug) : undefined;
+      if (hit) setFilters((f) => ({ ...f, selectedCategory: hit.id }));
+    }
   };
 
   const filteredProducts = useMemo(() => products
@@ -174,6 +180,7 @@ const Marketplace = () => {
           />
 
           <div className="-mx-4"><SiteBanners placement="marketplace_top" /></div>
+          <SponsoredStrip kind="product" title="Produits à la une" />
 
           {/* Filters Bar */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}

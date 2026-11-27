@@ -143,7 +143,7 @@ const ServiceDetail = () => {
         <Header />
         <main className="flex-1 pt-24 pb-12">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-4">
                 <Skeleton className="aspect-video rounded-2xl" />
                 <Skeleton className="h-10 w-3/4" />
@@ -207,7 +207,7 @@ const ServiceDetail = () => {
             <span className="text-foreground">{service.title}</span>
           </nav>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-[minmax(0,1fr)] lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Image Gallery */}

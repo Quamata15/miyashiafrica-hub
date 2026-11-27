@@ -15,6 +15,7 @@ import ChatMessageBubble from "@/components/chat/ChatMessageBubble";
 import ChatAttachmentMenu from "@/components/chat/ChatAttachmentMenu";
 import { QuickReplies, VideoCallButton, VoiceRecorder } from "@/components/chat/ChatExtras";
 import { QuoteDialog } from "@/components/commerce/Services";
+import { useSpaces } from "@/hooks/useSpaces";
 import { usePrefs } from "@/lib/prefs";
 import EmojiPicker from "@/components/chat/EmojiPicker";
 import {
@@ -28,6 +29,7 @@ import { toast } from "sonner";
 const Messages = () => {
   const { flag } = usePrefs();
   const { user, loading: authLoading } = useAuth();
+  const sp = useSpaces();
   const navigate = useNavigate();
   const {
     conversations, messages, selectedConversation,
@@ -205,7 +207,7 @@ const Messages = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         {flag("video_calls") && <VideoCallButton send={sendMessage} />}
-                        {flag("quotes") && user && <QuoteDialog clientId={selectedConversation.participant_1 === user.id ? selectedConversation.participant_2 : selectedConversation.participant_1} />}
+                        {flag("quotes") && user && sp.can("provide") && <QuoteDialog clientId={selectedConversation.participant_1 === user.id ? selectedConversation.participant_2 : selectedConversation.participant_1} />}
                       </div>
                     </div>
 

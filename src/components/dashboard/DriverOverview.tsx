@@ -67,7 +67,9 @@ const DriverOverview = () => {
 
   const acceptDelivery = async (id: string) => {
     if (!user) return;
-    await supabase.from("delivery_requests").update({ driver_id: user.id, status: "accepted", accepted_at: new Date().toISOString() }).eq("id", id);
+    // Through the database: checks the driver space, availability, and that the course is still free.
+    const { error } = await supabase.rpc("accept_delivery", { p_id: id });
+    if (error) { toast.error(error.message.replace(/^.*?ERROR:\s*/i, "").replace(/\s*CONTEXT:.*$/s, "")); return; }
     toast.success("Livraison acceptée !");
     fetchData();
   };

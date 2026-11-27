@@ -20,11 +20,12 @@ import {
   X, Eye, MousePointer, ShoppingCart, ArrowLeft, Sparkles, Globe
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSpaces, type Feature } from "@/hooks/useSpaces";
 
 const boostTypes = [
   { id: "product", label: "Produit", icon: Package, desc: "Mettez un produit en avant dans le marketplace" },
   { id: "service", label: "Service", icon: Wrench, desc: "Boostez la visibilité d'un service" },
-  { id: "profile", label: "Profil / Boutique", icon: User, desc: "Augmentez la visibilité de votre profil vendeur" },
+  { id: "profile", label: "Mon profil", icon: User, desc: "Mettez votre profil public en avant (boutique, prestataire, recruteur ou freelance)" },
   { id: "freelance", label: "Profil Freelance", icon: Briefcase, desc: "Apparaissez en tête des résultats freelance" },
   { id: "job", label: "Offre d'emploi", icon: Briefcase, desc: "Touchez plus de candidats qualifiés" },
 ];
@@ -37,8 +38,13 @@ const periods = [
   { id: "annual", label: "12 mois", price: 25000, days: 365 },
 ];
 
+const BOOST_FEATURE: Record<string, Feature> = { product: "sell", service: "provide", profile: "boost", freelance: "apply", job: "recruit" };
+
 const Boost = () => {
   const { user } = useAuth();
+  const sp = useSpaces();
+  // Only what the account's spaces can promote.
+  const allowedTypes = boostTypes.filter((t) => sp.can(BOOST_FEATURE[t.id]));
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -235,7 +241,7 @@ const Boost = () => {
                       <CardDescription>Choisissez le type de contenu à mettre en avant</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {boostTypes.map(type => {
+                      {allowedTypes.map(type => {
                         const Icon = type.icon;
                         return (
                           <div

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { fcfa } from "@/lib/prefs";
 import { errMsg } from "@/lib/ai";
+import { useSpaces } from "@/hooks/useSpaces";
 import PageShell, { EmptyState } from "@/components/layout/PageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ const LABEL: Record<string, string> = { pending: "En attente", countered: "Contr
 
 export default function Offers() {
   const { user } = useAuth();
+  const sp = useSpaces();
   const navigate = useNavigate();
   const [offers, setOffers] = useState<Offer[]>([]);
   const [counter, setCounter] = useState<Record<string, string>>({});
@@ -68,10 +70,11 @@ export default function Offers() {
     </CardContent></Card>
   );
 
+  const seller = sp.can("sell") || received.length > 0;
   return (
     <PageShell title="Offres et marchandage" description="Proposez votre prix, le vendeur accepte, refuse ou fait une contre-offre.">
-      <Tabs defaultValue={received.some((o) => o.status === "pending") ? "received" : "mine"}>
-        <TabsList><TabsTrigger value="mine">Mes offres ({mine.length})</TabsTrigger><TabsTrigger value="received">Reçues ({received.length})</TabsTrigger></TabsList>
+      <Tabs defaultValue={seller && received.some((o) => o.status === "pending") ? "received" : "mine"}>
+        <TabsList><TabsTrigger value="mine">Mes offres ({mine.length})</TabsTrigger>{seller && <TabsTrigger value="received">Reçues ({received.length})</TabsTrigger>}</TabsList>
         <TabsContent value="mine" className="space-y-3 mt-4">{mine.length ? mine.map((o) => row(o, false)) : <EmptyState icon={<HandCoins className="w-6 h-6" />} title="Aucune offre envoyée">Sur une fiche produit, cliquez sur « Faire une offre ».</EmptyState>}</TabsContent>
         <TabsContent value="received" className="space-y-3 mt-4">{received.length ? received.map((o) => row(o, true)) : <EmptyState icon={<HandCoins className="w-6 h-6" />} title="Aucune offre reçue" />}</TabsContent>
       </Tabs>

@@ -28,18 +28,15 @@ import KYCVerification from "@/components/kyc/KYCVerification";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import PushNotificationToggle from "@/components/notifications/PushNotificationToggle";
 import ReferralCard from "@/components/referral/ReferralCard";
+import { useSpaces, ROLE_LABEL } from "@/hooks/useSpaces";
+import { AddSpaceDialog } from "@/components/spaces/SpaceSwitcher";
+import { SPACES } from "@/components/spaces/registry";
+import { compressImage } from "@/lib/upload";
 
 type ProfileType = Tables<"profiles">;
 type FreelanceProfile = Tables<"freelance_profiles">;
-type UserRole = "buyer" | "seller" | "provider" | "freelance" | "employer";
-
-const ROLE_CONFIG: Record<string, { label: string; icon: typeof User; desc: string }> = {
-  buyer: { label: "Acheteur", icon: ShoppingBag, desc: "Acheter des produits et services" },
-  seller: { label: "Vendeur", icon: Package, desc: "Vendre vos produits" },
-  provider: { label: "Prestataire", icon: Briefcase, desc: "Proposer vos services" },
-  freelance: { label: "Freelance", icon: User, desc: "Travailler en indépendant" },
-  employer: { label: "Recruteur", icon: TrendingUp, desc: "Publier des offres d'emploi" },
-};
+const USERNAME = /^[a-z0-9][a-z0-9._]{2,29}$/;
+const clean = (m: string) => m.replace(/^.*?ERROR:\s*/i, "").replace(/\s*CONTEXT:.*$/s, "");
 
 const Profile = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -53,12 +50,14 @@ const Profile = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profile, setProfile] = useState<Partial<ProfileType>>({});
   const [freelanceProfile, setFreelanceProfile] = useState<Partial<FreelanceProfile>>({});
-  const [userRoles, setUserRoles] = useState<string[]>([]);
+  const sp = useSpaces();
+  const userRoles = sp.roles.filter((r) => (r as string) !== "admin");
+  const [managing, setManaging] = useState(false);
   const [stats, setStats] = useState({ orders: 0, products: 0, services: 0, reviews: 0 });
 
   useEffect(() => {
     if (user) {
-      Promise.all([fetchProfile(), fetchFreelanceProfile(), fetchUserRoles(), fetchStats()]);
+      Promise.all([fetchProfile(), fetchFreelanceProfile(), fetchStats()]);
     }
   }, [user]);
 
@@ -74,12 +73,6 @@ const Profile = () => {
     if (data) setFreelanceProfile(data);
   };
 
-  const fetchUserRoles = async () => {
-    if (!user) return;
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id);
-    if (data) setUserRoles(data.map(r => r.role));
-  };
-
   const fetchStats = async () => {
     if (!user) return;
     const [o, p, s, r] = await Promise.all([
@@ -93,13 +86,20 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     if (!user) return;
+    const fullName = (profile.full_name ?? "").trim().replace(/\s+/g, " ");
+    const username = ((profile as any).username ?? "").trim().toLowerCase();
+    if (fullName.length < 2 || fullName.length > 80) { toast({ title: "Nom invalide", description: "Entre 2 et 80 caractères.", variant: "destructive" }); return; }
+    if (username && !USERNAME.test(username)) { toast({ title: "Pseudonyme invalide", description: "3 à 30 caractères : lettres minuscules, chiffres, point ou tiret bas.", variant: "destructive" }); return; }
     setSaving(true);
-    const { error } = await supabase.from("profiles").upsert({
-      user_id: user.id, full_name: profile.full_name, username: (profile as any).username,
-      phone: profile.phone, location: profile.location, bio: profile.bio,
-    });
-    toast(error ? { title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" }
-                : { title: "Succès", description: "Profil mis à jour" });
+    // The profile row is created at sign-up: update it (an upsert without its id inserted a duplicate and always failed).
+    const { error } = await supabase.from("profiles").update({
+      full_name: fullName, username: username || null,
+      phone: profile.phone?.trim() || null, location: profile.location?.trim() || null, bio: profile.bio?.trim() || null,
+    }).eq("user_id", user.id);
+    const taken = error?.code === "23505";
+    toast(error ? { title: taken ? "Pseudonyme déjà pris" : "Erreur", description: taken ? "Choisissez-en un autre." : clean(error.message), variant: "destructive" }
+                : { title: "Profil mis à jour", description: "Votre nouveau nom apparaît partout sur MIYASHI." });
+    if (!error) { setProfile({ ...profile, full_name: fullName, username: username || null } as Partial<ProfileType>); window.dispatchEvent(new Event("miyashi:profile-updated")); }
     setSaving(false);
   };
 
@@ -110,36 +110,31 @@ const Profile = () => {
       user_id: user.id, title: freelanceProfile.title, skills: freelanceProfile.skills,
       hourly_rate: freelanceProfile.hourly_rate, experience_years: freelanceProfile.experience_years,
       availability: freelanceProfile.availability,
-    });
-    toast(error ? { title: "Erreur", description: "Impossible de sauvegarder", variant: "destructive" }
+    }, { onConflict: "user_id" });
+    toast(error ? { title: "Erreur", description: clean(error.message), variant: "destructive" }
                 : { title: "Succès", description: "Profil freelance mis à jour" });
     setSaving(false);
   };
 
-  const handleAddRole = async (role: UserRole) => {
-    if (!user || userRoles.includes(role)) return;
-    const { error } = await supabase.from("user_roles").insert({ user_id: user.id, role });
-    if (!error) {
-      setUserRoles([...userRoles, role]);
-      toast({ title: "Rôle ajouté", description: `Vous êtes maintenant ${ROLE_CONFIG[role]?.label}` });
-    }
-  };
-
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+    const raw = e.target.files?.[0];
+    if (!raw || !user) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(raw.type)) { toast({ title: "Format non pris en charge", description: "JPG, PNG ou WebP.", variant: "destructive" }); return; }
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop();
-    const path = `${user.id}/avatar.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+    const file = await compressImage(raw, 800, 0.85);
+    const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
     if (uploadError) {
-      toast({ title: "Erreur", description: "Impossible d'uploader la photo", variant: "destructive" });
+      toast({ title: "Erreur", description: clean(uploadError.message), variant: "destructive" });
     } else {
+      // A new file name each time, so browsers and caches show the new photo at once.
       const { data: { publicUrl } } = supabase.storage.from("avatars").getPublicUrl(path);
-      await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("user_id", user.id);
-      setProfile({ ...profile, avatar_url: publicUrl });
-      toast({ title: "Photo mise à jour" });
+      const { error } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("user_id", user.id);
+      if (error) toast({ title: "Erreur", description: clean(error.message), variant: "destructive" });
+      else { setProfile({ ...profile, avatar_url: publicUrl }); toast({ title: "Photo mise à jour" }); window.dispatchEvent(new Event("miyashi:profile-updated")); }
     }
+    e.target.value = "";
     setUploadingAvatar(false);
   };
 
@@ -177,7 +172,7 @@ const Profile = () => {
   ].filter(s => s.show);
 
   // Only show freelance tab if user has freelance role
-  const showFreelance = userRoles.includes("freelance") || freelanceProfile.title;
+  const showFreelance = sp.can("apply");
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
@@ -187,8 +182,8 @@ const Profile = () => {
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Profile Header - Compact */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-card rounded-2xl shadow-card p-5 mb-6">
-            <div className="flex items-center gap-4">
-              <div className="relative">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="relative shrink-0">
                 <Avatar className="h-16 w-16 border-3 border-primary/20">
                   <AvatarImage src={profile.avatar_url || ""} />
                   <AvatarFallback className="bg-gradient-hero text-primary-foreground text-xl font-bold">
@@ -202,9 +197,9 @@ const Profile = () => {
                   </label>
                 </Button>
               </div>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-[180px]">
                 <div className="flex items-center gap-2 mb-1">
-                  <h1 className="text-lg font-display font-bold truncate">{profile.full_name || "Utilisateur"}</h1>
+                  <h1 className="text-lg font-display font-bold break-words">{profile.full_name || "Utilisateur"}</h1>
                   {profile.is_verified && <Badge className="bg-accent text-accent-foreground text-xs"><CheckCircle className="h-3 w-3 mr-0.5" />Vérifié</Badge>}
                 </div>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
@@ -213,15 +208,16 @@ const Profile = () => {
                   {profile.location && <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{profile.location}</span>}
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
+                  {sp.isAdmin && <Badge className="text-xs">Administrateur</Badge>}
                   {userRoles.map(role => (
-                    <Badge key={role} variant="outline" className="text-xs capitalize">
-                      {ROLE_CONFIG[role]?.label || role}
+                    <Badge key={role} variant="outline" className="text-xs">
+                      {ROLE_LABEL[role] || role}
                     </Badge>
                   ))}
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
-                <LayoutDashboard className="h-4 w-4 mr-1" /> Dashboard
+              <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => navigate("/dashboard")}>
+                <LayoutDashboard className="h-4 w-4 mr-1" /> Tableau de bord
               </Button>
             </div>
           </motion.div>
@@ -250,7 +246,7 @@ const Profile = () => {
                 <TabsTrigger value="personal"><User className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Personnel</span></TabsTrigger>
                 {showFreelance && <TabsTrigger value="freelance"><Briefcase className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Freelance</span></TabsTrigger>}
                 <TabsTrigger value="verification"><Shield className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Vérification</span></TabsTrigger>
-                <TabsTrigger value="roles"><Star className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Rôles</span></TabsTrigger>
+                <TabsTrigger value="roles"><Star className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Espaces</span></TabsTrigger>
                 <TabsTrigger value="settings"><Settings className="h-4 w-4 mr-1.5" /><span className="hidden sm:inline">Paramètres</span></TabsTrigger>
               </TabsList>
 
@@ -343,36 +339,29 @@ const Profile = () => {
                 <KYCVerification />
               </TabsContent>
 
-              {/* Roles Tab */}
+              {/* Spaces Tab */}
               <TabsContent value="roles">
                 <Card className="border-0 shadow-card">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-lg">Gérer vos rôles</CardTitle>
-                    <CardDescription className="text-sm">Activez des rôles pour accéder à plus de fonctionnalités</CardDescription>
+                    <CardTitle className="text-lg">Vos espaces</CardTitle>
+                    <CardDescription className="text-sm">
+                      {sp.isAdmin ? "Compte administrateur : tous les espaces sont ouverts." : `L'espace Acheteur est toujours inclus, plus jusqu'à ${sp.limit} espaces professionnels compatibles (${sp.used}/${sp.limit} utilisés).`}
+                    </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-3">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {(Object.keys(ROLE_CONFIG) as UserRole[]).map(role => {
-                        const config = ROLE_CONFIG[role];
-                        const isActive = userRoles.includes(role);
-                        return (
-                          <Card key={role} className={`cursor-pointer transition-all border-2 ${isActive ? "border-primary bg-primary/5" : "border-transparent hover:border-primary/30"}`} onClick={() => !isActive && handleAddRole(role)}>
-                            <CardContent className="p-4 flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isActive ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                                <config.icon className="h-5 w-5" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="font-medium text-sm">{config.label}</p>
-                                <p className="text-xs text-muted-foreground">{config.desc}</p>
-                              </div>
-                              {isActive && <CheckCircle className="h-5 w-5 text-primary shrink-0" />}
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
+                      {SPACES.filter((x) => x.activation === "always" || sp.has(x.role)).map((x) => (
+                        <button key={x.key} onClick={() => navigate(`/dashboard?espace=${x.key}`)} className="text-left rounded-xl border-2 border-primary/30 bg-primary/5 p-4 flex items-center gap-3 hover:border-primary/60 transition-colors">
+                          <span className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center"><x.icon className="h-5 w-5" /></span>
+                          <span className="flex-1 min-w-0"><span className="block font-medium text-sm">{x.label}</span><span className="block text-xs text-muted-foreground truncate">{x.tagline}</span></span>
+                          <CheckCircle className="h-5 w-5 text-primary shrink-0" />
+                        </button>
+                      ))}
                     </div>
+                    <Button variant="outline" onClick={() => setManaging(true)}>Ouvrir ou fermer un espace</Button>
                   </CardContent>
                 </Card>
+                <AddSpaceDialog open={managing} onOpenChange={setManaging} onActivated={(k) => navigate(`/dashboard?espace=${k}`)} />
               </TabsContent>
 
               {/* Settings Tab */}

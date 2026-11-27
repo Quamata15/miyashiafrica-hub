@@ -12,12 +12,16 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { useSpaces } from "@/hooks/useSpaces";
 import { PHOTOS } from "@/lib/photos";
 import { AISLE_PHOTOS } from "@/lib/aislePhotos";
 
 const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
   const { t } = useT();
   const { user } = useAuth();
+  const sp = useSpaces();
+  // Visitors see every door; signed-in users only the tools of their spaces.
+  const show = (f: Parameters<typeof sp.can>[0]) => !user || sp.can(f);
 
   const exploreLinks = [
     { label: "Tous les produits", href: "/marketplace", icon: ShoppingBag },
@@ -33,13 +37,14 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
     { label: "Portefeuille", href: "/wallet", icon: Wallet },
     { label: "Mes Favoris", href: "/favorites", icon: Heart },
     { label: "Messages", href: "/messages", icon: MessageSquare },
-    { label: "Booster", href: "/boost", icon: Star },
+    ...(show("boost") ? [{ label: "Booster", href: "/boost", icon: Star }] : []),
   ];
 
   const proLinks = [
-    { label: "Créer une annonce", href: "/create" },
-    { label: "Espace Prestataire", href: "/provider-space", icon: Briefcase },
-    { label: "Espace Livreur", href: "/driver-dashboard", icon: Truck },
+    ...(show("publish") ? [{ label: "Créer une annonce", href: "/create" }] : []),
+    ...(show("provide") ? [{ label: "Espace Prestataire", href: user ? "/dashboard?espace=prestataire" : "/auth", icon: Briefcase }] : []),
+    ...(show("deliver") ? [{ label: "Espace Livreur", href: user ? "/dashboard?espace=livreur" : "/driver-registration", icon: Truck }] : []),
+    ...(user ? [{ label: "Gérer mes espaces", href: "/dashboard?gerer=1" }] : []),
     { label: "Litiges", href: "/disputes", icon: Shield },
   ];
 

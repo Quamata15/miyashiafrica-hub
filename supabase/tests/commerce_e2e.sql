@@ -9,6 +9,7 @@ BEGIN
     (s, 'seller_t@x.test', '00000000-0000-0000-0000-000000000000','authenticated','authenticated', now() - interval '30 days'),
     (c, 'buyer2_t@x.test', '00000000-0000-0000-0000-000000000000','authenticated','authenticated', now() - interval '30 days');
   UPDATE wallets SET balance = 500000 WHERE user_id IN (b, c);
+  INSERT INTO user_roles (user_id, role) VALUES (s, 'seller'), (s, 'provider');
   INSERT INTO products (seller_id, title, price, stock, is_active) VALUES (s, 'Pagne wax test', 10000, 20, true) RETURNING id INTO p;
   INSERT INTO product_variants (product_id, label, price, stock) VALUES (p, 'Rouge / 6 yards', 12000, 30) RETURNING id INTO v;
   INSERT INTO product_price_tiers (product_id, min_qty, unit_price) VALUES (p, 3, 11000);

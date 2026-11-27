@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { errMsg } from "@/lib/ai";
+import { useSpaces } from "@/hooks/useSpaces";
 import PageShell, { EmptyState } from "@/components/layout/PageShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const when = (iso: string) => new Date(iso).toLocaleString("fr-FR", { weekday: "
 
 export default function Bookings() {
   const { user } = useAuth();
+  const sp = useSpaces();
   const [list, setList] = useState<B[]>([]);
   const load = () => user && supabase.from("bookings").select("*, service:services(title)").or(`client_id.eq.${user.id},provider_id.eq.${user.id}`).order("starts_at", { ascending: false }).limit(200)
     .then(({ data }) => setList((data ?? []) as unknown as B[]));
@@ -41,13 +43,14 @@ export default function Bookings() {
   );
   const mine = list.filter((b) => b.client_id === user?.id);
   const agenda = list.filter((b) => b.provider_id === user?.id);
+  const provider = sp.can("provide");
   return (
-    <PageShell title="Rendez-vous" description="Vos réservations et, si vous êtes prestataire, votre agenda.">
+    <PageShell title="Rendez-vous" description={provider ? "Vos réservations, votre agenda et vos disponibilités." : "Vos réservations de services."}>
       <Tabs defaultValue="mine">
-        <TabsList><TabsTrigger value="mine">Mes réservations</TabsTrigger><TabsTrigger value="agenda">Mon agenda</TabsTrigger><TabsTrigger value="hours">Mes disponibilités</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="mine">Mes réservations</TabsTrigger>{(provider || agenda.length > 0) && <TabsTrigger value="agenda">Mon agenda</TabsTrigger>}{provider && <TabsTrigger value="hours">Mes disponibilités</TabsTrigger>}</TabsList>
         <TabsContent value="mine" className="space-y-3 mt-4">{mine.length ? mine.map((b) => card(b, false)) : <EmptyState icon={<CalendarClock className="w-6 h-6" />} title="Aucune réservation">Choisissez un service et réservez un créneau. <Link to="/services" className="text-primary underline">Voir les services</Link></EmptyState>}</TabsContent>
         <TabsContent value="agenda" className="space-y-3 mt-4">{agenda.length ? agenda.map((b) => card(b, true)) : <EmptyState icon={<CalendarClock className="w-6 h-6" />} title="Aucun rendez-vous pris">Définissez vos disponibilités pour recevoir des réservations.</EmptyState>}</TabsContent>
-        <TabsContent value="hours" className="mt-4"><AvailabilityEditor /></TabsContent>
+        {provider && <TabsContent value="hours" className="mt-4"><AvailabilityEditor /></TabsContent>}
       </Tabs>
     </PageShell>
   );

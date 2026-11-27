@@ -10,6 +10,8 @@ import { FavoritesProvider } from "@/hooks/useFavorites";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { SpacesProvider } from "@/hooks/useSpaces";
+import { RequireSpace } from "@/components/spaces/SpaceAccess";
 import { PrefsProvider } from "@/lib/prefs";
 import { I18nProvider } from "@/lib/i18n";
 import CookieConsent from "@/components/layout/CookieConsent";
@@ -85,6 +87,7 @@ const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <SpacesProvider>
         <PrefsProvider>
         <I18nProvider>
         <CartProvider>
@@ -135,8 +138,8 @@ const App = () => (
                     <Route path="/select-driver" element={<ProtectedRoute><DriverSelection /></ProtectedRoute>} />
                     <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
                     <Route path="/provider-space" element={<ProtectedRoute><ProviderSpace /></ProtectedRoute>} />
-                    <Route path="/boost" element={<ProtectedRoute><Boost /></ProtectedRoute>} />
-                    <Route path="/campaigns" element={<ProtectedRoute><Campaigns /></ProtectedRoute>} />
+                    <Route path="/boost" element={<ProtectedRoute><RequireSpace feature="boost"><Boost /></RequireSpace></ProtectedRoute>} />
+                    <Route path="/campaigns" element={<ProtectedRoute><RequireSpace feature="boost"><Campaigns /></RequireSpace></ProtectedRoute>} />
                     <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
                     <Route path="/order-success" element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} />
                     <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
@@ -166,6 +169,7 @@ const App = () => (
         </CartProvider>
         </I18nProvider>
         </PrefsProvider>
+        </SpacesProvider>
       </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>

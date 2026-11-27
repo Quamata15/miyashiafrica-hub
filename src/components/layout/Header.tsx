@@ -31,14 +31,20 @@ import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/cart/CartDrawer";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import GlobalSearch from "@/components/search/GlobalSearch";
+import { useSpaces } from "@/hooks/useSpaces";
+import { SPACES } from "@/components/spaces/registry";
 
 const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   const { t } = useT();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [unreadMessages, setUnreadMessages] = useState(0);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [me, setMe] = useState<{ full_name: string | null; avatar_url: string | null } | null>(null);
   const { user, signOut, loading } = useAuth();
+  const sp = useSpaces();
+  const isAdmin = sp.isAdmin;
+  // Only the spaces the account holds, and only the tools those spaces use.
+  const mySpaces = SPACES.filter((s) => s.activation !== "always" && sp.has(s.role));
   const { unreadCount: unreadNotifications } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,12 +56,13 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
   }, []);
 
   useEffect(() => {
-    if (user) {
-      fetchUnreadMessages();
-      checkAdminRole();
-    } else {
-      setIsAdmin(false);
-    }
+    if (user) fetchUnreadMessages();
+    if (!user) { setMe(null); return; }
+    const loadMe = () => supabase.from("profiles").select("full_name, avatar_url").eq("user_id", user.id).maybeSingle().then(({ data }) => setMe(data));
+    loadMe();
+    // The profile page announces a new name or photo so the header follows at once.
+    window.addEventListener("miyashi:profile-updated", loadMe);
+    return () => window.removeEventListener("miyashi:profile-updated", loadMe);
   }, [user]);
 
   useEffect(() => {
@@ -73,12 +80,6 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
     if (!user) return;
     const { count } = await supabase.from("messages").select("id", { count: "exact", head: true }).eq("receiver_id", user.id).eq("is_read", false);
     setUnreadMessages(count || 0);
-  };
-
-  const checkAdminRole = async () => {
-    if (!user) return;
-    const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin");
-    setIsAdmin(!!(data && data.length > 0));
   };
 
   // Public nav — always visible
@@ -182,25 +183,27 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                   )}
                 </Button>
 
-                <Button variant="default" size="sm" onClick={() => navigate("/create")} className="rounded-xl shadow-md bg-gradient-hero ml-1">
-                  {t("+ Créer")}
-                </Button>
+                {sp.can("publish") && (
+                  <Button variant="default" size="sm" onClick={() => navigate("/create")} className="rounded-xl shadow-md bg-gradient-hero ml-1">
+                    {t("+ Créer")}
+                  </Button>
+                )}
 
                 {/* Profile dropdown — only when logged in */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-9 w-9 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all ml-1">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src="" />
+                        <AvatarImage src={me?.avatar_url ?? ""} alt="" className="object-cover" />
                         <AvatarFallback className="bg-gradient-hero text-primary-foreground font-bold text-sm">
-                          {user.email?.charAt(0).toUpperCase() || "U"}
+                          {(me?.full_name || user.email || "U").charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-60 p-2" align="end">
                     <DropdownMenuLabel className="font-normal">
-                      <p className="text-sm font-medium">{t("Mon Compte")}</p>
+                      <p className="text-sm font-medium truncate">{me?.full_name || t("Mon Compte")}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
@@ -229,9 +232,11 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
-                      <DropdownMenuItem onClick={() => navigate("/shop/manage")} className="cursor-pointer">
-                        <Store className="mr-2 h-4 w-4" /> {t("Ma boutique")}
-                      </DropdownMenuItem>
+                      {sp.can("sell") && (
+                        <DropdownMenuItem onClick={() => navigate("/shop/manage")} className="cursor-pointer">
+                          <Store className="mr-2 h-4 w-4" /> {t("Ma boutique")}
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem onClick={() => navigate("/settings")} className="cursor-pointer">
                         <Settings2 className="mr-2 h-4 w-4" /> {t("Préférences")}
                       </DropdownMenuItem>
@@ -247,17 +252,22 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                         </DropdownMenuSubTrigger>
                         <DropdownMenuPortal>
                           <DropdownMenuSubContent>
-                            <DropdownMenuItem onClick={() => navigate("/provider-space")} className="cursor-pointer">
-                              <Briefcase className="mr-2 h-4 w-4" /> {t("Prestataire")}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate("/driver-dashboard")} className="cursor-pointer">
-                              <Truck className="mr-2 h-4 w-4" /> {t("Livreur")}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate("/boost")} className="cursor-pointer">
-                              <Star className="mr-2 h-4 w-4" /> {t("Booster")}
-                            </DropdownMenuItem>
+                            {mySpaces.map((s) => (
+                              <DropdownMenuItem key={s.key} onClick={() => navigate(`/dashboard?espace=${s.key}`)} className="cursor-pointer">
+                                <s.icon className="mr-2 h-4 w-4" /> {t(s.label)}
+                              </DropdownMenuItem>
+                            ))}
+                            {sp.can("boost") && (
+                              <DropdownMenuItem onClick={() => navigate("/boost")} className="cursor-pointer">
+                                <Star className="mr-2 h-4 w-4" /> {t("Booster")}
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onClick={() => navigate("/pickup-partner")} className="cursor-pointer">
                               <MapPin className="mr-2 h-4 w-4" /> {t("Point relais")}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => navigate("/dashboard?gerer=1")} className="cursor-pointer">
+                              <Settings className="mr-2 h-4 w-4" /> {t("Gérer mes espaces")}
                             </DropdownMenuItem>
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
@@ -406,7 +416,7 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
                     <MobileMenuItem icon={Rss} label="Fil d'actualité" onClick={() => go("/feed")} />
                     <MobileMenuItem icon={User} label="Mon Profil" onClick={() => go("/profile")} />
                     <MobileMenuItem icon={Wallet} label="Portefeuille" onClick={() => go("/wallet")} />
-                    <MobileMenuItem icon={Store} label="Ma boutique" onClick={() => go("/shop/manage")} />
+                    {sp.can("sell") && <MobileMenuItem icon={Store} label="Ma boutique" onClick={() => go("/shop/manage")} />}
                     <MobileMenuItem icon={ShoppingBag} label="Offres et marchandage" onClick={() => go("/offers")} />
                     <MobileMenuItem icon={Wallet} label="Épargne" onClick={() => go("/savings")} />
                     <MobileMenuItem icon={Briefcase} label="Rendez-vous et devis" onClick={() => go("/bookings")} />
@@ -419,14 +429,16 @@ const Header = forwardRef<HTMLElement>(function Header(_props, ref) {
 
                   {/* Espaces pro */}
                   <div className="pt-3 border-t border-border mt-3">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Espaces Pro</p>
-                    <MobileMenuItem icon={Briefcase} label="Espace Prestataire" onClick={() => go("/provider-space")} />
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 pt-1 pb-2">Mes espaces</p>
+                    {mySpaces.map((s) => <MobileMenuItem key={s.key} icon={s.icon} label={`Espace ${s.label}`} onClick={() => go(`/dashboard?espace=${s.key}`)} />)}
+                    {sp.can("boost") && <MobileMenuItem icon={Star} label="Booster" onClick={() => go("/boost")} />}
                     <MobileMenuItem icon={MapPin} label="Point relais" onClick={() => go("/pickup-partner")} />
-                    <MobileMenuItem icon={Truck} label="Espace Livreur" onClick={() => go("/driver-dashboard")} />
-                    <MobileMenuItem icon={Star} label="Booster" onClick={() => go("/boost")} />
-                    <Button variant="default" size="sm" onClick={() => go("/create")} className="w-full rounded-xl shadow-md bg-gradient-hero mt-2">
-                      + Créer une annonce
-                    </Button>
+                    <MobileMenuItem icon={Settings} label="Gérer mes espaces" onClick={() => go("/dashboard?gerer=1")} />
+                    {sp.can("publish") && (
+                      <Button variant="default" size="sm" onClick={() => go("/create")} className="w-full rounded-xl shadow-md bg-gradient-hero mt-2">
+                        + Créer une annonce
+                      </Button>
+                    )}
                   </div>
 
                   {/* Admin */}

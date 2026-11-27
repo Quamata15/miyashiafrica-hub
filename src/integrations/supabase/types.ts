@@ -3682,6 +3682,24 @@ export type Database = {
           },
         ]
       }
+      role_conflicts: {
+        Row: {
+          reason: string
+          role_a: Database["public"]["Enums"]["app_role"]
+          role_b: Database["public"]["Enums"]["app_role"]
+        }
+        Insert: {
+          reason: string
+          role_a: Database["public"]["Enums"]["app_role"]
+          role_b: Database["public"]["Enums"]["app_role"]
+        }
+        Update: {
+          reason?: string
+          role_a?: Database["public"]["Enums"]["app_role"]
+          role_b?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
       saved_candidates: {
         Row: {
           candidate_id: string
@@ -4455,6 +4473,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_role_events: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: number
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: never
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: never
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -4778,6 +4823,7 @@ export type Database = {
       _finalize_checkout: { Args: { p_checkout_id: string }; Returns: Json }
       _place_order: { Args: { p: Json; p_buyer: string }; Returns: Json }
       _settle_group_buy: { Args: { p_id: string }; Returns: undefined }
+      accept_delivery: { Args: { p_id: string }; Returns: Json }
       accept_quote: {
         Args: { p_address?: string; p_quote_id: string }
         Returns: Json
@@ -4873,6 +4919,10 @@ export type Database = {
         Returns: undefined
       }
       cancel_savings: { Args: { p_goal_id: string }; Returns: undefined }
+      check_boost_target: {
+        Args: { p_target: string; p_type: string }
+        Returns: undefined
+      }
       compute_match: {
         Args: {
           p_answers: Json
@@ -4941,6 +4991,10 @@ export type Database = {
       }
       credit_wallet_from_fedapay: {
         Args: { p_fedapay_id: number; p_mode?: string; p_status: string }
+        Returns: Json
+      }
+      deactivate_own_role: {
+        Args: { p_role: Database["public"]["Enums"]["app_role"] }
         Returns: Json
       }
       debit_wallet:
@@ -5087,7 +5141,21 @@ export type Database = {
         Args: { p_days?: number; p_seller?: string }
         Returns: Json
       }
+      get_space_options: { Args: never; Returns: Json }
       get_space_progress: { Args: { p_space: string }; Returns: Json }
+      get_sponsored: {
+        Args: { p_kind?: string; p_limit?: number }
+        Returns: {
+          boost_type: string
+          creative_type: string
+          creative_url: string
+          description: string
+          href: string
+          id: string
+          target_id: string
+          title: string
+        }[]
+      }
       get_status_summary: { Args: never; Returns: Json }
       has_role: {
         Args: {
@@ -5104,11 +5172,14 @@ export type Database = {
         Args: { p_boost_id: string; p_metric?: string }
         Returns: undefined
       }
+      interview_participant: { Args: { p_folder: string }; Returns: boolean }
+      interview_upload_allowed: { Args: { p_folder: string }; Returns: boolean }
       invite_shop_member: {
         Args: { p_email: string; p_role?: string }
         Returns: Json
       }
       invoice_from_quote: { Args: { p_quote_id: string }; Returns: string }
+      is_admin: { Args: never; Returns: boolean }
       is_pickup_partner: { Args: { p_point: string }; Returns: boolean }
       join_group_buy: {
         Args: { p_id: string; p_quantity?: number; p_shipping_address?: string }
@@ -5245,7 +5316,21 @@ export type Database = {
       }
       record_job_view: { Args: { p_job_id: string }; Returns: undefined }
       refresh_risk_scores: { Args: never; Returns: number }
+      register_driver: {
+        Args: {
+          p_bio?: string
+          p_license?: string
+          p_phone?: string
+          p_vehicle: string
+          p_zone: string
+        }
+        Returns: Json
+      }
       reject_quote: { Args: { p_quote_id: string }; Returns: undefined }
+      require_space: {
+        Args: { p_roles: Database["public"]["Enums"]["app_role"][] }
+        Returns: undefined
+      }
       rescore_job: { Args: { p_job_id: string }; Returns: number }
       respond_offer: {
         Args: { p_action: string; p_counter_price?: number; p_offer_id: string }
@@ -5259,6 +5344,13 @@ export type Database = {
           p_visit_at?: string
         }
         Returns: Json
+      }
+      roles_conflict: {
+        Args: {
+          a: Database["public"]["Enums"]["app_role"]
+          b: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: string
       }
       run_reconciliation: { Args: never; Returns: Json }
       save_interview_answer: {
@@ -5405,6 +5497,19 @@ export type Database = {
           p_valid_days?: number
         }
         Returns: string
+      }
+      space_cooldown: { Args: never; Returns: string }
+      space_label: {
+        Args: { p_role: Database["public"]["Enums"]["app_role"] }
+        Returns: string
+      }
+      space_limit: { Args: never; Returns: number }
+      space_ok: {
+        Args: {
+          p_roles: Database["public"]["Enums"]["app_role"][]
+          p_user: string
+        }
+        Returns: boolean
       }
       stage_label: { Args: { p_stage: string }; Returns: string }
       start_ai_interview: {
@@ -5592,3 +5697,4 @@ export const Constants = {
     },
   },
 } as const
+

@@ -11,6 +11,12 @@
  * light ("Harmattan") keeps the same accents, deepened for contrast.
  */
 @layer base {
+  /* Grid children may shrink below their content (tab bars, long words, tables scroll inside
+     instead of widening the page on phones). */
+  .grid > * {
+    min-width: 0;
+  }
+
   :root {
     /* Light — Harmattan */
     --background: 40 33% 97%;

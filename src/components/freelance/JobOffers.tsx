@@ -1,7 +1,7 @@
 // Public job board: active offers with their conditions; applying opens the full form
 // (recruiter's questions, CV, message) shared with the freelance space.
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, Briefcase, MapPin, Clock, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,9 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ApplyDialog from "@/components/spaces/freelance/ApplyDialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useSpaces } from "@/hooks/useSpaces";
+import { SpaceLocked } from "@/components/spaces/SpaceAccess";
 import { CONTRACTS, PERIODS, REMOTE, dateFr, fcfa } from "@/components/spaces/kit";
 
-type Job = { id: string; title: string; description: string | null; company_name: string | null; contract_type: string; remote_mode: string; location: string | null; pay_period: string;
+type Job = { id: string; employer_id: string; title: string; description: string | null; company_name: string | null; contract_type: string; remote_mode: string; location: string | null; pay_period: string;
   budget_min: number | null; budget_max: number | null; skills_required: string[] | null; deadline: string | null; created_at: string; screening_questions: unknown[] };
 
 const JobOffers = () => {
@@ -24,9 +27,16 @@ const JobOffers = () => {
   const [contract, setContract] = useState("all");
   const [remote, setRemote] = useState("all");
   const [applyTo, setApplyTo] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
+  const sp = useSpaces();
+  const navigate = useNavigate();
+  // Applying belongs to the freelance space. Recruiters (opposite space) never see the button;
+  // other accounts are offered to open the freelance space first.
+  const canApply = sp.can("apply");
+  const mayOpen = !canApply && !!sp.option("freelance")?.available;
 
   useEffect(() => {
-    supabase.from("jobs").select("id, title, description, company_name, contract_type, remote_mode, location, pay_period, budget_min, budget_max, skills_required, deadline, created_at, screening_questions")
+    supabase.from("jobs").select("id, employer_id, title, description, company_name, contract_type, remote_mode, location, pay_period, budget_min, budget_max, skills_required, deadline, created_at, screening_questions")
       .eq("is_active", true).order("created_at", { ascending: false }).limit(200).then(({ data }) => setJobs((data ?? []) as unknown as Job[]));
   }, []);
   useEffect(() => {
@@ -45,7 +55,7 @@ const JobOffers = () => {
         <Select value={contract} onValueChange={setContract}><SelectTrigger className="w-40" aria-label="Type de contrat"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Tous contrats</SelectItem>{Object.entries(CONTRACTS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select>
         <Select value={remote} onValueChange={setRemote}><SelectTrigger className="w-36" aria-label="Lieu de travail"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">Partout</SelectItem>{Object.entries(REMOTE).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent></Select>
       </div>
-      {user && <p className="mb-4 text-sm text-muted-foreground">Voyez votre correspondance avec chaque offre dans votre <Link to="/dashboard?espace=freelance&onglet=offres" className="text-primary underline">espace Freelance</Link>.</p>}
+      {user && canApply && <p className="mb-4 text-sm text-muted-foreground">Voyez votre correspondance avec chaque offre dans votre <Link to="/dashboard?espace=freelance&onglet=offres" className="text-primary underline">espace Freelance</Link>.</p>}
 
       {jobs === null ? <p className="text-center py-12 text-muted-foreground">Chargement des offres…</p> : list.length === 0 ? (
         <p className="text-center py-12 text-muted-foreground">Aucune offre ne correspond à votre recherche.</p>
@@ -66,13 +76,23 @@ const JobOffers = () => {
                 {!!j.skills_required?.length && <div className="mt-3 flex flex-wrap gap-1">{j.skills_required.slice(0, 6).map((s) => <Badge key={s} variant="secondary" className="font-normal">{s}</Badge>)}</div>}
                 <div className="mt-auto pt-4 flex items-center justify-between gap-2">
                   <span className="text-xs text-muted-foreground">Publiée le {dateFr(j.created_at)}{j.screening_questions?.length ? ` · ${j.screening_questions.length} question(s)` : ""}</span>
-                  {applied.has(j.id) ? <Badge variant="outline" className="border-emerald-500/30 text-emerald-400">Candidature envoyée</Badge> : <Button size="sm" onClick={() => setApplyTo(j.id)}>Postuler</Button>}
+                  {user && j.employer_id === user.id ? <Button asChild size="sm" variant="outline"><Link to={`/dashboard?espace=recruteur&onglet=pipeline&offre=${j.id}`}>Votre offre · candidats</Link></Button>
+                    : applied.has(j.id) ? <Badge variant="outline" className="border-emerald-500/30 text-emerald-400">Candidature envoyée</Badge>
+                    : !user ? <Button size="sm" onClick={() => navigate("/auth")}>Postuler</Button>
+                    : canApply ? <Button size="sm" onClick={() => setApplyTo(j.id)}>Postuler</Button>
+                    : mayOpen ? <Button size="sm" variant="outline" onClick={() => setLocked(true)}>Postuler</Button> : null}
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
+      <Dialog open={locked} onOpenChange={setLocked}>
+        <DialogContent className="max-w-lg p-0 border-0 bg-transparent shadow-none">
+          <DialogTitle className="sr-only">Espace Freelance requis</DialogTitle>
+          <SpaceLocked feature="apply" title="Pour postuler, ouvrez l'espace Freelance" />
+        </DialogContent>
+      </Dialog>
       <ApplyDialog jobId={applyTo} open={!!applyTo} onOpenChange={(o) => !o && setApplyTo(null)} onApplied={() => applyTo && setApplied((s) => new Set(s).add(applyTo))} />
     </div>
   );
