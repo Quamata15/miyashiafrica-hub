@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import SellerInsights from "./SellerInsights";
 import { useAuth } from "@/hooks/useAuth";
 import { fcfa } from "@/lib/prefs";
 import { errMsg } from "@/lib/ai";
@@ -150,6 +151,7 @@ export function SellerStats({ sellerId }: { sellerId: string }) {
             <tr key={p.id} className="border-t border-foreground/10"><td className="py-2"><Link to={`/product/${p.id}`} className="hover:text-primary">{p.title}</Link></td><td>{p.views}</td><td>{p.orders}</td><td>{p.views ? `${((p.orders / p.views) * 100).toFixed(1)} %` : "—"}</td><td className="text-right">{fcfa(p.revenue)}</td></tr>
           ))}</tbody></table>
       </CardContent></Card>
+      <SellerInsights sellerId={sellerId} days={days} />
     </div>
   );
 }

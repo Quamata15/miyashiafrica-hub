@@ -23,13 +23,13 @@ export default function Settings() {
   const { user } = useAuth();
   const { currency, currencies, setCurrency, dataSaver, setDataSaver } = usePrefs();
   const { lang: uiLang, setLang: setUiLang } = useT();
-  const [p, setP] = useState({ email_notifications: true, whatsapp_notifications: false, whatsapp_number: "", language: "fr" });
+  const [p, setP] = useState({ email_notifications: true, whatsapp_notifications: false, whatsapp_number: "", language: "fr", sms_notifications: false });
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("user_preferences").select("email_notifications, whatsapp_notifications, whatsapp_number, language").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => data && setP({ email_notifications: data.email_notifications, whatsapp_notifications: data.whatsapp_notifications, whatsapp_number: data.whatsapp_number ?? "", language: data.language }));
+    supabase.from("user_preferences").select("email_notifications, whatsapp_notifications, whatsapp_number, language, sms_notifications").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => data && setP({ email_notifications: data.email_notifications, whatsapp_notifications: data.whatsapp_notifications, whatsapp_number: data.whatsapp_number ?? "", language: data.language, sms_notifications: data.sms_notifications }));
   }, [user]);
 
   const save = async (patch: Partial<typeof p>) => {
@@ -81,6 +81,8 @@ export default function Settings() {
             <Switch checked={p.email_notifications} onCheckedChange={(v) => save({ email_notifications: v })} /></label>
           <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Par WhatsApp</span><span className="text-sm text-muted-foreground">Les mêmes alertes sur votre WhatsApp.</span></span>
             <Switch checked={p.whatsapp_notifications} onCheckedChange={(v) => save({ whatsapp_notifications: v })} /></label>
+          <label className="flex items-center justify-between gap-4"><span><span className="font-medium block">Par SMS</span><span className="text-sm text-muted-foreground">Seulement les étapes importantes (commande, livreur, tranche d'épargne, devis), au numéro de votre profil.</span></span>
+            <Switch checked={!!p.sms_notifications} onCheckedChange={(v) => save({ sms_notifications: v })} /></label>
           {p.whatsapp_notifications && (
             <div className="flex gap-2"><Input type="tel" placeholder="+228 90 00 00 00" value={p.whatsapp_number} onChange={(e) => setP({ ...p, whatsapp_number: e.target.value })} aria-label="Numéro WhatsApp" />
               <Button onClick={() => save({ whatsapp_number: p.whatsapp_number })}>Enregistrer</Button></div>

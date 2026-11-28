@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { QrCode, Printer, Package, MapPin, Shield, CheckCircle, Loader2, Gift, Star } from "lucide-react";
 import { toast } from "sonner";
+import QRCode from "qrcode";
 
 interface ShippingLabelProps {
   orderId: string;
@@ -85,9 +86,11 @@ const ShippingLabel = ({
     fetchLabel();
   });
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
+    // A real QR code the driver scans (same token as the text below it).
+    const qrImg = label?.qr_token ? await QRCode.toDataURL(String(label.qr_token), { width: 220, margin: 1, errorCorrectionLevel: "M" }) : "";
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -98,7 +101,7 @@ const ShippingLabel = ({
           body { font-family: system-ui, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
           .label { border: 2px solid #000; border-radius: 12px; padding: 20px; }
           .header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 12px; margin-bottom: 12px; }
-          .logo { font-size: 24px; font-weight: bold; color: #2563eb; }
+          .logo { font-size: 24px; font-weight: bold; color: #0d0c14; }
           .qr { text-align: center; margin: 16px 0; padding: 16px; background: #f5f5f5; border-radius: 8px; }
           .qr-code { font-family: monospace; font-size: 14px; letter-spacing: 2px; word-break: break-all; }
           .info { margin: 8px 0; }
@@ -117,6 +120,7 @@ const ShippingLabel = ({
           </div>
           <div class="qr">
             <div style="font-size: 12px; color: #666; margin-bottom: 8px;">Code de suivi (scanné par le livreur)</div>
+            ${qrImg ? `<img src="${qrImg}" alt="QR code" width="200" height="200" style="display:block;margin:0 auto 8px" />` : ""}
             <div class="qr-code">${label?.qr_token || "---"}</div>
           </div>
           <div class="info">

@@ -12,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Section, attempt, splitList } from "../kit";
 
-type Form = { lat: number | null; lng: number | null; city: string; headline: string; about: string; service_areas: string; languages: string; years_experience: string; certifications: string; response_hours: string; accepts_urgent: boolean; travels: boolean; travel_fee: string; is_available: boolean };
-const init: Form = { lat: null, lng: null, city: "", headline: "", about: "", service_areas: "", languages: "Français", years_experience: "", certifications: "", response_hours: "24", accepts_urgent: false, travels: true, travel_fee: "", is_available: true };
+const COUNTRIES: Record<string, string> = { TG: "Togo", BJ: "Bénin", CI: "Côte d'Ivoire", SN: "Sénégal", BF: "Burkina Faso", ML: "Mali", NE: "Niger", GN: "Guinée", CM: "Cameroun", GA: "Gabon", CG: "Congo", TD: "Tchad", CF: "Centrafrique", GH: "Ghana", NG: "Nigeria" };
+type Form = { lat: number | null; lng: number | null; city: string; headline: string; about: string; service_areas: string; languages: string; years_experience: string; certifications: string; response_hours: string; accepts_urgent: boolean; travels: boolean; travel_fee: string; is_available: boolean; tax_number: string; country: string };
+const init: Form = { lat: null, lng: null, city: "", headline: "", about: "", service_areas: "", languages: "Français", years_experience: "", certifications: "", response_hours: "24", accepts_urgent: false, travels: true, travel_fee: "", is_available: true, tax_number: "", country: "TG" };
 
 export default function ProviderProfileForm() {
   const { user } = useAuth();
@@ -24,7 +25,7 @@ export default function ProviderProfileForm() {
     supabase.from("provider_profiles").select("*").eq("user_id", user.id).maybeSingle().then(({ data: d }) => {
       if (d) setF({ lat: d.lat ?? null, lng: d.lng ?? null, city: d.city ?? "", headline: d.headline ?? "", about: d.about ?? "", service_areas: (d.service_areas ?? []).join(", "), languages: (d.languages ?? []).join(", "),
         years_experience: d.years_experience?.toString() ?? "", certifications: ((d.certifications as { name: string }[]) ?? []).map((c) => c.name).join("\n"),
-        response_hours: String(d.response_hours ?? 24), accepts_urgent: d.accepts_urgent, travels: d.travels, travel_fee: d.travel_fee?.toString() ?? "", is_available: d.is_available });
+        response_hours: String(d.response_hours ?? 24), accepts_urgent: d.accepts_urgent, travels: d.travels, travel_fee: d.travel_fee?.toString() ?? "", is_available: d.is_available, tax_number: d.tax_number ?? "", country: d.country ?? "TG" });
     });
   }, [user?.id]);
   const set = (k: keyof Form, v: string | boolean) => setF((x) => ({ ...x, [k]: v }));
@@ -35,7 +36,7 @@ export default function ProviderProfileForm() {
       user_id: user.id, headline: f.headline.trim() || null, about: f.about.trim() || null, service_areas: splitList(f.service_areas), languages: splitList(f.languages),
       years_experience: f.years_experience ? Number(f.years_experience) : null, certifications: f.certifications.split("\n").map((s) => s.trim()).filter(Boolean).map((name) => ({ name })),
       response_hours: Number(f.response_hours) || 24, accepts_urgent: f.accepts_urgent, travels: f.travels, travel_fee: f.travel_fee ? Number(f.travel_fee) : null, is_available: f.is_available, updated_at: new Date().toISOString(),
-      city: f.city.trim() || null, lat: f.lat, lng: f.lng,
+      city: f.city.trim() || null, lat: f.lat, lng: f.lng, tax_number: f.tax_number.trim() || null, country: f.country,
     }), "Profil pro enregistré");
     setSaving(false);
   };
@@ -49,6 +50,11 @@ export default function ProviderProfileForm() {
         <div className="flex flex-wrap items-end gap-2 text-xs text-muted-foreground"><LocateButton value={{ lat: f.lat, lng: f.lng }} onLocate={(lat, lng) => setF((x) => ({ ...x, lat, lng }))} label="Position exacte (atelier, bureau)" /><span>Les clients à moins de 25 km vous voient en premier.</span></div>
         <div><Label>Zones d'intervention (séparées par des virgules)</Label><Input value={f.service_areas} onChange={(e) => set("service_areas", e.target.value)} placeholder="Lomé, Bè, Agoè, Baguida" /></div>
         <div><Label>Langues</Label><Input value={f.languages} onChange={(e) => set("languages", e.target.value)} placeholder="Français, Éwé, Anglais" /></div>
+        <div><Label htmlFor="pp-country">Pays (facturation)</Label>
+          <select id="pp-country" value={f.country} onChange={(e) => set("country", e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            {Object.entries(COUNTRIES).map(([c, n]) => <option key={c} value={c}>{n}</option>)}
+          </select></div>
+        <div><Label htmlFor="pp-tax">N° fiscal (NIF, IFU, NCC…) — facultatif</Label><Input id="pp-tax" maxLength={40} value={f.tax_number} onChange={(e) => set("tax_number", e.target.value)} placeholder="Imprimé sur vos factures ; active la TVA" /></div>
         <div><Label>Années d'expérience</Label><Input type="number" min={0} max={70} value={f.years_experience} onChange={(e) => set("years_experience", e.target.value)} /></div>
         <div><Label>Délai de réponse habituel (heures)</Label><Input type="number" min={1} max={168} value={f.response_hours} onChange={(e) => set("response_hours", e.target.value)} /></div>
         <div className="md:col-span-2"><Label>Diplômes et certifications (un par ligne)</Label><Textarea rows={3} value={f.certifications} onChange={(e) => set("certifications", e.target.value)} placeholder={"CAP électricité — 2015\nHabilitation électrique B1V"} /></div>

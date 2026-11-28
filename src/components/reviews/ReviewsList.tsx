@@ -20,6 +20,7 @@ interface Review {
   comment: string | null;
   response: string | null;
   is_verified: boolean;
+  photos?: string[] | null;
   created_at: string;
   product_id: string | null;
   service_id: string | null;
@@ -49,7 +50,7 @@ const ReviewsList = ({ productId, serviceId, userId, sellerId }: ReviewsListProp
 
   const fetchReviews = async () => {
     setLoading(true);
-    let query = supabase.from("reviews").select("*");
+    let query = supabase.from("reviews").select("*").eq("target", "listing");
 
     if (productId) query = query.eq("product_id", productId);
     else if (serviceId) query = query.eq("service_id", serviceId);
@@ -202,7 +203,7 @@ const ReviewsList = ({ productId, serviceId, userId, sellerId }: ReviewsListProp
                             <span className="font-semibold">{displayName}</span>
                             {review.is_verified && (
                               <Badge variant="secondary" className="text-xs">
-                                <CheckCircle className="h-3 w-3 mr-1" />Vérifié
+                                <CheckCircle className="h-3 w-3 mr-1" />Achat vérifié
                               </Badge>
                             )}
                           </div>
@@ -212,6 +213,11 @@ const ReviewsList = ({ productId, serviceId, userId, sellerId }: ReviewsListProp
                         </div>
                         <div className="mt-1">{renderStars(review.rating)}</div>
                         {review.comment && <p className="mt-3 text-foreground">{review.comment}</p>}
+                        {!!review.photos?.length && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {review.photos.map((u) => <a key={u} href={u} target="_blank" rel="noopener noreferrer"><img src={u} alt="Photo de l'acheteur" loading="lazy" className="h-20 w-20 rounded-lg object-cover border" /></a>)}
+                          </div>
+                        )}
 
                         {/* Seller Response */}
                         {review.response && (

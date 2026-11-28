@@ -45,6 +45,7 @@ const Support = lazy(() => import("./pages/Support"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Terms = lazy(() => import("./pages/Terms"));
+const Newsletter = lazy(() => import("./pages/Newsletter"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const ProviderSpace = lazy(() => import("./pages/ProviderSpace"));
 const Boost = lazy(() => import("./pages/Boost"));
@@ -114,6 +115,7 @@ const App = () => (
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/terms" element={<Terms />} />
+                    <Route path="/newsletter" element={<Newsletter />} />
                     <Route path="/help" element={<HelpCenter />} />
                     <Route path="/help/:slug" element={<HelpGuide />} />
                     <Route path="/support" element={<Support />} />

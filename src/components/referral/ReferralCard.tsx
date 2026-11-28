@@ -17,6 +17,8 @@ const ReferralCard = () => {
   const [totalEarned, setTotalEarned] = useState(0);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [amb, setAmb] = useState<{ sellers: number; active_sellers: number; pickup_points: number; earned: number } | null>(null);
+  useEffect(() => { if (user) supabase.rpc("my_ambassador_stats").then(({ data }) => data && setAmb(data as typeof amb)); }, [user]);
 
   useEffect(() => {
     if (user) fetchReferralData();
@@ -73,6 +75,7 @@ const ReferralCard = () => {
 
   if (loading) return null;
 
+
   return (
     <Card className="border-0 shadow-card">
       <CardHeader className="pb-3">
@@ -85,6 +88,14 @@ const ReferralCard = () => {
         <p className="text-sm text-muted-foreground">
           Partagez votre code et gagnez <strong>500 FCFA</strong> pour chaque filleul inscrit. Votre filleul reçoit aussi <strong>500 FCFA</strong> !
         </p>
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm">
+          <p className="font-semibold">Programme ambassadeurs</p>
+          <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+            <li>+ <strong>2 000 FCFA</strong> quand un vendeur que vous avez parrainé fait sa première vente</li>
+            <li>+ <strong>5 000 FCFA</strong> quand un point relais que vous avez parrainé est validé</li>
+          </ul>
+          {amb && <p className="mt-2 text-xs">{amb.sellers} vendeur(s) parrainé(s) · {amb.active_sellers} actif(s) · {amb.pickup_points} point(s) relais</p>}
+        </div>
 
         {/* Code display */}
         <div className="flex items-center gap-2">
@@ -107,7 +118,7 @@ const ReferralCard = () => {
           </div>
           <div className="rounded-xl bg-muted/50 p-3 text-center">
             <Wallet className="w-5 h-5 mx-auto mb-1 text-accent" />
-            <p className="text-xl font-bold">{totalEarned.toLocaleString()}F</p>
+            <p className="text-xl font-bold">{Number(amb?.earned ?? totalEarned).toLocaleString("fr-FR")}F</p>
             <p className="text-[10px] text-muted-foreground">Gagné</p>
           </div>
         </div>

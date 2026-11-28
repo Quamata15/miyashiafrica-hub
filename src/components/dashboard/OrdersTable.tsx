@@ -24,6 +24,8 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
+import ShippingLabel from "@/components/shipping/ShippingLabel";
+import ReviewForm from "@/components/reviews/ReviewForm";
 
 interface Order {
   id: string;
@@ -103,6 +105,17 @@ const OrdersTable = ({ limit, sellerId }: OrdersTableProps) => {
       toast.success("Statut mis à jour");
       fetchOrders();
     }
+  };
+
+  const [labelFor, setLabelFor] = useState<string | null>(null);
+  const [reviewFor, setReviewFor] = useState<{ id: string; target: "listing" | "driver" } | null>(null);
+  const labelOrder = orders.find((o) => o.id === labelFor) as (Order & { shipping_address?: string | null }) | undefined;
+
+  const rpcAction = async (fn: "start_service" | "complete_service", orderId: string, ok: string) => {
+    const { error } = await supabase.rpc(fn, { p_order_id: orderId });
+    if (error) return toast.error(error.message.replace(/^.*?ERROR:\s*/i, ""));
+    toast.success(ok);
+    fetchOrders();
   };
 
   const submitHandover = async () => {
@@ -214,14 +227,30 @@ const OrdersTable = ({ limit, sellerId }: OrdersTableProps) => {
                             {order.payment_mode === "cod" ? "Encaisser (code client)" : "Remise en main propre (code)"}
                           </DropdownMenuItem>
                         )}
-                        <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "confirmed")}>
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Confirmer
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "shipped")}>
-                          <Truck className="mr-2 h-4 w-4" />
-                          Marquer expédié
-                        </DropdownMenuItem>
+                        {order.service_id ? (
+                          <>
+                            {order.status === "pending" && (
+                              <DropdownMenuItem onClick={() => rpcAction("start_service", order.id, "Prestation commencée : le client est prévenu")}>
+                                <CheckCircle className="mr-2 h-4 w-4" />Commencer la prestation
+                              </DropdownMenuItem>
+                            )}
+                            {order.status !== "shipped" && (
+                              <DropdownMenuItem onClick={() => rpcAction("complete_service", order.id, "Prestation marquée terminée : le client va valider")}>
+                                <Truck className="mr-2 h-4 w-4" />Prestation terminée
+                              </DropdownMenuItem>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "confirmed")}>
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                              Confirmer
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setLabelFor(order.id)}>
+                              <FileText className="mr-2 h-4 w-4" />Bordereau d'expédition (QR)
+                            </DropdownMenuItem>
+                          </>
+                        )}
                         <DropdownMenuItem onClick={() => updateOrderStatus(order.id, "cancelled")}>
                           <XCircle className="mr-2 h-4 w-4" />
                           Annuler (client remboursé)
@@ -237,12 +266,24 @@ const OrdersTable = ({ limit, sellerId }: OrdersTableProps) => {
                     {order.buyer_id === user?.id && order.status === "shipped" && (
                       <DropdownMenuItem onClick={() => confirmReception(order.id)}>
                         <CheckCircle className="mr-2 h-4 w-4 text-accent" />
-                        ✅ Confirmer réception
+                        {order.service_id ? "Je valide la prestation" : "Confirmer réception"}
                       </DropdownMenuItem>
+                    )}
+                    {order.buyer_id === user?.id && ["completed", "shipped"].includes(order.status) && (
+                      <>
+                        <DropdownMenuItem onClick={() => setReviewFor({ id: order.id, target: "listing" })}>
+                          <CheckCircle className="mr-2 h-4 w-4" />Donner mon avis
+                        </DropdownMenuItem>
+                        {order.product_id && order.fulfillment_method === "delivery" && (
+                          <DropdownMenuItem onClick={() => setReviewFor({ id: order.id, target: "driver" })}>
+                            <Truck className="mr-2 h-4 w-4" />Noter le livreur
+                          </DropdownMenuItem>
+                        )}
+                      </>
                     )}
                     {order.buyer_id === user?.id && (
                       <DropdownMenuItem onClick={() => {
-                        window.location.href = `/disputes`;
+                        window.location.href = `/disputes?order=${order.id}`;
                       }}>
                         <XCircle className="mr-2 h-4 w-4 text-destructive" />
                         Ouvrir un litige
@@ -255,6 +296,19 @@ const OrdersTable = ({ limit, sellerId }: OrdersTableProps) => {
           ))}
         </TableBody>
       </Table>
+      <Dialog open={!!reviewFor} onOpenChange={(o) => !o && setReviewFor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>{reviewFor?.target === "driver" ? "Noter le livreur" : "Donner mon avis"}</DialogTitle><DialogDescription>Avis vérifié, lié à cette commande.</DialogDescription></DialogHeader>
+          {reviewFor && <ReviewForm orderId={reviewFor.id} target={reviewFor.target} onSuccess={() => setReviewFor(null)} />}
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!labelFor} onOpenChange={(o) => !o && setLabelFor(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Bordereau d'expédition</DialogTitle><DialogDescription>Collez-le sur le colis : le livreur scanne le QR code au retrait.</DialogDescription></DialogHeader>
+          {labelOrder && <ShippingLabel orderId={labelOrder.id} orderRef={labelOrder.id.slice(0, 8)} productTitle={labelOrder.product?.title ?? "Article"} quantity={labelOrder.quantity}
+            sellerId={labelOrder.seller_id} buyerId={labelOrder.buyer_id} deliveryAddress={labelOrder.shipping_address ?? undefined} />}
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!handover} onOpenChange={(o) => !o && setHandover(null)}>
         <DialogContent>
           <DialogHeader>

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { expandTerms, loadSynonyms } from "@/lib/synonyms";
 import { Search, Package, Briefcase, Users, User, Loader2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -53,11 +54,14 @@ const GlobalSearch = ({ className }: { className?: string }) => {
     setLoading(true);
     setOpen(true);
 
+    // Local-language words also search their French meaning ("ceeb" -> "riz").
+    const words = expandTerms(q, await loadSynonyms()).map((w) => w.replace(/[,()*%\\:."]/g, " ").trim()).filter(Boolean);
+    const productOr = words.flatMap((w) => [`title.ilike.%${w}%`, `description.ilike.%${w}%`]).join(",");
     const [prodRes, servRes, freelRes, jobRes] = await Promise.all([
       supabase.from("products")
         .select("id, title, price, images")
         .eq("is_active", true).is("deleted_at", null)
-        .or(`title.ilike.%${q}%,description.ilike.%${q}%`)
+        .or(productOr)
         .limit(4),
       supabase.from("services")
         .select("id, title, price, images")

@@ -4,6 +4,7 @@ import { Wallet, ShieldCheck, FileText, CalendarClock, Receipt, Star, Briefcase,
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
 import { GuideProgressCard } from "../SpaceGuide";
+import CalendarSync from "./CalendarSync";
 import { Section, Stat, StatGrid, dateFr, fcfa, useRpc } from "../kit";
 
 type Stats = { revenue: number; orders_active: number; escrow_held: number; quotes_sent: number; quotes_accepted: number; quotes_pending: number; bookings_upcoming: number; next_booking: string | null;
@@ -49,6 +50,7 @@ export default function ProviderHome({ onTab }: { onTab: (tab: string) => void }
           </div>
         </Section>
       )}
+      <CalendarSync />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 // Sends an in-app notification by e-mail (#38) and WhatsApp (#36). Called by the database on insert.
 //   E-mail   : RESEND_API_KEY + EMAIL_FROM (e.g. "MIYASHI <notifications@votre-domaine>")
 //   WhatsApp : WHATSAPP_TOKEN + WHATSAPP_PHONE_NUMBER_ID + WHATSAPP_TEMPLATE (approved template with one {{1}} body variable)
+//   SMS      : Africa's Talking (AT_USERNAME + AT_API_KEY, optional AT_SENDER) or Twilio (TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM)
+//              sent only for the key steps below, to the profile phone, when the person turned SMS on.
 // A channel without its secrets is skipped and recorded as such.
 import { adminClient, json, isInternal } from "../_shared/http.ts";
 
@@ -9,7 +11,12 @@ const LINKS: Record<string, (d: any) => string> = {
   wallet: () => "/wallet", offer: () => "/offers", quote: () => "/quotes", booking: () => "/bookings",
   group_buy: (d) => (d?.order_id ? "/dashboard" : "/wallet"), stock: (d) => (d?.product_id ? `/product/${d.product_id}` : "/marketplace"),
   dispute: () => "/disputes", payout: () => "/wallet", shop_invite: () => "/shop/manage", security: () => "/profile",
+  delivery: (d) => (d?.order_id ? `/select-driver?order=${d.order_id}` : "/dashboard"), delivery_request: () => "/dashboard?espace=livreur",
+  savings: () => "/savings", service_request: (d) => (d?.conversation_id ? `/messages?conversation=${d.conversation_id}` : "/messages"),
+  warning: () => "/terms", follow: (d) => (d?.product_id ? `/product/${d.product_id}` : "/feed"),
 };
+// Steps worth a WhatsApp or an SMS (short, important, time-sensitive).
+const KEY_STEPS = new Set(["order", "delivery", "delivery_request", "savings", "quote", "service_request", "dispute", "payout"]);
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 
@@ -34,7 +41,7 @@ Deno.serve(async (req) => {
   const { data: n } = await db.from("notifications").select("*").eq("id", notification_id).maybeSingle();
   if (!n) return json({ skipped: "not_found" });
   const [{ data: prefs }, { data: u }] = await Promise.all([
-    db.from("user_preferences").select("email_notifications, whatsapp_notifications, whatsapp_number").eq("user_id", n.user_id).maybeSingle(),
+    db.from("user_preferences").select("email_notifications, whatsapp_notifications, whatsapp_number, sms_notifications").eq("user_id", n.user_id).maybeSingle(),
     db.auth.admin.getUserById(n.user_id),
   ]);
   const site = (Deno.env.get("SITE_URL") ?? "https://miyashiafrica-hub.vercel.app").replace(/\/$/, "");
@@ -59,7 +66,7 @@ Deno.serve(async (req) => {
 
   // WhatsApp (opt-in)
   const wa = String(prefs?.whatsapp_number ?? "").replace(/\D/g, "");
-  if (!prefs?.whatsapp_notifications || wa.length < 8) { results.whatsapp = "skipped"; }
+  if (!prefs?.whatsapp_notifications || wa.length < 8 || !KEY_STEPS.has(n.type)) { results.whatsapp = "skipped"; }
   else if (!Deno.env.get("WHATSAPP_TOKEN") || !Deno.env.get("WHATSAPP_PHONE_NUMBER_ID") || !Deno.env.get("WHATSAPP_TEMPLATE")) {
     results.whatsapp = "not_configured"; await log("whatsapp", "skipped", "not configured");
   } else {
@@ -75,5 +82,25 @@ Deno.serve(async (req) => {
     results.whatsapp = r.ok ? "sent" : "failed";
     await log("whatsapp", results.whatsapp, r.ok ? undefined : await r.text());
   }
+  // SMS (opt-in, key steps only)
+  const { data: prof } = await db.from("profiles").select("phone").eq("user_id", n.user_id).maybeSingle();
+  const phone = String(prof?.phone ?? "").replace(/[^\d+]/g, "");
+  const text = `MIYASHI - ${n.title} : ${n.message}`.slice(0, 300) + ` ${href}`;
+  if (!prefs?.sms_notifications || phone.replace(/\D/g, "").length < 8 || !KEY_STEPS.has(n.type)) { results.sms = "skipped"; }
+  else if (Deno.env.get("AT_USERNAME") && Deno.env.get("AT_API_KEY")) {
+    const body = new URLSearchParams({ username: Deno.env.get("AT_USERNAME")!, to: phone.startsWith("+") ? phone : `+${phone}`, message: text });
+    if (Deno.env.get("AT_SENDER")) body.set("from", Deno.env.get("AT_SENDER")!);
+    const r = await fetch("https://api.africastalking.com/version1/messaging", {
+      method: "POST", headers: { apiKey: Deno.env.get("AT_API_KEY")!, Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" }, body,
+    });
+    results.sms = r.ok ? "sent" : "failed"; await log("sms", results.sms, r.ok ? undefined : await r.text());
+  } else if (Deno.env.get("TWILIO_ACCOUNT_SID") && Deno.env.get("TWILIO_AUTH_TOKEN") && Deno.env.get("TWILIO_FROM")) {
+    const sid = Deno.env.get("TWILIO_ACCOUNT_SID")!;
+    const r = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+      method: "POST", headers: { Authorization: "Basic " + btoa(`${sid}:${Deno.env.get("TWILIO_AUTH_TOKEN")}`), "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ To: phone.startsWith("+") ? phone : `+${phone}`, From: Deno.env.get("TWILIO_FROM")!, Body: text }),
+    });
+    results.sms = r.ok ? "sent" : "failed"; await log("sms", results.sms, r.ok ? undefined : await r.text());
+  } else { results.sms = "not_configured"; await log("sms", "skipped", "not configured"); }
   return json(results);
 });

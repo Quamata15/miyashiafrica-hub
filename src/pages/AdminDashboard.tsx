@@ -21,6 +21,7 @@ import AdminReportsPanel from "@/components/admin/AdminReportsPanel";
 import AdminSecurityPanel from "@/components/admin/AdminSecurityPanel";
 import { MfaSettings, useHasMfa } from "@/components/security/Mfa";
 import AdminFeaturedNews from "@/components/admin/AdminFeaturedNews";
+import AdminTrust from "@/components/admin/AdminTrust";
 import { AdminContent, AdminDelivery, AdminFlagsAudit, AdminLegal, AdminModeration, AdminOps, AdminRevenue } from "@/components/admin/AdminPlatform";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -87,9 +88,18 @@ const AdminDashboard = () => {
     setStats(prev => ({ ...prev, users: profilesRes.data?.length || 0 }));
   };
 
-  const updateDisputeStatus = async (disputeId: string, status: string, resolution?: string) => {
-    await supabase.from("disputes").update({ status, resolution }).eq("id", disputeId);
-    toast({ title: "Litige mis à jour" });
+  // Decision with the money: refund (full or partial) to the buyer's wallet, the rest to the seller.
+  const resolveDispute = async (disputeId: string, outcome: "refund_full" | "refund_partial" | "release" | "reject") => {
+    let refund = 0;
+    if (outcome === "refund_partial") {
+      const v = prompt("Montant remboursé à l'acheteur (FCFA)");
+      if (!v) return;
+      refund = Number(v.replace(/\s/g, ""));
+    }
+    const note = prompt("Explication envoyée aux deux parties") ?? "";
+    const { error } = await supabase.rpc("resolve_dispute", { p_dispute_id: disputeId, p_outcome: outcome, p_refund: refund, p_resolution: note || undefined });
+    if (error) { toast({ title: "Décision impossible", description: error.message.replace(/^.*?ERROR:\s*/i, ""), variant: "destructive" }); return; }
+    toast({ title: "Litige réglé" });
     fetchAllData();
   };
 
@@ -194,6 +204,7 @@ const AdminDashboard = () => {
                   </TabsTrigger>
                   <TabsTrigger value="revenue" className="whitespace-nowrap text-xs sm:text-sm">Revenus</TabsTrigger>
                   <TabsTrigger value="moderation" className="whitespace-nowrap text-xs sm:text-sm">Modération</TabsTrigger>
+                  <TabsTrigger value="trust" className="whitespace-nowrap text-xs sm:text-sm">Sanctions & fraude</TabsTrigger>
                   <TabsTrigger value="delivery" className="whitespace-nowrap text-xs sm:text-sm">Livraison</TabsTrigger>
                   <TabsTrigger value="content" className="whitespace-nowrap text-xs sm:text-sm">Contenu</TabsTrigger>
                   <TabsTrigger value="featured" className="whitespace-nowrap text-xs sm:text-sm">Vedettes & Actus</TabsTrigger>
@@ -256,6 +267,7 @@ const AdminDashboard = () => {
               </TabsContent>
               <TabsContent value="revenue"><AdminRevenue /></TabsContent>
               <TabsContent value="moderation"><AdminModeration /></TabsContent>
+              <TabsContent value="trust"><AdminTrust /></TabsContent>
               <TabsContent value="delivery"><AdminDelivery /></TabsContent>
               <TabsContent value="content"><AdminContent /></TabsContent>
               <TabsContent value="featured"><AdminFeaturedNews /></TabsContent>
@@ -291,19 +303,15 @@ const AdminDashboard = () => {
                                 "bg-secondary text-secondary-foreground"
                               }`}>{d.status}</Badge>
                             </div>
-                            {d.status !== "resolved" && d.status !== "closed" && (
+                            {!["resolved", "closed", "rejected"].includes(d.status) && (
                               <div className="flex flex-wrap gap-2 mt-3">
-                                <Button size="sm" className="text-xs" onClick={() => updateDisputeStatus(d.id, "resolved", "refund")}>
-                                  Rembourser
-                                </Button>
-                                <Button size="sm" variant="outline" className="text-xs" onClick={() => updateDisputeStatus(d.id, "resolved", "no_refund")}>
-                                  Rejeter
-                                </Button>
-                                <Button size="sm" variant="outline" className="text-xs" onClick={() => updateDisputeStatus(d.id, "resolved", "partial_refund")}>
-                                  Remb. partiel
-                                </Button>
+                                <Button size="sm" className="text-xs" onClick={() => resolveDispute(d.id, "refund_full")}>Rembourser tout</Button>
+                                <Button size="sm" variant="outline" className="text-xs" onClick={() => resolveDispute(d.id, "refund_partial")}>Remboursement partiel</Button>
+                                <Button size="sm" variant="outline" className="text-xs" onClick={() => resolveDispute(d.id, "release")}>Payer le vendeur</Button>
+                                <Button size="sm" variant="ghost" className="text-xs" onClick={() => resolveDispute(d.id, "reject")}>Rejeter</Button>
                               </div>
                             )}
+                            {d.refund_amount > 0 && <p className="mt-2 text-xs text-muted-foreground">Remboursé : {Number(d.refund_amount).toLocaleString("fr-FR")} FCFA</p>}
                           </CardContent>
                         </Card>
                       ))}

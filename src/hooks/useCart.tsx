@@ -82,6 +82,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         service: item.services
       }));
       setItems(formattedItems);
+      // Kept on the device so the cart still shows without network.
+      try { localStorage.setItem(`miyashi_cart_${user.id}`, JSON.stringify(formattedItems)); } catch { /* storage full or off */ }
+    } else if (error) {
+      try { const saved = localStorage.getItem(`miyashi_cart_${user.id}`); if (saved) setItems(JSON.parse(saved)); } catch { /* ignore */ }
     }
     setLoading(false);
   };

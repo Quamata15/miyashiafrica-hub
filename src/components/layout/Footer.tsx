@@ -1,6 +1,7 @@
 import { forwardRef, useState } from "react";
 import { useT } from "@/lib/i18n";
 import { BrandMark } from "@/components/brand/BrandMark";
+import NewsletterForm from "./NewsletterForm";
 import { Link } from "react-router-dom";
 import { 
   ShoppingBag, Briefcase, Users, Mail, Phone, MapPin, 
@@ -10,7 +11,6 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
 import { useSpaces } from "@/hooks/useSpaces";
 import { PHOTOS } from "@/lib/photos";
@@ -86,15 +86,7 @@ const Footer = forwardRef<HTMLElement>(function Footer(_props, ref) {
                 Inscrivez-vous à notre newsletter pour recevoir les meilleures opportunités.
               </p>
             </div>
-            <div className="flex w-full lg:w-auto gap-3">
-              <Input 
-                placeholder="Votre adresse email" 
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 w-full lg:w-80"
-              />
-              <Button variant="hero" className="shrink-0">
-                S'abonner
-              </Button>
-            </div>
+            <NewsletterForm />
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShieldCheck, Package, Truck, Star, Wallet, Heart, Tag, PiggyBank, Bell, MapPin, AlertTriangle, FileText, CalendarClock, CheckCircle2, MessageSquare, ShoppingBag } from "lucide-react";
+import LiveTracking from "@/components/map/LiveTracking";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export default function BuyerHome({ onTab }: { onTab: (tab: string) => void }) {
   const navigate = useNavigate();
   const { data: s, loading, reload } = useRpc<Summary>("get_buyer_summary");
   const [orders, setOrders] = useState<Order[] | null>(null);
+  const [track, setTrack] = useState<string | null>(null);
   const [rides, setRides] = useState<Record<string, { status: string; cash_to_collect: number }>>({});
 
   const loadOrders = () => user && supabase.from("orders")
@@ -104,9 +106,11 @@ export default function BuyerHome({ onTab }: { onTab: (tab: string) => void }) {
                         : `Livreur en route${rides[o.id].cash_to_collect > 0 ? ` : ${rides[o.id].cash_to_collect.toLocaleString("fr-FR")} FCFA à payer à la remise` : ""}.`}
                     </p>
                   )}
+                  {track === o.id && <div className="mt-3"><LiveTracking orderId={o.id} /></div>}
                   <div className="mt-3 flex flex-wrap gap-2">
                     {o.fulfillment_method === "delivery" && (o as any).product_id && !rides[o.id] && <Button size="sm" variant="secondary" asChild><Link to={`/select-driver?order=${o.id}`}>Choisir un livreur</Link></Button>}
-                    {["delivered", "shipped"].includes(o.status) && o.payment_mode !== "cod" && <Button size="sm" onClick={() => confirm(o.id)}><CheckCircle2 className="w-4 h-4 mr-1" />J'ai reçu ma commande</Button>}
+                    {rides[o.id] && ["accepted", "picked_up"].includes(rides[o.id].status) && <Button size="sm" variant="outline" onClick={() => setTrack(track === o.id ? null : o.id)}>{track === o.id ? "Masquer le suivi" : "Suivre le livreur"}</Button>}
+                    {["delivered", "shipped"].includes(o.status) && o.payment_mode !== "cod" && <Button size="sm" onClick={() => confirm(o.id)}><CheckCircle2 className="w-4 h-4 mr-1" />{(o as any).service ? "Je valide la prestation" : "J'ai reçu ma commande"}</Button>}
                     {user && <Button size="sm" variant="outline" onClick={() => openConversation(user.id, o.seller_id, navigate)}><MessageSquare className="w-4 h-4 mr-1" />Contacter le vendeur</Button>}
                     <Button size="sm" variant="ghost" asChild><Link to="/disputes">Signaler un problème</Link></Button>
                   </div>

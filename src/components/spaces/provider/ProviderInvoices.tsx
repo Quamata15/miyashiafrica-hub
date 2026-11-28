@@ -27,6 +27,17 @@ export default function ProviderInvoices() {
   const [edit, setEdit] = useState<Partial<Inv> | null>(null);
   const [filter, setFilter] = useState<"all" | Inv["status"]>("all");
   const { data: clients } = useRpc<Client[]>("get_provider_clients");
+  // Default VAT: the country's standard rate once a tax number is set (else 0, e.g. micro-entrepreneur).
+  const [vat, setVat] = useState<{ rate: number; label: string } | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("provider_profiles").select("tax_number, country").eq("user_id", user.id).maybeSingle().then(async ({ data: pp }) => {
+      if (!pp?.tax_number) return setVat({ rate: 0, label: "Sans n° fiscal : TVA à 0 % (renseignez-le dans « Mon profil pro »)" });
+      const { data: r } = await supabase.from("vat_rates").select("rate, label").eq("country", pp.country).maybeSingle();
+      setVat(r ? { rate: Number(r.rate), label: `${r.label} : ${r.rate} % (taux standard, modifiable)` } : { rate: 0, label: "Taux du pays inconnu : saisissez-le" });
+    });
+  }, [user?.id]);
+  const newInvoice = () => setEdit({ ...empty(), vat_rate: vat?.rate ?? 0 });
 
   const load = () => user && supabase.from("provider_invoices").select("*").eq("provider_id", user.id).order("issued_at", { ascending: false }).order("number", { ascending: false })
     .then(({ data }) => setRows((data ?? []) as unknown as Inv[]));
@@ -73,7 +84,7 @@ export default function ProviderInvoices() {
         <Stat label="Factures" value={rows?.length ?? 0} icon={Receipt} tone="muted" />
       </div>
       <Section title="Factures" description="Numérotées automatiquement. Une facture émise ne se modifie plus : annulez-la et créez-en une nouvelle."
-        action={<Button onClick={() => setEdit(empty())}><Plus className="w-4 h-4 mr-1" />Nouvelle facture</Button>}>
+        action={<Button onClick={newInvoice}><Plus className="w-4 h-4 mr-1" />Nouvelle facture</Button>}>
         <div className="flex flex-wrap gap-2 mb-3">
           {(["all", "draft", "sent", "paid", "cancelled"] as const).map((f) => (
             <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>{f === "all" ? "Toutes" : STATUS[f][0]}</Button>
@@ -140,7 +151,7 @@ export default function ProviderInvoices() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div><Label>Remise (FCFA)</Label><Input type="number" min={0} value={edit.discount ?? 0} onChange={(e) => setEdit({ ...edit, discount: Number(e.target.value) })} /></div>
-                <div><Label>TVA (%)</Label><Input type="number" min={0} max={30} step="0.5" value={edit.vat_rate ?? 0} onChange={(e) => setEdit({ ...edit, vat_rate: Number(e.target.value) })} /></div>
+                <div><Label>TVA (%)</Label><Input type="number" min={0} max={30} step="0.5" value={edit.vat_rate ?? 0} onChange={(e) => setEdit({ ...edit, vat_rate: Number(e.target.value) })} />{vat && <p className="mt-1 text-[11px] text-muted-foreground">{vat.label}</p>}</div>
                 <div><Label>Échéance</Label><Input type="date" value={edit.due_date ?? ""} onChange={(e) => setEdit({ ...edit, due_date: e.target.value })} /></div>
               </div>
               <div><Label>Notes (conditions, moyen de paiement…)</Label><Textarea rows={2} maxLength={2000} value={edit.notes ?? ""} onChange={(e) => setEdit({ ...edit, notes: e.target.value })} /></div>

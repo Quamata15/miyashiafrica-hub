@@ -56,11 +56,12 @@ export default defineConfig(() => ({
         runtimeCaching: [
           {
             // Only the public catalogue: never cache private data (wallet, orders, messages) on the device.
-            urlPattern: /^https:\/\/.*supabase.*\/rest\/v1\/(products|product_variants|product_price_tiers|categories|services|shops|currencies|site_content|site_banners|feature_flags|delivery_zones|pickup_points|faq_items|legal_documents)\?/,
+            urlPattern: /^https:\/\/.*supabase.*\/rest\/v1\/(products|product_variants|product_price_tiers|categories|services|shops|currencies|site_content|site_banners|feature_flags|delivery_zones|pickup_points|faq_items|legal_documents|news_posts|search_synonyms|geo_cities|reviews|jobs)\?/,
+            // Online: always the network. Offline: the last catalogue seen (up to a week old).
             handler: "NetworkFirst",
             options: {
               cacheName: "supabase-api",
-              expiration: { maxEntries: 100, maxAgeSeconds: 300 },
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 7 },
               networkTimeoutSeconds: 5,
             },
           },
@@ -71,6 +72,12 @@ export default defineConfig(() => ({
               cacheName: "supabase-storage",
               expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 7 },
             },
+          },
+          {
+            // Product and catalogue photos (Unsplash URLs carry query strings).
+            urlPattern: /^https:\/\/images\.unsplash\.com\//,
+            handler: "CacheFirst",
+            options: { cacheName: "unsplash-images", expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 }, cacheableResponse: { statuses: [0, 200] } },
           },
           {
             urlPattern: /\.(png|jpg|jpeg|webp|gif|svg)$/,

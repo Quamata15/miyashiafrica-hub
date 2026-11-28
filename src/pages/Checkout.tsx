@@ -125,6 +125,16 @@ export default function Checkout() {
     supabase.from("pickup_points").select("id, name, address, city, opening_hours").eq("is_active", true).order("city").then(({ data }) => setPoints(data ?? []));
   }, [user, navigate]);
 
+  // Delivery price from the shop to this address (GPS when both have it, otherwise the city centres).
+  const [dq, setDq] = useState<{ distance_km: number; price: number; precise: boolean } | null>(null);
+  useEffect(() => {
+    setDq(null);
+    const seller = lines[0]?.seller_id;
+    if (!address || !seller || new Set(lines.map((l) => l.seller_id)).size !== 1) return;
+    supabase.rpc("quote_delivery", { p_seller_id: seller, p_address_id: address.id, p_vehicle: "moto" }).then(({ data }) => data && setDq(data as typeof dq));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address?.id, lines.length]);
+
   useEffect(() => {
     if (!address) { setZone(null); return; }
     supabase.rpc("find_delivery_zone", { p_country: address.country, p_city: address.city, p_district: address.district ?? undefined })
@@ -343,7 +353,7 @@ export default function Checkout() {
             <CardContent className="p-5 space-y-2">
               <div className="flex justify-between"><span className="text-muted-foreground">Sous-total</span><span>{fcfa(subtotal)}</span></div>
               {discount > 0 && <div className="flex justify-between text-accent"><span className="flex items-center gap-1"><Tag className="w-3 h-3" />{promo?.code}</span><span>-{fcfa(discount)}</span></div>}
-              {needsDelivery && fulfil === "delivery" && <div className="flex justify-between text-sm"><span className="text-muted-foreground">Livraison</span><span className="text-muted-foreground">{zone ? `≈ ${fcfa(zone.base_fee)}, payée au livreur` : "fixée avec le livreur"}</span></div>}
+              {needsDelivery && fulfil === "delivery" && <div className="flex justify-between gap-3 text-sm"><span className="text-muted-foreground">Livraison</span><span className="text-right text-muted-foreground">{dq ? `${fcfa(dq.price)} en moto · ${dq.distance_km} km${dq.precise ? "" : " (estimation par ville)"}` : zone ? `≈ ${fcfa(zone.base_fee)}` : "calculée au choix du livreur"}</span></div>}
               <Separator />
               <div className="flex justify-between items-end"><span className="font-bold text-lg">Total</span><span className="font-bold text-2xl text-primary">{money(total)}</span></div>
               <p className="flex items-center gap-2 text-xs text-muted-foreground pt-1"><Shield className="w-4 h-4 text-accent" />{pay === "cod" ? "Vous ne payez qu'à la remise du colis." : "Fonds bloqués en séquestre jusqu'à votre confirmation de réception."}</p>

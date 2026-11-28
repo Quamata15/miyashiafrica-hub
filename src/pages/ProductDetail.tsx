@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PromoCountdown, { applyPromo, useProductPromo } from "@/components/promo/PromoCountdown";
 import SEOHead from "@/components/SEOHead";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +45,7 @@ const ProductDetail = () => {
   const { isFavorite: checkIsFavorite, toggleFavorite } = useFavorites();
   const { toast } = useToast();
   const [product, setProduct] = useState<Product | null>(null);
+  const promo = useProductPromo(id);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -175,7 +177,7 @@ const ProductDetail = () => {
   const listPrice = variant?.price ?? product.price;
   const minQty = Math.max(1, product.min_order_qty ?? 1);
   const stock = variants.length ? (variant?.stock ?? 0) : (product.stock ?? 0);
-  const unit = unitPrice(product.price, variant, tiers, quantity);
+  const unit = applyPromo(unitPrice(product.price, variant, tiers, quantity), promo, quantity);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-warm">
@@ -332,6 +334,7 @@ const ProductDetail = () => {
                 {unit < listPrice && <span className="text-lg text-muted-foreground line-through ml-3">{money(listPrice, { withEquivalent: false })}</span>}
                 {equivalent(unit) && <span className="block text-sm text-muted-foreground mt-1">{equivalent(unit)}</span>}
                 {quantity > 1 && <span className="block text-sm text-muted-foreground mt-1">Total pour {quantity} : {money(unit * quantity)}</span>}
+                <PromoCountdown promo={promo} />
               </div>
 
               <VariantPicker variants={variants} value={variant} onChange={(v) => { setVariant(v); setQuantity((q) => Math.min(q, Math.max(1, v.stock))); }} />

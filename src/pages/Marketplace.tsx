@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useNearMe, NEAR_KM } from "@/hooks/useNearMe";
+import { useSynonyms, expandTerms } from "@/lib/synonyms";
 import NearToggle from "@/components/search/NearToggle";
 import SEOHead from "@/components/SEOHead";
 import Header from "@/components/layout/Header";
@@ -89,7 +90,8 @@ const Marketplace = () => {
         const [profilesRes, promosRes, namesRes] = await Promise.all([
           supabase.from("profiles_public").select("user_id, is_verified").in("user_id", sellerIds).eq("is_verified", true),
           supabase.from("promotions").select("user_id, discount_type, discount_value, target_id")
-            .in("user_id", sellerIds).eq("is_active", true).gt("end_date", new Date().toISOString()),
+            .in("user_id", sellerIds).eq("is_active", true).in("type", ["discount", "seasonal"])
+            .lte("start_date", new Date().toISOString()).gt("end_date", new Date().toISOString()),
           supabase.from("profiles_public").select("user_id, full_name, username").in("user_id", sellerIds),
         ]);
         if (namesRes.data) {
@@ -102,9 +104,11 @@ const Marketplace = () => {
           const promoMap = new Map<string, { discount_type: string; discount_value: number }>();
           for (const p of promosRes.data) {
             if (!p.user_id) continue;
-            const existing = promoMap.get(p.user_id);
+            // shop-wide promotions by seller, product promotions by "p:<id>"
+            const key = p.target_id ? `p:${p.target_id}` : p.user_id;
+            const existing = promoMap.get(key);
             if (!existing || (p.discount_value || 0) > existing.discount_value)
-              promoMap.set(p.user_id, { discount_type: p.discount_type || "percentage", discount_value: p.discount_value || 0 });
+              promoMap.set(key, { discount_type: p.discount_type || "percentage", discount_value: p.discount_value || 0 });
           }
           setPromotions(promoMap);
         }
@@ -153,12 +157,16 @@ const Marketplace = () => {
   const nearCount = useMemo(() => products.filter((p) => (dist.get(p.id) ?? Infinity) <= NEAR_KM).length, [products, dist]);
   const nearActive = !!near.pos && onlyNear && nearCount > 0;
 
+  // "ceeb" (wolof) also finds "riz", "avɔ" (éwé) finds "pagne"…
+  const synonyms = useSynonyms();
+  const terms = useMemo(() => expandTerms(filters.searchTerm, synonyms).map((t) => t.toLowerCase()), [filters.searchTerm, synonyms]);
+
   const filteredProducts = useMemo(() => products
     .filter((product) => {
-      const searchLower = filters.searchTerm.toLowerCase();
       const sellerName = sellerNames.get(product.seller_id) || "";
+      const hay = `${product.title} ${product.description ?? ""} ${sellerName}`.toLowerCase();
       return (
-        (product.title.toLowerCase().includes(searchLower) || product.description?.toLowerCase().includes(searchLower) || sellerName.toLowerCase().includes(searchLower)) &&
+        (!terms.length || terms.some((t) => hay.includes(t))) &&
         (!filters.selectedCategory || product.category_id === filters.selectedCategory) &&
         product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1] &&
         (!filters.location || product.location?.toLowerCase().includes(filters.location.toLowerCase())) &&
@@ -183,7 +191,7 @@ const Marketplace = () => {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         }
       }
-    }), [products, filters, productRatings, sellerNames, dist, nearActive, near.pos, nearCount]);
+    }), [products, filters, productRatings, sellerNames, dist, nearActive, near.pos, nearCount, terms]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
@@ -294,7 +302,7 @@ const Marketplace = () => {
                     addToCart={addToCart}
                     rating={productRatings.get(product.id) || 0}
                     isVerified={verifiedSellers.has(product.seller_id)}
-                    promotion={promotions.get(product.seller_id)}
+                    promotion={promotions.get(`p:${product.id}`) ?? promotions.get(product.seller_id)}
                     distanceKm={dist.get(product.id)}
                   />
                 ))}

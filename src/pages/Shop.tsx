@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/SEOHead";
+import FollowButton from "@/components/follow/FollowButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -75,7 +76,7 @@ export default function Shop() {
                 {shop.store_pickup_address && <Badge variant="outline">Retrait en boutique</Badge>}
               </div>
             </div>
-            <div className="flex gap-2"><Button onClick={contact}><MessageSquare className="w-4 h-4 mr-2" />Contacter</Button></div>
+            <div className="flex gap-2"><FollowButton userId={shop.owner_id} /><Button onClick={contact}><MessageSquare className="w-4 h-4 mr-2" />Contacter</Button></div>
           </div>
           <VacationBanner shop={shop} />
           {shop.description && <p className="text-muted-foreground max-w-3xl whitespace-pre-line mt-4">{shop.description}</p>}

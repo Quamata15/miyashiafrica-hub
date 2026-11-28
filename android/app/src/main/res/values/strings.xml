@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MIYASHI</string>
+    <string name="title_activity_main">MIYASHI</string>
+    <string name="package_name">com.miyashi.app</string>
+    <string name="custom_url_scheme">com.miyashi.app</string>
+</resources>

@@ -29,11 +29,12 @@ export default function ProviderInvoicePage() {
     supabase.from("provider_invoices").select("*").eq("id", id).maybeSingle().then(async ({ data }) => {
       setInv((data as unknown as Inv) ?? null);
       if (!data) return;
-      const [{ data: p }, { data: s }] = await Promise.all([
+      const [{ data: p }, { data: s }, { data: pp }] = await Promise.all([
         supabase.from("profiles").select("full_name, phone, location").eq("user_id", data.provider_id).maybeSingle(),
         supabase.from("shops").select("name, vat_number").eq("owner_id", data.provider_id).maybeSingle(),
+        supabase.from("provider_profiles").select("tax_number").eq("user_id", data.provider_id).maybeSingle(),
       ]);
-      setSeller(p); setShop(s);
+      setSeller(p); setShop(s || pp?.tax_number ? { name: s?.name ?? "", vat_number: s?.vat_number || pp?.tax_number || null } : null);
     });
   }, [id]);
 
@@ -52,7 +53,7 @@ export default function ProviderInvoicePage() {
         {inv.status === "paid" && <p className="absolute top-10 right-[-60px] rotate-45 bg-emerald-600 text-white px-20 py-1 font-bold tracking-widest">PAYÉE</p>}
         <header className="flex flex-col sm:flex-row justify-between gap-6 border-b border-neutral-200 pb-6">
           <div>
-            <p className="text-lg font-bold">{shop?.name ?? seller?.full_name ?? "Prestataire"}</p>
+            <p className="text-lg font-bold">{shop?.name || seller?.full_name || "Prestataire"}</p>
             {seller?.full_name && shop?.name && <p>{seller.full_name}</p>}
             {seller?.location && <p>{seller.location}</p>}
             {seller?.phone && <p>Tél. {seller.phone}</p>}

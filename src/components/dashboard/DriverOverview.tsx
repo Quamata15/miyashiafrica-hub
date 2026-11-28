@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useShareDriverPosition } from "@/hooks/useShareDriverPosition";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,8 @@ const DriverOverview = () => {
   // Auto-broadcast GPS when driver has active deliveries
   const activeDeliveryId = activeDeliveries.length > 0 ? activeDeliveries[0].id : null;
   const { currentPosition: gpsPosition } = useDriverBroadcast(activeDeliveryId, isAvailable && activeDeliveries.length > 0);
+  // The buyer sees the position on their order (saved, so it also works after a reload).
+  useShareDriverPosition(activeDeliveries.map((d) => d.id));
 
   useEffect(() => {
     if (user) {

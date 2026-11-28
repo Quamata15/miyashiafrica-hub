@@ -119,6 +119,33 @@ export type Database = {
         }
         Relationships: []
       }
+      ambassador_bonuses: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          referred_id?: string
+          referrer_id?: string
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
@@ -810,6 +837,9 @@ export type Database = {
           delivery_location: Json | null
           distance_km: number
           driver_id: string | null
+          driver_lat: number | null
+          driver_lng: number | null
+          driver_seen_at: string | null
           fee_held: boolean
           id: string
           night_surcharge: boolean | null
@@ -845,6 +875,9 @@ export type Database = {
           delivery_location?: Json | null
           distance_km?: number
           driver_id?: string | null
+          driver_lat?: number | null
+          driver_lng?: number | null
+          driver_seen_at?: string | null
           fee_held?: boolean
           id?: string
           night_surcharge?: boolean | null
@@ -880,6 +913,9 @@ export type Database = {
           delivery_location?: Json | null
           distance_km?: number
           driver_id?: string | null
+          driver_lat?: number | null
+          driver_lng?: number | null
+          driver_seen_at?: string | null
           fee_held?: boolean
           id?: string
           night_surcharge?: boolean | null
@@ -2296,6 +2332,39 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          confirmed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+          token: string
+          unsubscribed_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          confirmed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+          token?: string
+          unsubscribed_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+          token?: string
+          unsubscribed_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notification_deliveries: {
         Row: {
           channel: string
@@ -3192,6 +3261,8 @@ export type Database = {
           lng: number | null
           location: string | null
           phone: string | null
+          suspended_until: string | null
+          suspension_kind: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -3207,6 +3278,8 @@ export type Database = {
           lng?: number | null
           location?: string | null
           phone?: string | null
+          suspended_until?: string | null
+          suspension_kind?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -3222,6 +3295,8 @@ export type Database = {
           lng?: number | null
           location?: string | null
           phone?: string | null
+          suspended_until?: string | null
+          suspension_kind?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -3445,8 +3520,10 @@ export type Database = {
         Row: {
           about: string | null
           accepts_urgent: boolean
+          calendar_token: string | null
           certifications: Json
           city: string | null
+          country: string
           cover_url: string | null
           headline: string | null
           is_available: boolean
@@ -3455,6 +3532,7 @@ export type Database = {
           lng: number | null
           response_hours: number
           service_areas: string[]
+          tax_number: string | null
           travel_fee: number | null
           travels: boolean
           updated_at: string
@@ -3464,8 +3542,10 @@ export type Database = {
         Insert: {
           about?: string | null
           accepts_urgent?: boolean
+          calendar_token?: string | null
           certifications?: Json
           city?: string | null
+          country?: string
           cover_url?: string | null
           headline?: string | null
           is_available?: boolean
@@ -3474,6 +3554,7 @@ export type Database = {
           lng?: number | null
           response_hours?: number
           service_areas?: string[]
+          tax_number?: string | null
           travel_fee?: number | null
           travels?: boolean
           updated_at?: string
@@ -3483,8 +3564,10 @@ export type Database = {
         Update: {
           about?: string | null
           accepts_urgent?: boolean
+          calendar_token?: string | null
           certifications?: Json
           city?: string | null
+          country?: string
           cover_url?: string | null
           headline?: string | null
           is_available?: boolean
@@ -3493,6 +3576,7 @@ export type Database = {
           lng?: number | null
           response_hours?: number
           service_areas?: string[]
+          tax_number?: string | null
           travel_fee?: number | null
           travels?: boolean
           updated_at?: string
@@ -3785,12 +3869,14 @@ export type Database = {
           id: string
           is_verified: boolean | null
           order_id: string | null
+          photos: string[]
           product_id: string | null
           rating: number
           response: string | null
           reviewed_user_id: string | null
           reviewer_id: string
           service_id: string | null
+          target: string
           updated_at: string
         }
         Insert: {
@@ -3799,12 +3885,14 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           order_id?: string | null
+          photos?: string[]
           product_id?: string | null
           rating: number
           response?: string | null
           reviewed_user_id?: string | null
           reviewer_id: string
           service_id?: string | null
+          target?: string
           updated_at?: string
         }
         Update: {
@@ -3813,12 +3901,14 @@ export type Database = {
           id?: string
           is_verified?: boolean | null
           order_id?: string | null
+          photos?: string[]
           product_id?: string | null
           rating?: number
           response?: string | null
           reviewed_user_id?: string | null
           reviewer_id?: string
           service_id?: string | null
+          target?: string
           updated_at?: string
         }
         Relationships: [
@@ -3860,6 +3950,39 @@ export type Database = {
           reason?: string
           role_a?: Database["public"]["Enums"]["app_role"]
           role_b?: Database["public"]["Enums"]["app_role"]
+        }
+        Relationships: []
+      }
+      sanctions: {
+        Row: {
+          created_at: string
+          created_by: string
+          days: number | null
+          id: string
+          kind: string
+          note: string | null
+          user_id: string
+          violation_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          days?: number | null
+          id?: string
+          kind: string
+          note?: string | null
+          user_id: string
+          violation_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          days?: number | null
+          id?: string
+          kind?: string
+          note?: string | null
+          user_id?: string
+          violation_id?: string | null
         }
         Relationships: []
       }
@@ -3923,6 +4046,7 @@ export type Database = {
           installment_amount: number | null
           installments: number | null
           interval_days: number | null
+          last_reminded_at: string | null
           next_due_date: string | null
           order_id: string | null
           plan: string
@@ -3949,6 +4073,7 @@ export type Database = {
           installment_amount?: number | null
           installments?: number | null
           interval_days?: number | null
+          last_reminded_at?: string | null
           next_due_date?: string | null
           order_id?: string | null
           plan?: string
@@ -3975,6 +4100,7 @@ export type Database = {
           installment_amount?: number | null
           installments?: number | null
           interval_days?: number | null
+          last_reminded_at?: string | null
           next_due_date?: string | null
           order_id?: string | null
           plan?: string
@@ -4015,6 +4141,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      search_synonyms: {
+        Row: {
+          id: number
+          key: string | null
+          lang: string
+          means: string
+          term: string
+          verified: boolean
+        }
+        Insert: {
+          id?: number
+          key?: string | null
+          lang: string
+          means: string
+          term: string
+          verified?: boolean
+        }
+        Update: {
+          id?: number
+          key?: string | null
+          lang?: string
+          means?: string
+          term?: string
+          verified?: boolean
+        }
+        Relationships: []
       }
       security_audit_log: {
         Row: {
@@ -4671,6 +4824,7 @@ export type Database = {
           email_notifications: boolean
           id: string
           language: string
+          sms_notifications: boolean
           theme: string | null
           updated_at: string
           user_id: string
@@ -4691,6 +4845,7 @@ export type Database = {
           email_notifications?: boolean
           id?: string
           language?: string
+          sms_notifications?: boolean
           theme?: string | null
           updated_at?: string
           user_id: string
@@ -4711,6 +4866,7 @@ export type Database = {
           email_notifications?: boolean
           id?: string
           language?: string
+          sms_notifications?: boolean
           theme?: string | null
           updated_at?: string
           user_id?: string
@@ -4831,6 +4987,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      vat_rates: {
+        Row: {
+          country: string
+          label: string
+          note: string | null
+          rate: number
+        }
+        Insert: {
+          country: string
+          label: string
+          note?: string | null
+          rate: number
+        }
+        Update: {
+          country?: string
+          label?: string
+          note?: string | null
+          rate?: number
+        }
+        Relationships: []
       }
       vendor_violations: {
         Row: {
@@ -5102,6 +5279,15 @@ export type Database = {
       }
     }
     Functions: {
+      _ambassador_bonus: {
+        Args: {
+          p_amount: number
+          p_kind: string
+          p_label: string
+          p_referred: string
+        }
+        Returns: undefined
+      }
       _conversation_between: { Args: { a: string; b: string }; Returns: string }
       _finalize_checkout: { Args: { p_checkout_id: string }; Returns: Json }
       _place_order: { Args: { p: Json; p_buyer: string }; Returns: Json }
@@ -5143,6 +5329,22 @@ export type Database = {
         Returns: Json
       }
       accept_shop_invite: { Args: { p_shop_id: string }; Returns: undefined }
+      accounting_export: {
+        Args: { p_from: string; p_seller?: string; p_to: string }
+        Returns: {
+          commission: number
+          label: string
+          net: number
+          order_date: string
+          order_ref: string
+          payment: string
+          status: string
+          total_ht: number
+          total_ttc: number
+          vat: number
+          vat_rate: number
+        }[]
+      }
       add_application_note: {
         Args: { p_body: string; p_id: string }
         Returns: undefined
@@ -5161,6 +5363,16 @@ export type Database = {
         }[]
       }
       apply_referral: { Args: { p_referral_code: string }; Returns: boolean }
+      apply_sanction: {
+        Args: {
+          p_days?: number
+          p_kind: string
+          p_note?: string
+          p_user: string
+          p_violation_id?: string
+        }
+        Returns: undefined
+      }
       apply_to_job: {
         Args: {
           p_answers?: Json
@@ -5239,6 +5451,11 @@ export type Database = {
         Returns: undefined
       }
       city_point: { Args: { p_text: string }; Returns: Record<string, unknown> }
+      cleanup_guests: { Args: never; Returns: number }
+      complete_service: {
+        Args: { p_note?: string; p_order_id: string }
+        Returns: Json
+      }
       compute_match: {
         Args: {
           p_answers: Json
@@ -5256,6 +5473,7 @@ export type Database = {
         Args: { p_code: string; p_order_id: string }
         Returns: Json
       }
+      confirm_newsletter: { Args: { p_token: string }; Returns: Json }
       confirm_order_reception: {
         Args: { p_order_id: string }
         Returns: undefined
@@ -5380,6 +5598,16 @@ export type Database = {
         Args: { a: Database["public"]["Tables"]["addresses"]["Row"] }
         Returns: string
       }
+      fraud_signals: {
+        Args: never
+        Returns: {
+          detail: string
+          name: string
+          signal: string
+          user_id: string
+          value: number
+        }[]
+      }
       generate_driver_badge: {
         Args: { p_contract_id: string }
         Returns: string
@@ -5393,6 +5621,7 @@ export type Database = {
         }[]
       }
       get_buyer_summary: { Args: never; Returns: Json }
+      get_delivery_tracking: { Args: { p_order_id: string }; Returns: Json }
       get_driver_stats: { Args: { p_days?: number }; Returns: Json }
       get_invoice: { Args: { p_order_id: string }; Returns: Json }
       get_job_pipeline: {
@@ -5587,6 +5816,7 @@ export type Database = {
         }
         Returns: number
       }
+      my_ambassador_stats: { Args: never; Returns: Json }
       my_applications: {
         Args: never
         Returns: {
@@ -5606,6 +5836,7 @@ export type Database = {
           stage_label: string
         }[]
       }
+      my_calendar_token: { Args: { p_reset?: boolean }; Returns: string }
       my_interviews: {
         Args: never
         Returns: {
@@ -5627,12 +5858,33 @@ export type Database = {
       }
       my_position: { Args: never; Returns: Record<string, unknown> }
       norm_tags: { Args: { p: string[] }; Returns: string[] }
+      open_dispute: {
+        Args: { p_description?: string; p_order_id: string; p_reason: string }
+        Returns: string
+      }
       order_service_package: {
         Args: { p_address?: string; p_notes?: string; p_package_id: string }
         Returns: Json
       }
       place_order: { Args: { p: Json }; Returns: Json }
       process_group_buys: { Args: never; Returns: number }
+      product_promotion: {
+        Args: {
+          p_product_id: string
+          p_quantity?: number
+          p_upcoming?: boolean
+        }
+        Returns: {
+          discount_type: string
+          discount_value: number
+          end_date: string
+          event_tag: string
+          id: string
+          min_quantity: number
+          name: string
+          start_date: string
+        }[]
+      }
       products_near: {
         Args: {
           p_lat: number
@@ -5658,6 +5910,10 @@ export type Database = {
           p_zone_radius_km: number
         }
         Returns: string
+      }
+      quote_delivery: {
+        Args: { p_address_id: string; p_seller_id: string; p_vehicle?: string }
+        Returns: Json
       }
       quote_product_price: {
         Args: { p_product_id: string; p_quantity: number; p_variant_id: string }
@@ -5730,6 +5986,15 @@ export type Database = {
         Returns: undefined
       }
       rescore_job: { Args: { p_job_id: string }; Returns: number }
+      resolve_dispute: {
+        Args: {
+          p_dispute_id: string
+          p_outcome: string
+          p_refund?: number
+          p_resolution?: string
+        }
+        Returns: Json
+      }
       respond_offer: {
         Args: { p_action: string; p_counter_price?: number; p_offer_id: string }
         Returns: Json
@@ -5779,6 +6044,7 @@ export type Database = {
         Args: { p_lat: number; p_lng: number }
         Returns: undefined
       }
+      savings_reminders: { Args: never; Returns: number }
       scan_shipping_label: { Args: { p_qr_token: string }; Returns: Json }
       schedule_interview: {
         Args: {
@@ -5867,6 +6133,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      seller_insights: {
+        Args: { p_days?: number; p_seller?: string }
+        Returns: Json
+      }
       semantic_search_products: {
         Args: {
           p_count?: number
@@ -5946,6 +6216,7 @@ export type Database = {
         Args: { p_consent: boolean; p_id: string }
         Returns: Json
       }
+      start_service: { Args: { p_order_id: string }; Returns: undefined }
       submit_delivery_proof: {
         Args: {
           p_code?: string
@@ -5959,13 +6230,26 @@ export type Database = {
         Returns: Json
       }
       submit_partner_application: { Args: { p_id: string }; Returns: Json }
+      subscribe_newsletter: {
+        Args: { p_email: string; p_source?: string }
+        Returns: Json
+      }
       track_product_view: {
         Args: { p_product_id: string; p_session?: string }
+        Returns: undefined
+      }
+      unsubscribe_newsletter: { Args: { p_token: string }; Returns: Json }
+      update_driver_location: {
+        Args: { p_delivery_id: string; p_lat: number; p_lng: number }
         Returns: undefined
       }
       update_shop_member_role: {
         Args: { p_member_id: string; p_role: string }
         Returns: undefined
+      }
+      user_rating: {
+        Args: { p_target?: string; p_user: string }
+        Returns: number
       }
       validate_and_use_promo: {
         Args: { p_code: string; p_order_amount: number }

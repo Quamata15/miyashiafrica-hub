@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { compressImage } from "@/lib/upload";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -58,7 +59,10 @@ const Disputes = () => {
   const eventsEndRef = useRef<HTMLDivElement>(null);
 
   // Form
-  const [orderId, setOrderId] = useState("");
+  const [searchParams] = useSearchParams();
+  const [orderId, setOrderId] = useState(searchParams.get("order") ?? "");
+  // Coming from an order's "Ouvrir un litige": open the form directly.
+  useEffect(() => { if (searchParams.get("order")) setShowNew(true); }, [searchParams]);
   const [reason, setReason] = useState("");
   const [description, setDescription] = useState("");
   const [orders, setOrders] = useState<any[]>([]);
@@ -121,23 +125,39 @@ const Disputes = () => {
   const submitDispute = async () => {
     if (!user || !orderId || !reason) return;
     setSubmitting(true);
-    const order = orders.find(o => o.id === orderId);
-    const { error } = await (supabase.from("disputes") as any).insert({
-      order_id: orderId,
-      opened_by: user.id,
-      against_user: user.id,
-      reason,
-      description,
-    });
+    // Opened against the other party of the order; the payment stays blocked during mediation.
+    const { error } = await supabase.rpc("open_dispute", { p_order_id: orderId, p_reason: reason, p_description: description || undefined });
     setSubmitting(false);
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de créer le litige", variant: "destructive" });
+      toast({ title: "Litige impossible", description: error.message.replace(/^.*?ERROR:\s*/i, ""), variant: "destructive" });
     } else {
       toast({ title: "Litige ouvert", description: "Notre équipe va examiner votre réclamation" });
       setShowNew(false);
       setReason(""); setDescription(""); setOrderId("");
       fetchDisputes();
     }
+  };
+
+  const [uploading, setUploading] = useState(false);
+  const sendEvidence = async (file?: File) => {
+    if (!user || !selectedDispute || !file) return;
+    setUploading(true);
+    try {
+      const f = await compressImage(file, 1800, 0.85);
+      const ext = f.type === "application/pdf" ? "pdf" : f.type === "image/png" ? "png" : f.type === "image/webp" ? "webp" : "jpg";
+      const path = `${selectedDispute.id}/${user.id}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("dispute-evidence").upload(path, f, { contentType: f.type });
+      if (error) throw error;
+      await (supabase.from("dispute_events") as any).insert({ dispute_id: selectedDispute.id, user_id: user.id, event_type: "evidence", content: "Preuve ajoutée", attachment_url: path, attachment_name: file.name.slice(0, 120) });
+      fetchEvents(selectedDispute.id);
+      toast({ title: "Preuve ajoutée" });
+    } catch (e) {
+      toast({ title: "Envoi impossible", description: (e as Error).message, variant: "destructive" });
+    } finally { setUploading(false); }
+  };
+  const openEvidence = async (path: string) => {
+    const { data } = await supabase.storage.from("dispute-evidence").createSignedUrl(path, 300);
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
   };
 
   const sendMessage = async () => {
@@ -280,6 +300,11 @@ const Disputes = () => {
                                   : "bg-muted rounded-bl-md"
                               }`}>
                                 {evt.content}
+                                {evt.attachment_url && (
+                                  <button type="button" onClick={() => openEvidence(evt.attachment_url)} className="mt-1 flex items-center gap-1 underline text-xs">
+                                    <Paperclip className="w-3 h-3" />{evt.attachment_name || "Voir la pièce"}
+                                  </button>
+                                )}
                               </div>
                               <p className={`text-[10px] text-muted-foreground mt-1 ${isMe ? "text-right" : ""}`}>
                                 {format(new Date(evt.created_at), "dd MMM HH:mm", { locale: fr })}
@@ -302,6 +327,11 @@ const Disputes = () => {
                         onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
                         className="flex-1"
                       />
+                      <label className="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-foreground/10 hover:bg-muted" title="Ajouter une preuve (photo ou PDF)">
+                        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+                        <span className="sr-only">Ajouter une preuve</span>
+                        <input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => sendEvidence(e.target.files?.[0])} />
+                      </label>
                       <Button onClick={sendMessage} disabled={sendingMessage || !newMessage.trim()} size="icon">
                         {sendingMessage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                       </Button>

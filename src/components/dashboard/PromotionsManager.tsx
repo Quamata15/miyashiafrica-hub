@@ -30,15 +30,9 @@ const PromotionsManager = () => {
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [form, setForm] = useState({
-    name: "",
-    type: "discount",
-    discount_type: "percentage",
-    discount_value: 10,
-    min_quantity: 1,
-    end_date: "",
-    event_tag: "",
-  });
+  const [form, setForm] = useState({ name: "", type: "discount", discount_type: "percentage", discount_value: 10, min_quantity: 1, start_date: "", end_date: "", event_tag: "", target_id: "" });
+  const [myProducts, setMyProducts] = useState<{ id: string; title: string }[]>([]);
+  const [country, setCountry] = useState("TG");
 
   // Promo code form state
   const [codeForm, setCodeForm] = useState({
@@ -54,6 +48,8 @@ const PromotionsManager = () => {
     if (user) {
       fetchPromotions();
       fetchPromoCodes();
+      supabase.from("shops").select("country").eq("owner_id", user.id).maybeSingle().then(({ data }) => data?.country && setCountry(data.country));
+      supabase.from("products").select("id, title").eq("seller_id", user.id).eq("is_active", true).order("title").then(({ data }) => setMyProducts(data ?? []));
     }
   }, [user]);
 
@@ -87,19 +83,21 @@ const PromotionsManager = () => {
       type: form.type,
       discount_type: form.discount_type,
       discount_value: form.discount_value,
-      min_quantity: form.min_quantity,
-      end_date: new Date(form.end_date).toISOString(),
+      min_quantity: form.type === "bulk" ? form.min_quantity : 1,
+      start_date: form.start_date ? new Date(`${form.start_date}T00:00:00`).toISOString() : new Date().toISOString(),
+      end_date: new Date(`${form.end_date}T23:59:59`).toISOString(),
       event_tag: form.event_tag || null,
+      target_id: form.target_id || null,
       is_active: true,
     });
 
     setSaving(false);
     if (error) {
-      toast({ title: "Erreur", description: "Impossible de créer la promotion", variant: "destructive" });
+      toast({ title: "Erreur", description: error.message.includes("check") ? "Vérifiez la remise (90 % maximum) et les dates" : error.message, variant: "destructive" });
     } else {
       toast({ title: "Promotion créée! 🎉" });
       setDialogOpen(false);
-      setForm({ name: "", type: "discount", discount_type: "percentage", discount_value: 10, min_quantity: 1, end_date: "", event_tag: "" });
+      setForm({ name: "", type: "discount", discount_type: "percentage", discount_value: 10, min_quantity: 1, start_date: "", end_date: "", event_tag: "", target_id: "" });
       fetchPromotions();
     }
   };
@@ -152,7 +150,34 @@ const PromotionsManager = () => {
     toast({ title: "Copié! 📋", description: `Code ${code} copié dans le presse-papier` });
   };
 
+  // Ready-made campaigns: dates of the next occurrence (independence day of the seller's country).
+  const presets = (() => {
+    const now = new Date(); const y = now.getFullYear();
+    const d = (yy: number, m: number, day: number) => new Date(yy, m, day);
+    const iso = (x: Date) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+    const next = (m: number, day: number, before: number, after = 0) => {
+      let e = d(y, m, day + after); if (e < now) e = d(y + 1, m, day + after);
+      const st = new Date(e); st.setDate(e.getDate() - before - after);
+      return { start: iso(st < now ? now : st), end: iso(e) };
+    };
+    const lastFriNov = (yy: number) => { const x = d(yy, 10, 30); while (x.getDay() !== 5) x.setDate(x.getDate() - 1); return x; };
+    let bf = lastFriNov(y); if (d(bf.getFullYear(), bf.getMonth(), bf.getDate() + 3) < now) bf = lastFriNov(y + 1);
+    const bfEnd = new Date(bf); bfEnd.setDate(bf.getDate() + 3);
+    const indep: Record<string, [number, number]> = { TG: [3, 27], BJ: [7, 1], CI: [7, 7], SN: [3, 4], BF: [7, 5], ML: [8, 22], NE: [7, 3], GN: [9, 2], CM: [4, 20], GA: [7, 17], CG: [7, 15], TD: [7, 11], CF: [7, 13], GH: [2, 6], NG: [9, 1] };
+    const [im, id] = indep[(country || "TG").toUpperCase()] ?? indep.TG;
+    return [
+      { label: "🏷️ Black Friday", tag: "black_friday", name: "Black Friday", value: 20, ...{ start: iso(bf < now ? now : bf), end: iso(bfEnd) } },
+      { label: "🎄 Noël", tag: "noel", name: "Soldes de Noël", value: 15, ...next(11, 25, 14) },
+      { label: "🎆 Fin d'année", tag: "fin_annee", name: "Soldes de fin d'année", value: 20, ...next(0, 1, 6, 6) },
+      { label: "🎉 Indépendance", tag: "independance", name: "Fête de l'indépendance", value: 10, ...next(im, id, 6, 1) },
+      { label: "📚 Rentrée", tag: "rentree", name: "Rentrée scolaire", value: 10, ...next(8, 30, 29) },
+      { label: "💝 Saint-Valentin", tag: "saint_valentin", name: "Saint-Valentin", value: 10, ...next(1, 14, 7) },
+    ];
+  })();
+
   const eventTags = [
+    { value: "fin_annee", label: "🎆 Fin d'année" },
+    { value: "saint_valentin", label: "💝 Saint-Valentin" },
     { value: "noel", label: "🎄 Noël" },
     { value: "rentree", label: "📚 Rentrée" },
     { value: "fete_mere", label: "💐 Fête des mères" },
@@ -193,6 +218,15 @@ const PromotionsManager = () => {
                   <DialogTitle>Créer une promotion</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Campagnes prêtes (dates pré-remplies)</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {presets.map((p) => (
+                        <button key={p.tag} type="button" onClick={() => setForm({ ...form, name: p.name, type: "seasonal", discount_type: "percentage", discount_value: p.value, event_tag: p.tag, start_date: p.start, end_date: p.end })}
+                          className={`rounded-full border px-2.5 py-1 text-xs hover:border-primary ${form.event_tag === p.tag ? "border-primary bg-primary/10" : ""}`}>{p.label}</button>
+                      ))}
+                    </div>
+                  </div>
                   <div>
                     <Label>Nom de la promotion</Label>
                     <Input
@@ -262,13 +296,29 @@ const PromotionsManager = () => {
                   )}
 
                   <div>
-                    <Label>Date de fin</Label>
-                    <Input
-                      type="date"
-                      value={form.end_date}
-                      onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-                    />
+                    <Label>Produit concerné</Label>
+                    <Select value={form.target_id || "all"} onValueChange={(v) => setForm({ ...form, target_id: v === "all" ? "" : v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toute la boutique</SelectItem>
+                        {myProducts.map((p) => <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="promo-start">Début</Label>
+                      <Input id="promo-start" type="date" value={form.start_date} min={new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => setForm({ ...form, start_date: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label htmlFor="promo-end">Fin</Label>
+                      <Input id="promo-end" type="date" value={form.end_date} min={form.start_date || new Date().toISOString().slice(0, 10)}
+                        onChange={(e) => setForm({ ...form, end_date: e.target.value })} />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Sans date de début, la promotion commence tout de suite. Un compte à rebours s'affiche sur vos fiches, et le prix remisé est celui payé par l'acheteur.</p>
 
                   <Button onClick={handleCreate} disabled={saving || !form.name || !form.end_date} className="w-full">
                     {saving ? "Création..." : "Créer la promotion"}
@@ -317,8 +367,9 @@ const PromotionsManager = () => {
 
                     <div className="flex items-center gap-2 flex-wrap mb-3">
                       <Badge variant={promo.is_active && new Date(promo.end_date) > new Date() ? "default" : "outline"} className="text-xs">
-                        {promo.is_active && new Date(promo.end_date) > new Date() ? "Active" : "Expirée"}
+                        {new Date(promo.end_date) <= new Date() ? "Expirée" : !promo.is_active ? "En pause" : new Date(promo.start_date) > new Date() ? `Programmée (${format(new Date(promo.start_date), "dd MMM", { locale: fr })})` : "Active"}
                       </Badge>
+                      {promo.target_id && <Badge variant="outline" className="text-xs">{myProducts.find((p) => p.id === promo.target_id)?.title ?? "1 produit"}</Badge>}
                       <Badge variant="outline" className="text-xs capitalize">
                         {promo.type === "discount" ? "Remise" : promo.type === "bulk" ? "Volume" : "Saisonnière"}
                       </Badge>
@@ -335,7 +386,7 @@ const PromotionsManager = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Calendar className="w-3 h-3" />
-                        Expire le {format(new Date(promo.end_date), "dd MMM yyyy", { locale: fr })}
+                        {format(new Date(promo.start_date), "dd MMM", { locale: fr })} → {format(new Date(promo.end_date), "dd MMM yyyy", { locale: fr })}
                       </div>
                       <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => deletePromotion(promo.id)}>
                         <Trash2 className="w-4 h-4" />
